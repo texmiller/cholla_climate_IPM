@@ -1,0 +1,61 @@
+
+    model{
+
+    ## Priors
+    ##hyperprior for intercept alpha
+    mu.alpha~dnorm(0,0.001)   
+    sigma.plot~dunif(0,1000)
+    tau.plot<-1/(sigma.plot*sigma.plot)
+    sigma.year~dunif(0,1000)
+    tau.year<-1/(sigma.year*sigma.year)
+    
+    betasize~dnorm(0,0.001) ## size slope
+    betaPC1~dnorm(0,0.001) ## PC1
+    betaPC1_size~dnorm(0,0.001) ## PC1 size interaction
+    betaPC1q~dnorm(0,0.001) ## PC1^2
+    betaPC2~dnorm(0,0.001) ## PC2
+    betaPC2_size~dnorm(0,0.001) ## PC2 size interaction
+    betaPC2q~dnorm(0,0.001) ## PC2^2
+    betaPC3~dnorm(0,0.001) ## PC3
+    betaPC3_size~dnorm(0,0.001) ## PC3 size interactions
+    betaPC3q~dnorm(0,0.001) ## PC3^2
+
+    
+    ##plot and year deviates on the intercept
+    for(i in 1:N.plots){      
+    eps.plot[i]~dnorm(0,tau.plot)
+    }
+    for(i in 1:N.years){      
+    eps.year[i]~dnorm(0,tau.year)
+    }
+    
+    ## Likelihood
+    for(i in 1:N.obs){
+    logit(p[i]) <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + 
+    betasize*size[i] + 
+    betaPC1*PC1[i] + betaPC1q*pow(PC1[i],2) + betaPC1_size*PC1[i]*size[i] +
+    betaPC2*PC2[i] + betaPC2q*pow(PC2[i],2) + betaPC2_size*PC2[i]*size[i] +
+    betaPC3*PC3[i] + betaPC3q*pow(PC3[i],2) + betaPC3_size*PC3[i]*size[i]
+    
+    y[i]~dbern(p[i])
+    }
+
+    ## Prediction
+    alpha.pred~dnorm(mu.alpha,tau.alpha)
+    beta.pred~dnorm(mu.beta,tau.beta)
+
+    for(i in 1:PC.levels){
+    for(j in 1:size.levels){
+    logit(flow.pred.PC1[i,j])<-mu.alpha + betasize*x_size[j] + 
+    betaPC1*x_PC[i] + betaPC1q*pow(x_PC[i],2) + betaPC1_size*x_PC[i]      *x_size[i]
+    
+    logit(flow.pred.PC2[i,j])<-mu.alpha + betasize*x_size[j] + 
+    betaPC2*x_PC[i] + betaPC2q*pow(x_PC[i],2) + betaPC2_size*x_PC[i]      *x_size[i]
+    
+    logit(flow.pred.PC3[i,j])<-mu.alpha + betasize*x_size[j] + 
+    betaPC3*x_PC[i] + betaPC3q*pow(x_PC[i],2) + betaPC3_size*x_PC[i]      *x_size[i]
+    }
+    }
+    
+    }##end model
+    
