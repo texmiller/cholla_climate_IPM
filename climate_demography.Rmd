@@ -1,0 +1,150 @@
+---
+title: "Cholla climate-demography relationships"
+author: "Tom Miller"
+date: "July 27, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,message=F,warning=F)
+library(tidyverse)
+library(lme4)
+library(mcmcplots)
+library(R2jags)
+PCclim <- read.csv("Analysis with ClimateWNA\\ClimateWNA PC Values.csv")
+volume <- function(h, w, p){
+  (1/3)*pi*h*(((w + p)/2)/2)^2
+}
+invlogit<-function(x){exp(x)/(1+exp(x))}
+```
+
+# Purpose: exploration of historical and future SEV climate and fitting climate-dependent demography functions for IPM analysis
+
+## How much over lap do we have across the 3 climate groups (past, present, future)?
+```{r PC hist}
+PCclim %>% 
+  gather(PC1,PC2,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present"))) %>% 
+  ggplot()+
+  geom_histogram(aes(x=value,fill=time))+
+    facet_grid(PC~.)
+```
+The plot above is useful to see and a little bit concerning. In order to project past and future responses to climate, we will need to extrapolate our statistical models well beyond the limits of observed values, especially for PC1. Let's see what this looks like in real time. 
+```{r PC timeseries}
+PCclim %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present"))) %>% 
+  ggplot()+
+  geom_line(aes(x=Year_t,y=value,color=time))+
+    facet_grid(PC~.)
+```
+
+I mean, I guess this is what climate change looks like. I think this argues for testing polynomial responses - but even that is assuming a particular type of extrapolation that could be equally wrong. Let's see how the parameter estimates shape up. 
+
+## Demography
+```{r read cholla dat}
+cholla <- read.csv("cholla_demography_20042018.csv")
+## merge demography and climate,
+## subset to demography years only,
+## drop seed addition plots (don't want them in plot RFX)
+## change plots and years to 1,...,N integers
+
+cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
+  filter(Year_t >= min(cholla$Year_t,na.rm=T),
+         Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)!="H") %>% 
+  mutate(year_int = Year_t - (min(Year_t)-1),
+       plot_int = as.integer(Plot),
+       vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+       vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
+       standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
+       )
+
+```
+
+### 1. Flowering
+I am starting the demographic analysis with a vital rate that I know to be variable and likely climate-dependent. This should be relatively easy to fit and we'll do the hard stuff later. 
+
+```{r flow fit}
+
+## cut NAs and bundle data
+flow_dat <- cholla.clim %>% 
+  filter(!is.na(standvol_t),
+         !is.na(Goodbuds_t))
+
+flow.dat<-list(N.plots = max(flow_dat$plot_int),
+               N.years = max(flow_dat$year_int),
+               N.obs = nrow(flow_dat),
+               plot = flow_dat$plot_int,
+               year = flow_dat$year_int,
+               PC1 = flow_dat$PC1,
+               PC2 = flow_dat$PC2,
+               PC3 = flow_dat$PC3,
+               size = flow_dat$standvol_t,
+               y = flow_dat$Goodbuds_t > 0,
+               x_size = cut_interval(size,4),#prediction
+               x_PC = seq())
+
+## Inits function
+inits<-function(){list(mu.alpha=rnorm(1),
+                       betasize=rnorm(1),
+                       betaPC1=rnorm(1),
+                       betaPC1q=rnorm(1),
+                       betaPC1_size=rnorm(1),
+                       betaPC2=rnorm(1),
+                       betaPC2q=rnorm(1),
+                       betaPC2_size=rnorm(1),
+                       betaPC3=rnorm(1),
+                       betaPC3q=rnorm(1),
+                       betaPC3_size=rnorm(1),
+                       sigma.plot=rlnorm(1),
+                       sigma.year=rlnorm(1))}
+
+## Params to estimate
+parameters<-c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size",
+              "betaPC2","betaPC2q","betaPC2_size",
+              "betaPC3","betaPC3q","betaPC3_size",
+              "sigma.plot","sigma.year")
+
+## MCMC settings
+ni<-8000
+nb<-1000
+nt<-5
+nc<-3
+
+```
+
+```{r run JAGS model}
+## run JAGS
+cholla.flow.out<-jags(data=flow.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_flowering.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
+```{r flower model diagnostics}
+mcmcplot(cholla.flow.out)
+```
+
+```{r visualize results}
+size_bins<-4
+PC_bins<-4
+flow_dat %>% 
+  mutate(size_bin = cut_interval(standvol_t,size_bins),
+         PC1_bin = cut_interval(PC1,PC_bins),
+         PC2_bin = cut_interval(PC2,PC_bins),
+         PC3_bin = cut_interval(PC3,PC_bins)) %>% 
+  group_by(size_bin,PC3_bin) %>% 
+  summarize(PC3_mean = mean(PC3),
+            flow_mean = mean(Goodbuds_t>0)) %>% 
+  ggplot()+
+  geom_point(aes(x=PC3_mean,y=flow_mean,color=size_bin)) 
+
+```
+
+```{r}
+flow_pred_PC1<-tibble(PC1 = seq(min(PCclim$PC1),max(PCclim$PC1),0.1),
+                  PC2 = seq(min(PCclim$PC2),max(PCclim$PC2),0.1),
+                  PC3 = seq(min(PCclim$PC3),max(PCclim$PC3),0.1),
+                  size = seq(min(flow_dat$standvol_t),max(flow_dat$standvol_t),0.1))
+```
+
