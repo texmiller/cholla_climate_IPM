@@ -16,25 +16,27 @@ volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
 }
 invlogit<-function(x){exp(x)/(1+exp(x))}
+
+PC_bins <- 5
+size_bin_num <- 3
 ```
 
 # Purpose: exploration of historical and future SEV climate and fitting climate-dependent demography functions for IPM analysis
 
 ## How much over lap do we have across the 3 climate groups (past, present, future)?
 ```{r PC hist}
-PCclim %>% 
-  gather(PC1,PC2,key="PC",value="value") %>% 
-  mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present"))) %>% 
-  ggplot()+
+PC_gather <- PCclim %>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present")))
+
+ggplot(PC_gather)+
   geom_histogram(aes(x=value,fill=time))+
     facet_grid(PC~.)
 ```
 The plot above is useful to see and a little bit concerning. In order to project past and future responses to climate, we will need to extrapolate our statistical models well beyond the limits of observed values, especially for PC1. Let's see what this looks like in real time. 
 ```{r PC timeseries}
-PCclim %>% 
-  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
-  mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present"))) %>% 
-  ggplot()+
+ggplot(PC_gather)+
   geom_line(aes(x=Year_t,y=value,color=time))+
     facet_grid(PC~.)
 ```
@@ -63,15 +65,30 @@ cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>%
 ```
 
 ### 1. Flowering
-I am starting the demographic analysis with a vital rate that I know to be variable and likely climate-dependent. This should be relatively easy to fit and we'll do the hard stuff later. 
-
-```{r flow fit}
-
+```{r miscellany data prep for flowering}
 ## cut NAs and bundle data
 flow_dat <- cholla.clim %>% 
   filter(!is.na(standvol_t),
          !is.na(Goodbuds_t))
 
+PC_range <- PC_gather%>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC = seq(PC_range$PC_min,PC_range$PC_max,0.1)
+
+# not sure if I want to bin by equal intervals or equal sample sizes. Might explore both.
+flow_dat_cuts <- flow_dat %>% 
+  mutate(size_bin = cut_interval(standvol_t,size_bin_num))
+size_cuts <- flow_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(bin_mean = mean(standvol_t))
+hist(flow_dat$standvol_t)
+abline(v = size_cuts$bin_mean)
+```
+
+I am starting the demographic analysis with a vital rate that I know to be variable and likely climate-dependent. This should be relatively easy to fit and we'll do the hard stuff later. 
+
+```{r flow fit}
 flow.dat<-list(N.plots = max(flow_dat$plot_int),
                N.years = max(flow_dat$year_int),
                N.obs = nrow(flow_dat),
@@ -82,8 +99,10 @@ flow.dat<-list(N.plots = max(flow_dat$plot_int),
                PC3 = flow_dat$PC3,
                size = flow_dat$standvol_t,
                y = flow_dat$Goodbuds_t > 0,
-               x_size = cut_interval(size,4),#prediction
-               x_PC = seq())
+               x_PC = x_PC,
+               PC_levels = length(x_PC),
+               x_size = size_cuts$bin_mean,
+               size_levels = length(size_cuts$bin_mean))
 
 ## Inits function
 inits<-function(){list(mu.alpha=rnorm(1),
@@ -105,10 +124,11 @@ parameters<-c("mu.alpha","betasize",
               "betaPC1","betaPC1q","betaPC1_size",
               "betaPC2","betaPC2q","betaPC2_size",
               "betaPC3","betaPC3q","betaPC3_size",
-              "sigma.plot","sigma.year")
+              "sigma.plot","sigma.year",
+              "fit","fit.new")
 
 ## MCMC settings
-ni<-8000
+ni<-10000
 nb<-1000
 nt<-5
 nc<-3
@@ -122,29 +142,204 @@ cholla.flow.out<-jags(data=flow.dat,inits=inits,parameters.to.save=parameters,mo
 ```
 
 ```{r flower model diagnostics}
-mcmcplot(cholla.flow.out)
+mcmcplot(cholla.flow.out, parms = c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size",
+              "betaPC2","betaPC2q","betaPC2_size",
+              "betaPC3","betaPC3q","betaPC3_size",
+              "sigma.plot","sigma.year"))
+
+plot(cholla.flow.out$BUGSoutput$sims.list$fit,
+     cholla.flow.out$BUGSoutput$sims.list$fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
 ```
 
+Fits and convergence look good. Let's visualize the results.
 ```{r visualize results}
-size_bins<-4
-PC_bins<-4
-flow_dat %>% 
-  mutate(size_bin = cut_interval(standvol_t,size_bins),
-         PC1_bin = cut_interval(PC1,PC_bins),
-         PC2_bin = cut_interval(PC2,PC_bins),
-         PC3_bin = cut_interval(PC3,PC_bins)) %>% 
-  group_by(size_bin,PC3_bin) %>% 
-  summarize(PC3_mean = mean(PC3),
-            flow_mean = mean(Goodbuds_t>0)) %>% 
-  ggplot()+
-  geom_point(aes(x=PC3_mean,y=flow_mean,color=size_bin)) 
+
+flow_PC1_cuts <- flow_dat_cuts%>% 
+  mutate(PC1_bin = cut_interval(PC1,PC_bins),
+            size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,PC1_bin) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_flow = mean(Goodbuds_t > 0))
+flow_PC2_cuts <- flow_dat_cuts%>% 
+  mutate(PC2_bin = cut_interval(PC2,PC_bins),
+            size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,PC2_bin) %>% 
+  summarise(mean_PC2 = mean(PC2),
+            mean_flow = mean(Goodbuds_t > 0))
+flow_PC3_cuts <- flow_dat_cuts%>% 
+  mutate(PC3_bin = cut_interval(PC3,PC_bins),
+            size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,PC3_bin) %>% 
+  summarise(mean_PC3 = mean(PC3),
+            mean_flow = mean(Goodbuds_t > 0))
+
+mean_params <- cholla.flow.out$BUGSoutput$mean
+
+par(mfrow=c(1,3))
+with(flow_PC1_cuts,{plot(mean_PC1,mean_flow,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+for(i in 1:length(size_cuts$bin_mean)){
+lines(x_PC,
+      invlogit(mean_params$mu.alpha + mean_params$betaPC1 * x_PC + mean_params$betaPC1q * x_PC^2 +
+      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC1_size * x_PC * size_cuts$bin_mean[i]),
+      lwd=2,col=i)
+}
+
+with(flow_PC2_cuts,{plot(mean_PC2,mean_flow,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC,
+      invlogit(mean_params$mu.alpha + mean_params$betaPC2 * x_PC + mean_params$betaPC2q * x_PC^2 +
+      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC2_size * x_PC * size_cuts$bin_mean[i]),
+      lwd=2,col=i)
+}
+
+with(flow_PC3_cuts,{plot(mean_PC3,mean_flow,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC,
+      invlogit(mean_params$mu.alpha + mean_params$betaPC3 * x_PC + mean_params$betaPC3q * x_PC^2 +
+      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC3_size * x_PC * size_cuts$bin_mean[i]),
+      lwd=2,col=i)
+}
 
 ```
 
-```{r}
-flow_pred_PC1<-tibble(PC1 = seq(min(PCclim$PC1),max(PCclim$PC1),0.1),
-                  PC2 = seq(min(PCclim$PC2),max(PCclim$PC2),0.1),
-                  PC3 = seq(min(PCclim$PC3),max(PCclim$PC3),0.1),
-                  size = seq(min(flow_dat$standvol_t),max(flow_dat$standvol_t),0.1))
+This looks good! Moving on to survival.
+
+### 2. Survival
+```{r miscellany data prep for survival}
+## cut NAs and bundle data
+surv_dat <- cholla.clim %>% 
+  filter(!is.na(standvol_t),
+         !is.na(Survival_t1))
+
+# not sure if I want to bin by equal intervals or equal sample sizes. Might explore both.
+surv_dat_cuts <- surv_dat %>% 
+  mutate(size_bin = cut_interval(standvol_t,size_bin_num))
+surv_size_cuts <- surv_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(bin_mean = mean(standvol_t))
+hist(surv_dat$standvol_t)
+abline(v = surv_size_cuts$bin_mean)
+```
+
+```{r surv fit}
+surv.dat<-list(N.plots = max(surv_dat$plot_int),
+               N.years = max(surv_dat$year_int),
+               N.obs = nrow(surv_dat),
+               plot = surv_dat$plot_int,
+               year = surv_dat$year_int,
+               PC1 = surv_dat$PC1,
+               PC2 = surv_dat$PC2,
+               PC3 = surv_dat$PC3,
+               size = surv_dat$standvol_t,
+               y = surv_dat$Survival_t1,
+               x_PC = x_PC,
+               PC_levels = length(x_PC),
+               x_size = surv_size_cuts$bin_mean,
+               size_levels = length(surv_size_cuts$bin_mean))
+
+## Inits function
+inits<-function(){list(mu.alpha=rnorm(1),
+                       betasize=rnorm(1),
+                       betaPC1=rnorm(1),
+                       betaPC1q=rnorm(1),
+                       betaPC1_size=rnorm(1),
+                       betaPC2=rnorm(1),
+                       betaPC2q=rnorm(1),
+                       betaPC2_size=rnorm(1),
+                       betaPC3=rnorm(1),
+                       betaPC3q=rnorm(1),
+                       betaPC3_size=rnorm(1),
+                       sigma.plot=rlnorm(1),
+                       sigma.year=rlnorm(1))}
+
+## Params to estimate
+parameters<-c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size",
+              "betaPC2","betaPC2q","betaPC2_size",
+              "betaPC3","betaPC3q","betaPC3_size",
+              "sigma.plot","sigma.year",
+              "fit","fit.new")
+
+## MCMC settings
+ni<-10000
+nb<-1000
+nt<-5
+nc<-3
+
+```
+
+```{r run JAGS model}
+## run JAGS
+cholla.surv.out<-jags(data=surv.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_survival.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
+```{r survival model diagnostics}
+mcmcplot(cholla.surv.out, parms = c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size",
+              "betaPC2","betaPC2q","betaPC2_size",
+              "betaPC3","betaPC3q","betaPC3_size",
+              "sigma.plot","sigma.year"))
+
+plot(cholla.surv.out$BUGSoutput$sims.list$fit,
+     cholla.surv.out$BUGSoutput$sims.list$fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+```
+
+
+```{r visualize survival results}
+
+surv_PC1_cuts <- surv_dat_cuts%>% 
+  mutate(PC1_bin = cut_interval(PC1,PC_bins),
+            size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,PC1_bin) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_surv = mean(Survival_t1))
+surv_PC2_cuts <- surv_dat_cuts%>% 
+  mutate(PC2_bin = cut_interval(PC2,PC_bins),
+            size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,PC2_bin) %>% 
+  summarise(mean_PC2 = mean(PC2),
+            mean_surv = mean(Survival_t1))
+surv_PC3_cuts <- surv_dat_cuts%>% 
+  mutate(PC3_bin = cut_interval(PC3,PC_bins),
+            size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,PC3_bin) %>% 
+  summarise(mean_PC3 = mean(PC3),
+            mean_surv = mean(Survival_t1))
+
+mean_surv_params <- cholla.surv.out$BUGSoutput$mean
+
+par(mfrow=c(1,3))
+with(surv_PC1_cuts,{plot(mean_PC1,mean_surv,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+for(i in 1:length(size_cuts$bin_mean)){
+lines(x_PC,
+      invlogit(mean_surv_params$mu.alpha + mean_surv_params$betaPC1 * x_PC + mean_surv_params$betaPC1q * x_PC^2 +
+      mean_surv_params$betasize * size_cuts$bin_mean[i] + mean_surv_params$betaPC1_size * x_PC * size_cuts$bin_mean[i]),
+      lwd=2,col=i)
+}
+
+with(surv_PC2_cuts,{plot(mean_PC2,mean_surv,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC,
+      invlogit(mean_surv_params$mu.alpha + mean_surv_params$betaPC2 * x_PC + mean_surv_params$betaPC2q * x_PC^2 +
+      mean_surv_params$betasize * size_cuts$bin_mean[i] + mean_surv_params$betaPC2_size * x_PC * size_cuts$bin_mean[i]),
+      lwd=2,col=i)
+}
+
+with(surv_PC3_cuts,{plot(mean_PC3,mean_surv,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC,
+      invlogit(mean_surv_params$mu.alpha + mean_surv_params$betaPC3 * x_PC + mean_surv_params$betaPC3q * x_PC^2 +
+      mean_surv_params$betasize * size_cuts$bin_mean[i] + mean_surv_params$betaPC3_size * x_PC * size_cuts$bin_mean[i]),
+      lwd=2,col=i)
+}
+
 ```
 

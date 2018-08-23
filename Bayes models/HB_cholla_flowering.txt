@@ -38,24 +38,32 @@
     betaPC3*PC3[i] + betaPC3q*pow(PC3[i],2) + betaPC3_size*PC3[i]*size[i]
     
     y[i]~dbern(p[i])
+    
+    #posterior predictive check
+    Presi[i] <- abs(y[i]-p[i])
+    y.new[i] ~ dbern(p[i])
+    Presi.new[i] <- abs(y.new[i] - p[i])
     }
+
+    fit <- sum(Presi[]) 
+    fit.new <- sum(Presi.new[]) 
 
     ## Prediction
-    alpha.pred~dnorm(mu.alpha,tau.alpha)
-    beta.pred~dnorm(mu.beta,tau.beta)
+    #alpha.pred~dnorm(mu.alpha,tau.alpha)
+    #beta.pred~dnorm(mu.beta,tau.beta)
 
-    for(i in 1:PC.levels){
-    for(j in 1:size.levels){
-    logit(flow.pred.PC1[i,j])<-mu.alpha + betasize*x_size[j] + 
-    betaPC1*x_PC[i] + betaPC1q*pow(x_PC[i],2) + betaPC1_size*x_PC[i]      *x_size[i]
+    #for(i in 1:PC_levels){
+    #for(j in 1:size_levels){
+    #logit(flow_pred_PC1[i,j])<-mu.alpha + betasize*x_size[j] + 
+    #betaPC1*x_PC[i] + betaPC1q*pow(x_PC[i],2) + betaPC1_size*x_PC[i]*x_size[j]
     
-    logit(flow.pred.PC2[i,j])<-mu.alpha + betasize*x_size[j] + 
-    betaPC2*x_PC[i] + betaPC2q*pow(x_PC[i],2) + betaPC2_size*x_PC[i]      *x_size[i]
+    #logit(flow_pred_PC2[i,j])<-mu.alpha + betasize*x_size[j] + 
+    #betaPC2*x_PC[i] + betaPC2q*pow(x_PC[i],2) + betaPC2_size*x_PC[i]*x_size[j]
     
-    logit(flow.pred.PC3[i,j])<-mu.alpha + betasize*x_size[j] + 
-    betaPC3*x_PC[i] + betaPC3q*pow(x_PC[i],2) + betaPC3_size*x_PC[i]      *x_size[i]
-    }
-    }
+    #logit(flow_pred_PC3[i,j])<-mu.alpha + betasize*x_size[j] + 
+    #betaPC3*x_PC[i] + betaPC3q*pow(x_PC[i],2) + betaPC3_size*x_PC[i]*x_size[j]
+    #}
+    #}
     
     }##end model
     
