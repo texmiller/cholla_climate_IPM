@@ -8,6 +8,8 @@
     tau.plot<-1/(sigma.plot*sigma.plot)
     sigma.year~dunif(0,1000)
     tau.year<-1/(sigma.year*sigma.year)
+    sigma.eps~dunif(0,1000)
+    tau.eps<-1/(sigma.eps*sigma.eps)
     
     betasize~dnorm(0,0.001) ## size slope
     betaPC1~dnorm(0,0.001) ## PC1
@@ -34,22 +36,22 @@
     
     ## Likelihood
     for(i in 1:N.obs){
-    logit(p[i]) <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + 
+    mu[i] <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + 
     betasize*size[i] + 
     betaPC1*PC1[i] + betaPC1q*pow(PC1[i],2) + betaPC1_size*PC1[i]*size[i] + betaPC1q_size*pow(PC1[i],2)*size[i] + 
     betaPC2*PC2[i] + betaPC2q*pow(PC2[i],2) + betaPC2_size*PC2[i]*size[i] + betaPC2q_size*pow(PC2[i],2)*size[i] + 
     betaPC3*PC3[i] + betaPC3q*pow(PC3[i],2) + betaPC3_size*PC3[i]*size[i] + betaPC3q_size*pow(PC3[i],2)*size[i]
     
-    y[i]~dbern(p[i])
+    y[i]~dnorm(mu[i],tau.eps)
     
     #posterior predictive check
-    Presi[i] <- abs(y[i]-p[i])
-    y.new[i] ~ dbern(p[i])
-    Presi.new[i] <- abs(y.new[i] - p[i])
+    sq.res[i] <- pow(y[i] - mu[i],2)
+    y.new[i] ~ dnorm(mu[i], tau.eps)
+    sq.res.new[i] <- pow(y.new[i] - mu[i], 2)
     }
 
-    fit <- sum(Presi[]) 
-    fit.new <- sum(Presi.new[]) 
+    fit <- sum(sq.res[]) 
+    fit.new <- sum(sq.res.new[]) 
 
     ## Prediction
     #alpha.pred~dnorm(mu.alpha,tau.alpha)

@@ -8,6 +8,8 @@
     tau.plot<-1/(sigma.plot*sigma.plot)
     sigma.year~dunif(0,1000)
     tau.year<-1/(sigma.year*sigma.year)
+    sigma.overdisp~dunif(0,1000)
+    tau.overdisp<-1/(sigma.overdisp*sigma.overdisp)
     
     betasize~dnorm(0,0.001) ## size slope
     betaPC1~dnorm(0,0.001) ## PC1
@@ -23,7 +25,6 @@
     betaPC3q~dnorm(0,0.001) ## PC3^2
     betaPC3q_size~dnorm(0,0.001) ## PC3^2 * size interaction
 
-    
     ##plot and year deviates on the intercept
     for(i in 1:N.plots){      
     eps.plot[i]~dnorm(0,tau.plot)
@@ -34,22 +35,24 @@
     
     ## Likelihood
     for(i in 1:N.obs){
-    logit(p[i]) <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + 
+    eps.overdisp[i] ~ dnorm(0,tau.overdisp)
+    log(lambda[i]) <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + eps.overdisp[i] +
     betasize*size[i] + 
     betaPC1*PC1[i] + betaPC1q*pow(PC1[i],2) + betaPC1_size*PC1[i]*size[i] + betaPC1q_size*pow(PC1[i],2)*size[i] + 
     betaPC2*PC2[i] + betaPC2q*pow(PC2[i],2) + betaPC2_size*PC2[i]*size[i] + betaPC2q_size*pow(PC2[i],2)*size[i] + 
     betaPC3*PC3[i] + betaPC3q*pow(PC3[i],2) + betaPC3_size*PC3[i]*size[i] + betaPC3q_size*pow(PC3[i],2)*size[i]
     
-    y[i]~dbern(p[i])
+    y[i]~dpois(lambda[i])
     
     #posterior predictive check
-    Presi[i] <- abs(y[i]-p[i])
-    y.new[i] ~ dbern(p[i])
-    Presi.new[i] <- abs(y.new[i] - p[i])
+    Presi[i] <- (y[i] - lambda[i])/sqrt(lambda[i])
+    y.new[i] ~ dpois(lambda[i])
+    Presi.new[i] <- (y.new[i] - lambda[i])/sqrt(lambda[i])
+    D[i] <- pow(Presi[i],2)
+    D.new[i] <- pow(Presi.new[i],2)
     }
-
-    fit <- sum(Presi[]) 
-    fit.new <- sum(Presi.new[]) 
+    fit <- sum(D[]) 
+    fit.new <- sum(D.new[]) 
 
     ## Prediction
     #alpha.pred~dnorm(mu.alpha,tau.alpha)

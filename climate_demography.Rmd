@@ -16,8 +16,8 @@ volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
 }
 invlogit<-function(x){exp(x)/(1+exp(x))}
-
-PC_bins <- 5
+# there are the binning parameters for visualization
+PC_bins <- 4
 size_bin_num <- 3
 ```
 
@@ -60,7 +60,7 @@ cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>%
        vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
        vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
        standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
-       )
+       standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
 
 ```
 
@@ -78,7 +78,7 @@ x_PC = seq(PC_range$PC_min,PC_range$PC_max,0.1)
 
 # not sure if I want to bin by equal intervals or equal sample sizes. Might explore both.
 flow_dat_cuts <- flow_dat %>% 
-  mutate(size_bin = cut_interval(standvol_t,size_bin_num))
+  mutate(size_bin = cut_number(standvol_t,size_bin_num))
 size_cuts <- flow_dat_cuts %>% 
   group_by(size_bin) %>% 
   summarise(bin_mean = mean(standvol_t))
@@ -110,20 +110,23 @@ inits<-function(){list(mu.alpha=rnorm(1),
                        betaPC1=rnorm(1),
                        betaPC1q=rnorm(1),
                        betaPC1_size=rnorm(1),
+                       betaPC1q_size=rnorm(1),
                        betaPC2=rnorm(1),
                        betaPC2q=rnorm(1),
                        betaPC2_size=rnorm(1),
+                       betaPC2q_size=rnorm(1),
                        betaPC3=rnorm(1),
                        betaPC3q=rnorm(1),
                        betaPC3_size=rnorm(1),
+                       betaPC3q_size=rnorm(1),
                        sigma.plot=rlnorm(1),
                        sigma.year=rlnorm(1))}
 
 ## Params to estimate
 parameters<-c("mu.alpha","betasize",
-              "betaPC1","betaPC1q","betaPC1_size",
-              "betaPC2","betaPC2q","betaPC2_size",
-              "betaPC3","betaPC3q","betaPC3_size",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
               "sigma.plot","sigma.year",
               "fit","fit.new")
 
@@ -143,9 +146,9 @@ cholla.flow.out<-jags(data=flow.dat,inits=inits,parameters.to.save=parameters,mo
 
 ```{r flower model diagnostics}
 mcmcplot(cholla.flow.out, parms = c("mu.alpha","betasize",
-              "betaPC1","betaPC1q","betaPC1_size",
-              "betaPC2","betaPC2q","betaPC2_size",
-              "betaPC3","betaPC3q","betaPC3_size",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
               "sigma.plot","sigma.year"))
 
 plot(cholla.flow.out$BUGSoutput$sims.list$fit,
@@ -163,44 +166,50 @@ flow_PC1_cuts <- flow_dat_cuts%>%
             size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,PC1_bin) %>% 
   summarise(mean_PC1 = mean(PC1),
-            mean_flow = mean(Goodbuds_t > 0))
+            mean_flow = mean(Goodbuds_t > 0),
+            bin_n = n())
 flow_PC2_cuts <- flow_dat_cuts%>% 
   mutate(PC2_bin = cut_interval(PC2,PC_bins),
             size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,PC2_bin) %>% 
   summarise(mean_PC2 = mean(PC2),
-            mean_flow = mean(Goodbuds_t > 0))
+            mean_flow = mean(Goodbuds_t > 0),
+            bin_n = n())
 flow_PC3_cuts <- flow_dat_cuts%>% 
   mutate(PC3_bin = cut_interval(PC3,PC_bins),
             size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,PC3_bin) %>% 
   summarise(mean_PC3 = mean(PC3),
-            mean_flow = mean(Goodbuds_t > 0))
+            mean_flow = mean(Goodbuds_t > 0),
+            bin_n = n())
 
 mean_params <- cholla.flow.out$BUGSoutput$mean
 
 par(mfrow=c(1,3))
-with(flow_PC1_cuts,{plot(mean_PC1,mean_flow,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+with(flow_PC1_cuts,{plot(mean_PC1,mean_flow,col=size_bins,pch=16,cex= 3*(bin_n / max(bin_n)),ylim=c(0,1))})
 for(i in 1:length(size_cuts$bin_mean)){
 lines(x_PC,
       invlogit(mean_params$mu.alpha + mean_params$betaPC1 * x_PC + mean_params$betaPC1q * x_PC^2 +
-      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC1_size * x_PC * size_cuts$bin_mean[i]),
+      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC1_size * x_PC * size_cuts$bin_mean[i] +
+        mean_params$betaPC1q_size * (x_PC^2) * size_cuts$bin_mean[i]),
       lwd=2,col=i)
 }
 
-with(flow_PC2_cuts,{plot(mean_PC2,mean_flow,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+with(flow_PC2_cuts,{plot(mean_PC2,mean_flow,col=size_bins,pch=16,cex= 3*(bin_n / max(bin_n)),ylim=c(0,1))})
 for(i in 1:length(size_cuts$bin_mean)){
   lines(x_PC,
       invlogit(mean_params$mu.alpha + mean_params$betaPC2 * x_PC + mean_params$betaPC2q * x_PC^2 +
-      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC2_size * x_PC * size_cuts$bin_mean[i]),
+      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC2_size * x_PC * size_cuts$bin_mean[i] +
+        mean_params$betaPC2q_size * (x_PC^2) * size_cuts$bin_mean[i]),
       lwd=2,col=i)
 }
 
-with(flow_PC3_cuts,{plot(mean_PC3,mean_flow,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
+with(flow_PC3_cuts,{plot(mean_PC3,mean_flow,col=size_bins,pch=16,cex= 3*(bin_n / max(bin_n)),ylim=c(0,1))})
 for(i in 1:length(size_cuts$bin_mean)){
   lines(x_PC,
       invlogit(mean_params$mu.alpha + mean_params$betaPC3 * x_PC + mean_params$betaPC3q * x_PC^2 +
-      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC3_size * x_PC * size_cuts$bin_mean[i]),
+      mean_params$betasize * size_cuts$bin_mean[i] + mean_params$betaPC3_size * x_PC * size_cuts$bin_mean[i] +
+        mean_params$betaPC3q_size * (x_PC^2) * size_cuts$bin_mean[i]),
       lwd=2,col=i)
 }
 
@@ -217,7 +226,7 @@ surv_dat <- cholla.clim %>%
 
 # not sure if I want to bin by equal intervals or equal sample sizes. Might explore both.
 surv_dat_cuts <- surv_dat %>% 
-  mutate(size_bin = cut_interval(standvol_t,size_bin_num))
+  mutate(size_bin = cut_number(standvol_t,size_bin_num))
 surv_size_cuts <- surv_dat_cuts %>% 
   group_by(size_bin) %>% 
   summarise(bin_mean = mean(standvol_t))
@@ -247,20 +256,23 @@ inits<-function(){list(mu.alpha=rnorm(1),
                        betaPC1=rnorm(1),
                        betaPC1q=rnorm(1),
                        betaPC1_size=rnorm(1),
+                       betaPC1q_size=rnorm(1),
                        betaPC2=rnorm(1),
                        betaPC2q=rnorm(1),
                        betaPC2_size=rnorm(1),
+                       betaPC2q_size=rnorm(1),
                        betaPC3=rnorm(1),
                        betaPC3q=rnorm(1),
                        betaPC3_size=rnorm(1),
+                       betaPC3q_size=rnorm(1),
                        sigma.plot=rlnorm(1),
                        sigma.year=rlnorm(1))}
 
 ## Params to estimate
 parameters<-c("mu.alpha","betasize",
-              "betaPC1","betaPC1q","betaPC1_size",
-              "betaPC2","betaPC2q","betaPC2_size",
-              "betaPC3","betaPC3q","betaPC3_size",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
               "sigma.plot","sigma.year",
               "fit","fit.new")
 
@@ -280,9 +292,9 @@ cholla.surv.out<-jags(data=surv.dat,inits=inits,parameters.to.save=parameters,mo
 
 ```{r survival model diagnostics}
 mcmcplot(cholla.surv.out, parms = c("mu.alpha","betasize",
-              "betaPC1","betaPC1q","betaPC1_size",
-              "betaPC2","betaPC2q","betaPC2_size",
-              "betaPC3","betaPC3q","betaPC3_size",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
               "sigma.plot","sigma.year"))
 
 plot(cholla.surv.out$BUGSoutput$sims.list$fit,
@@ -300,46 +312,255 @@ surv_PC1_cuts <- surv_dat_cuts%>%
             size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,PC1_bin) %>% 
   summarise(mean_PC1 = mean(PC1),
-            mean_surv = mean(Survival_t1))
+            mean_surv = mean(Survival_t1),
+            bin_n = n())
 surv_PC2_cuts <- surv_dat_cuts%>% 
   mutate(PC2_bin = cut_interval(PC2,PC_bins),
             size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,PC2_bin) %>% 
   summarise(mean_PC2 = mean(PC2),
-            mean_surv = mean(Survival_t1))
+            mean_surv = mean(Survival_t1),
+            bin_n = n())
 surv_PC3_cuts <- surv_dat_cuts%>% 
   mutate(PC3_bin = cut_interval(PC3,PC_bins),
             size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,PC3_bin) %>% 
   summarise(mean_PC3 = mean(PC3),
-            mean_surv = mean(Survival_t1))
+            mean_surv = mean(Survival_t1),
+            bin_n = n())
 
 mean_surv_params <- cholla.surv.out$BUGSoutput$mean
 
 par(mfrow=c(1,3))
-with(surv_PC1_cuts,{plot(mean_PC1,mean_surv,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
-for(i in 1:length(size_cuts$bin_mean)){
+with(surv_PC1_cuts,{plot(mean_PC1,mean_surv,col=size_bins,pch=16,ylim=c(0,1),cex= 3*(bin_n / max(bin_n)))})
+for(i in 1:length(surv_size_cuts$bin_mean)){
 lines(x_PC,
       invlogit(mean_surv_params$mu.alpha + mean_surv_params$betaPC1 * x_PC + mean_surv_params$betaPC1q * x_PC^2 +
-      mean_surv_params$betasize * size_cuts$bin_mean[i] + mean_surv_params$betaPC1_size * x_PC * size_cuts$bin_mean[i]),
+      mean_surv_params$betasize * surv_size_cuts$bin_mean[i] + mean_surv_params$betaPC1_size * x_PC * surv_size_cuts$bin_mean[i] +
+        mean_surv_params$betaPC1q_size * (x_PC^2) * surv_size_cuts$bin_mean[i]),
       lwd=2,col=i)
 }
 
-with(surv_PC2_cuts,{plot(mean_PC2,mean_surv,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
-for(i in 1:length(size_cuts$bin_mean)){
+with(surv_PC2_cuts,{plot(mean_PC2,mean_surv,col=size_bins,pch=16,cex= 3*(bin_n / max(bin_n)),ylim=c(0,1))})
+for(i in 1:length(surv_size_cuts$bin_mean)){
   lines(x_PC,
       invlogit(mean_surv_params$mu.alpha + mean_surv_params$betaPC2 * x_PC + mean_surv_params$betaPC2q * x_PC^2 +
-      mean_surv_params$betasize * size_cuts$bin_mean[i] + mean_surv_params$betaPC2_size * x_PC * size_cuts$bin_mean[i]),
+      mean_surv_params$betasize * surv_size_cuts$bin_mean[i] + mean_surv_params$betaPC2_size * x_PC * surv_size_cuts$bin_mean[i] +
+        mean_surv_params$betaPC2q_size * (x_PC^2) * surv_size_cuts$bin_mean[i]),
       lwd=2,col=i)
 }
 
-with(surv_PC3_cuts,{plot(mean_PC3,mean_surv,col=size_bins,pch=16,cex=1.5,ylim=c(0,1))})
-for(i in 1:length(size_cuts$bin_mean)){
+with(surv_PC3_cuts,{plot(mean_PC3,mean_surv,col=size_bins,pch=16,cex= 3*(bin_n / max(bin_n)),ylim=c(0,1))})
+for(i in 1:length(surv_size_cuts$bin_mean)){
   lines(x_PC,
       invlogit(mean_surv_params$mu.alpha + mean_surv_params$betaPC3 * x_PC + mean_surv_params$betaPC3q * x_PC^2 +
-      mean_surv_params$betasize * size_cuts$bin_mean[i] + mean_surv_params$betaPC3_size * x_PC * size_cuts$bin_mean[i]),
+      mean_surv_params$betasize * surv_size_cuts$bin_mean[i] + mean_surv_params$betaPC3_size * x_PC * surv_size_cuts$bin_mean[i] +
+        mean_surv_params$betaPC3q_size * (x_PC^2) * surv_size_cuts$bin_mean[i]),
       lwd=2,col=i)
 }
 
 ```
+
+Hmmm. Not sure how I feel about these fits. 
+
+##3. Growth
+```{r grow_dat}
+## cut NAs and bundle data
+grow_dat <- cholla.clim %>% 
+  filter(!is.na(standvol_t),
+         !is.na(standvol_t1)) %>% 
+  mutate(growth_t1 = standvol_t1 - standvol_t)
+
+grow.dat<-list(N.plots = max(grow_dat$plot_int),
+               N.years = max(grow_dat$year_int),
+               N.obs = nrow(grow_dat),
+               plot = grow_dat$plot_int,
+               year = grow_dat$year_int,
+               PC1 = grow_dat$PC1,
+               PC2 = grow_dat$PC2,
+               PC3 = grow_dat$PC3,
+               size = grow_dat$standvol_t,
+               y = grow_dat$growth_t1)
+
+## Inits function
+inits<-function(){list(mu.alpha=rnorm(1),
+                       betasize=rnorm(1),
+                       betaPC1=rnorm(1),
+                       betaPC1q=rnorm(1),
+                       betaPC1_size=rnorm(1),
+                       betaPC1q_size=rnorm(1),
+                       betaPC2=rnorm(1),
+                       betaPC2q=rnorm(1),
+                       betaPC2_size=rnorm(1),
+                       betaPC2q_size=rnorm(1),
+                       betaPC3=rnorm(1),
+                       betaPC3q=rnorm(1),
+                       betaPC3_size=rnorm(1),
+                       betaPC3q_size=rnorm(1),
+                       sigma.eps=rlnorm(1),
+                       sigma.plot=rlnorm(1),
+                       sigma.year=rlnorm(1))}
+
+## Params to estimate
+parameters<-c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
+              "sigma.eps","sigma.plot","sigma.year",
+              "fit","fit.new")
+
+## MCMC settings
+ni<-10000
+nb<-1000
+nt<-5
+nc<-3
+
+```
+
+```{r run growth model}
+## run JAGS
+cholla.grow.out<-jags(data=grow.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_growth.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
+```{r growth model diagnostics}
+mcmcplot(cholla.grow.out, parms = c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
+              "sigma.plot","sigma.year","sigma.eps"))
+
+plot(cholla.grow.out$BUGSoutput$sims.list$fit,
+     cholla.grow.out$BUGSoutput$sims.list$fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+```
+```{r visualize growth results}
+grow_dat_cuts <- grow_dat %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+         size_bins = as.integer(size_bin)) 
+grow_size_cuts <- grow_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(bin_mean = mean(standvol_t))
+  
+mean_grow_params <- cholla.grow.out$BUGSoutput$mean
+
+par(mfrow=c(1,3))
+with(grow_dat_cuts,{plot(PC1,growth_t1,col=alpha(size_bins,0.25),pch=1,cex= 1)})
+for(i in 1:length(grow_size_cuts$bin_mean)){
+lines(x_PC,
+      mean_grow_params$mu.alpha + mean_grow_params$betaPC1 * x_PC + mean_grow_params$betaPC1q * x_PC^2 +
+      mean_grow_params$betasize * grow_size_cuts$bin_mean[i] + mean_grow_params$betaPC1_size * x_PC * grow_size_cuts$bin_mean[i] +
+        mean_grow_params$betaPC1q_size * (x_PC^2) * grow_size_cuts$bin_mean[i],
+      lwd=2,col=i)
+}
+
+with(grow_dat_cuts,{plot(PC2,growth_t1,col=alpha(size_bins,0.25),pch=1,cex= 1)})
+for(i in 1:length(grow_size_cuts$bin_mean)){
+lines(x_PC,
+      mean_grow_params$mu.alpha + mean_grow_params$betaPC2 * x_PC + mean_grow_params$betaPC2q * x_PC^2 +
+      mean_grow_params$betasize * grow_size_cuts$bin_mean[i] + mean_grow_params$betaPC2_size * x_PC * grow_size_cuts$bin_mean[i] +
+        mean_grow_params$betaPC2q_size * (x_PC^2) * grow_size_cuts$bin_mean[i],
+      lwd=2,col=i)
+}
+
+with(grow_dat_cuts,{plot(PC3,growth_t1,col=alpha(size_bins,0.25),pch=1,cex= 1)})
+for(i in 1:length(grow_size_cuts$bin_mean)){
+lines(x_PC,
+      mean_grow_params$mu.alpha + mean_grow_params$betaPC3 * x_PC + mean_grow_params$betaPC3q * x_PC^2 +
+      mean_grow_params$betasize * grow_size_cuts$bin_mean[i] + mean_grow_params$betaPC3_size * x_PC * grow_size_cuts$bin_mean[i] +
+        mean_grow_params$betaPC3q_size * (x_PC^2) * grow_size_cuts$bin_mean[i],
+      lwd=2,col=i)
+}
+
+
+```
+
+
+##4. Fertility
+```{r grow_dat}
+## cut NAs and bundle data
+fert_dat <- cholla.clim %>% 
+  filter(Goodbuds_t>0,
+         !is.na(standvol_t),
+         !is.na(Goodbuds_t))
+
+fert.dat<-list(N.plots = max(fert_dat$plot_int),
+               N.years = max(fert_dat$year_int),
+               N.obs = nrow(fert_dat),
+               plot = fert_dat$plot_int,
+               year = fert_dat$year_int,
+               PC1 = fert_dat$PC1,
+               PC2 = fert_dat$PC2,
+               PC3 = fert_dat$PC3,
+               size = fert_dat$standvol_t,
+               y = fert_dat$Goodbuds_t)
+
+## Inits function
+inits<-function(){list(mu.alpha=rnorm(1),
+                       betasize=rnorm(1),
+                       betaPC1=rnorm(1),
+                       betaPC1q=rnorm(1),
+                       betaPC1_size=rnorm(1),
+                       betaPC1q_size=rnorm(1),
+                       betaPC2=rnorm(1),
+                       betaPC2q=rnorm(1),
+                       betaPC2_size=rnorm(1),
+                       betaPC2q_size=rnorm(1),
+                       betaPC3=rnorm(1),
+                       betaPC3q=rnorm(1),
+                       betaPC3_size=rnorm(1),
+                       betaPC3q_size=rnorm(1),
+                       sigma.plot=rlnorm(1),
+                       sigma.year=rlnorm(1))}
+
+## Params to estimate
+parameters<-c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
+              "sigma.plot","sigma.year",
+              "fit","fit.new")
+
+## MCMC settings
+ni<-10000
+nb<-1000
+nt<-5
+nc<-3
+
+```
+
+```{r run fert model}
+## run JAGS
+cholla.fert.out<-jags(data=fert.dat,inits=inits,parameters.to.save=parameters,
+                      model.file="Bayes models\\HB_cholla_fertility.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
+```{r fert model diagnostics}
+mcmcplot(cholla.fert.out, parms = c("mu.alpha","betasize",
+              "betaPC1","betaPC1q","betaPC1_size","betaPC1q_size",
+              "betaPC2","betaPC2q","betaPC2_size","betaPC2q_size",
+              "betaPC3","betaPC3q","betaPC3_size","betaPC3q_size",
+              "sigma.plot","sigma.year"))
+
+plot(cholla.fert.out$BUGSoutput$sims.list$fit,
+     cholla.fert.out$BUGSoutput$sims.list$fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
 

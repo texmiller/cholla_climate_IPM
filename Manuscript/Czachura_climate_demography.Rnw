@@ -1,0 +1,44 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\usepackage[round]{natbib}
+\usepackage{graphicx}
+\geometry{a4paper}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\usepackage[running]{lineno}
+\usepackage{setspace}
+\doublespacing
+%-------------------------------------------------------------------------
+
+\title{Backcasting and forecasting climate-dependent demography of a plant population in extinction debt}
+
+\author{Kevin Czachura}
+\author{Tom E.X. Miller}
+\affil{Program in Ecology and Evolutionary Biology, Department of BioSciences, Rice University, Houston, TX USA}
+\renewcommand\Authands{ and }
+\date{*Corresponding author: tom.miller@rice.edu}
+
+%-------------------------------------------------------------------------
+\begin{document}
+\maketitle
+\end{document}
+
+%-------------------------------------------------------------------------
+\section*{Summary}
+\begin{enumerate}
+  \item The background to the question (why it is interesting)
+  \item What the question is
+  \item What was done in the study
+  \item What was found
+  \item  What this means in the context of the broad field of animal ecology
+   \ldots
+   \end{enumerate}
+   
+%-------------------------------------------------------------------------
+\section*{Keywords}
+Listed in alphabetical order, the key-words should not exceed 10 words or short phrases. Please pay attention to the keywords you select: they should not already appear in the title or abstract. Rather, they should be selected to draw in readers from wider areas that might not otherwise pick up your paper when they are using search engines.
+
+%-------------------------------------------------------------------------
+\section*{Introduction}
+\linenumbers

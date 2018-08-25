@@ -1,0 +1,111 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\usepackage[round]{natbib}
+\usepackage{graphicx}
+\geometry{a4paper}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\usepackage[running]{lineno}
+\usepackage{setspace}
+\doublespacing
+\title{Manuscript title}
+\author[a]{Mark Recapture\thanks{a.author@email.com}}
+\author[b]{Herb E. Vore}
+\author[c]{Abbey Tat}
+\author[x]{Polly Nation}
+\affil[a]{Department of Life Sciences, University of Somewhere, City, Country}
+\affil[b]{Department of Life Sciences, University of Somewhere, City, Country}
+\affil[c]{Department of Life Sciences, University of Somewhere, City, Country}
+\affil[x]{Department of Life Sciences, University of Somewhere, City, Country}
+\renewcommand\Authands{ and }
+\date{*Corresponding author: a.author@email.com}
+\begin{document}
+\maketitle
+\section*{Summary}
+\begin{enumerate}
+  \item The background to the question (why it is interesting)
+  \item What the question is
+  \item What was done in the study
+  \item What was found
+  \item  What this means in the context of the broad field of animal ecology
+   \ldots
+   \end{enumerate}
+\section*{Keywords}
+Listed in alphabetical order, the key-words should not exceed 10 words or short phrases. Please pay attention to the keywords you select: they should not already appear in the title or abstract. Rather, they should be selected to draw in readers from wider areas that might not otherwise pick up your paper when they are using search engines.
+\section*{Introduction}
+\linenumbers
+This should state the reason for doing the work, the nature of the hypothesis or hypotheses under consideration, and should outline the essential background. Of course, cite many relevant works here and throughout \citep{harrisonetal10,Hubbellbook,Gergsthesis}.
+\section*{Materials and methods}
+This should provide sufficient details of the techniques to enable the work to be repeated. Do not describe or refer to commonplace statistical tests in Methods but allude to them briefly in Results.
+\section*{Results}
+This should state the results, drawing attention in the text to important details shown in tables and figures.
+\section*{Discussion}
+This should point out the significance of the results in relation to the reasons for doing the work, and place them in the context of other work.
+\section*{Acknowledgements}
+In addition to acknowledging collaborators and research assistants, include relevant permit numbers (including institutional animal use permits), acknowledgment of funding sources, and give recognition to nature reserves or other organizations that made this work possible.
+\section*{Data accessiblity}
+Please state where you have deposited the raw data underlying your analyses. It will need to include the name of the repository (e.g. Dryad, figshare, GenBank etc.) and location of the data (i.e DOI). For authors archiving at Dryad, we can facilitate the process when your paper is accepted. \\
+\bibliographystyle{jae}%Compile with jae.bst style file
+\bibliography{refs}% your .bib file(s)
+\newpage
+\section*{Table captions}
+\noindent \textbf{Table~1.} This is an indecipherable table that shows that we've probably found something really cool.\\
+\noindent \textbf{Table~2.} This table isn't even actually related to the manuscript at all!
+\newpage
+\begin{table}[h!]
+  \caption{}
+  \label{TabVar}
+  \begin{center}
+    \begin{tabular}{p{3cm}p{10cm}}
+      \hline
+      Name & Description \\
+      \hline
+      Variable 1 \\
+      Variable 2 \\
+      Variable 3 \\
+      Variable 4 \\
+      Variable 5 \\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+\newpage
+\begin{table}[h!]
+  \caption{}
+  \label{TabENFA}
+  \begin{center}
+    \begin{tabular}{lrrr}
+      \hline
+      Condition & Treatment 1 & Treatment 2 & Treatment 3 \\
+      \hline
+      A & value & value & value \\
+      B & value & value & value \\
+      C & value & value & value \\
+      D & value & value & value \\
+      E & value & value & value \\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+\newpage
+\section*{Figure captions}
+\noindent \textbf{Figure~1.} Lots of lines and squiggles; it's basically a glorified doodle. \\
+\noindent \textbf{Figure~2.} Definitely some exciting trends here \ldots
+\newpage
+\begin{figure}[h!]
+  \caption{}
+  \label{Fig1}
+  \begin{center}
+    \includegraphics[width=6cm]{Fig1}
+  \end{center}
+\end{figure}
+\newpage
+\begin{figure}[h!]
+  \caption{}
+  \label{Fig2}
+  \begin{center}
+    \includegraphics[width=6cm]{Fig2}
+  \end{center}
+\end{figure}
+\end{document}
