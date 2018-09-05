@@ -20,14 +20,14 @@
     }
     
     ## variable selection priors
-    z ~ dbern(0.5)
-    var <- (1-z) * 0.001 + z * 10
+    betasize ~ dnorm(0,prec)
     prec <- 1/var
-    b ~ dnorm(0,prec)
-    
+    var <- (1-z)*0.001 + z*10
+    z ~ dbern(0.5)
+
     ## Likelihood
     for(i in 1:N.obs){
-    mu[i] <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + b*size[i]
+    mu[i] <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + betasize*size[i]
     
     y[i]~dnorm(mu[i],tau.eps)
     

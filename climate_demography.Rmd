@@ -30,6 +30,14 @@ PC_gather <- PCclim %>%
   gather(PC1,PC2,PC3,key="PC",value="value") %>% 
   mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present")))
 
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
 ggplot(PC_gather)+
   geom_histogram(aes(x=value,fill=time))+
     facet_grid(PC~.)
@@ -50,7 +58,6 @@ cholla <- read.csv("cholla_demography_20042018.csv")
 ## subset to demography years only,
 ## drop seed addition plots (don't want them in plot RFX)
 ## change plots and years to 1,...,N integers
-
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
   filter(Year_t >= min(cholla$Year_t,na.rm=T),
          Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
@@ -61,7 +68,6 @@ cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>%
        vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
        standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
        standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
-
 ```
 
 ### 1. Flowering
@@ -70,14 +76,6 @@ cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>%
 flow_dat <- cholla.clim %>% 
   filter(!is.na(standvol_t),
          !is.na(Goodbuds_t))
-
-PC_range <- PC_gather %>% 
-  group_by(PC) %>% 
-  summarise(PC_min = min(value),
-            PC_max = max(value))
-x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
-x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
-x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
 
 # not sure if I want to bin by equal intervals or equal sample sizes. Might explore both.
 flow_dat_cuts <- flow_dat %>% 
