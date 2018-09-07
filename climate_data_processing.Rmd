@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T,message=F,warning=F)
+library(tidyverse)
 library(data.table)
 library(chron)
 library(ggfortify)
@@ -196,7 +197,8 @@ autoplot(SEV_PCA,loadings=T,loadings.label=T)
 
 Lastly, write the PCA values to file, to be used in demographic analysis.
 ```{r write PCA}
-write.csv(data.frame(SEV_PCA$x),"climateWNA_PCvalues_out.csv")
-write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv")
+#do this only once
+#write.csv(data.frame(SEV_PCA$x),"climateWNA_PCvalues_out.csv")
+#write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv")
 ```
 
