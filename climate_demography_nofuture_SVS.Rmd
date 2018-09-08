@@ -1,0 +1,311 @@
+---
+title: "Cholla climate-demography relationships"
+author: "Tom Miller"
+date: "September 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,message=F,warning=F)
+library(tidyverse)
+library(lme4)
+library(mcmcplots)
+library(R2jags)
+PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+volume <- function(h, w, p){
+  (1/3)*pi*h*(((w + p)/2)/2)^2
+}
+invlogit<-function(x){exp(x)/(1+exp(x))}
+# there are the binning parameters for visualization
+PC_bins <- 4
+size_bin_num <- 3
+```
+
+# Purpose: exploration of historical and future SEV climate and fitting climate-dependent demography functions for IPM analysis
+
+## How much over lap do we have between historical data and observation period?
+```{r PC hist}
+PC_gather <- PCclim %>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
+
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
+ggplot(PC_gather)+
+  geom_histogram(aes(x=value,fill=time))+
+    facet_grid(PC~.)
+```
+The plot above is useful to see and a little bit concerning. We will need to extrapolate demographic performance to high values of PC1 (not observed in demographic study), which I think correspond to cool, big monsoon years. Let's see what this looks like in real time. 
+```{r PC timeseries}
+ggplot(PC_gather)+
+  geom_line(aes(x=Year_t,y=value,color=time))+
+    facet_grid(PC~.)
+```
+
+I mean, I guess this is what climate change looks like. I think this argues for testing polynomial responses - but even that is assuming a particular type of extrapolation that could be equally wrong. Let's see how the parameter estimates shape up. 
+
+## Demographic data
+Read in cholla data and merge in with the climate PCs. Also perform some operations to get data in the format we need.
+```{r read cholla dat}
+cholla <- read.csv("cholla_demography_20042018.csv")
+## merge demography and climate,
+## subset to demography years only,
+## drop seed addition plots (don't want them in plot RFX)
+## change plots and years to 1,...,N integers
+cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
+  filter(Year_t >= min(cholla$Year_t,na.rm=T),
+         Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)!="H") %>% 
+  mutate(year_int = Year_t - (min(Year_t)-1),
+       plot_int = as.integer(Plot),
+       vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+       vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
+       standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
+       standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
+```
+
+### Bayesian model fitting. 
+All vital rates will share the same linear predictor, including size, three climate PCs, quadratic effects of PCs, and all interactions with size (but no PC*PC interactions):
+
+$$\mu = \beta_0+\beta_1*size+
+\beta_2*PC1+\beta_3*PC1^{2}+\beta_4*size*PC1+\beta_5*size*PC1^{2}+\rho+\tau$$
+
+Plus the same terms for PC2 and PC3 (not shown for space), so a total of 14 fixed-effect coefficient. Also there are normally distributed random deviates for plot ($\rho$) and year ($\tau$). The JAGS models are written in separate .txt files. 
+
+```{r data prep}
+## cut NAs and bundle data
+flow_dat <- cholla.clim %>% 
+  filter(!is.na(standvol_t),
+         !is.na(Goodbuds_t),
+         !is.na(PC1))
+surv_dat <- cholla.clim %>% 
+  filter(!is.na(standvol_t),
+         !is.na(Survival_t1),
+         !is.na(PC1))
+grow_dat <- cholla.clim %>% 
+  filter(!is.na(standvol_t),
+         !is.na(standvol_t1),
+         !is.na(PC1)) %>% 
+  mutate(growth_t1 = standvol_t1 - standvol_t)
+fert_dat <- cholla.clim %>% 
+  filter(Goodbuds_t>0,
+         !is.na(standvol_t),
+         !is.na(Goodbuds_t),
+         !is.na(PC1))
+
+## N plots and years should be the same across vital rates, just check
+max(flow_dat$year_int);max(fert_dat$year_int);max(grow_dat$year_int);max(surv_dat$year_int)
+max(flow_dat$plot_int);max(fert_dat$plot_int);max(grow_dat$plot_int);max(surv_dat$plot_int)
+
+cholla.dat<-list(N.plots = max(flow_dat$plot_int),
+               N.years = max(flow_dat$year_int),
+               
+               flow.N.obs = nrow(flow_dat),
+               flow.plot = flow_dat$plot_int,
+               flow.year = flow_dat$year_int,
+               flow.PC1 = flow_dat$PC1,
+               flow.PC2 = flow_dat$PC2,
+               flow.PC3 = flow_dat$PC3,
+               flow.size = flow_dat$standvol_t,
+               flow.y = flow_dat$Goodbuds_t > 0,
+               
+               surv.N.obs = nrow(surv_dat),
+               surv.plot = surv_dat$plot_int,
+               surv.year = surv_dat$year_int,
+               surv.PC1 = surv_dat$PC1,
+               surv.PC2 = surv_dat$PC2,
+               surv.PC3 = surv_dat$PC3,
+               surv.size = surv_dat$standvol_t,
+               surv.y = surv_dat$Survival_t1,
+               
+               grow.N.obs = nrow(grow_dat),
+               grow.plot = grow_dat$plot_int,
+               grow.year = grow_dat$year_int,
+               grow.PC1 = grow_dat$PC1,
+               grow.PC2 = grow_dat$PC2,
+               grow.PC3 = grow_dat$PC3,
+               grow.size = grow_dat$standvol_t,
+               grow.y = grow_dat$growth_t1,
+               
+               fert.N.obs = nrow(fert_dat),
+               fert.plot = fert_dat$plot_int,
+               fert.year = fert_dat$year_int,
+               fert.PC1 = fert_dat$PC1,
+               fert.PC2 = fert_dat$PC2,
+               fert.PC3 = fert_dat$PC3,
+               fert.size = fert_dat$standvol_t,
+               fert.y = fert_dat$Goodbuds_t)
+```
+
+```{r mcmc setup}
+inits<-function(){list(flow.mu=rnorm(1),
+                       fert.mu=rnorm(1),
+                       surv.mu=rnorm(1),
+                       grow.mu=rnorm(1),
+                       
+                       flow.sigma.plot=rlnorm(1),
+                       fert.sigma.plot=rlnorm(1),
+                       surv.sigma.plot=rlnorm(1),
+                       grow.sigma.plot=rlnorm(1),
+                       
+                       flow.sigma.year=rlnorm(1),
+                       fert.sigma.year=rlnorm(1),
+                       surv.sigma.year=rlnorm(1),
+                       grow.sigma.year=rlnorm(1),
+                       
+                       fert.sigma.overdisp=rlnorm(1),
+                       grow.sigma.eps=rlnorm(1),
+                       
+                       flow.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
+                       fert.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
+                       grow.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
+                       surv.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
+                       
+                       flow.zsize=rbinom(1,1,0.5),
+                       fert.zsize=rbinom(1,1,0.5),
+                       grow.zsize=rbinom(1,1,0.5),
+                       surv.zsize=rbinom(1,1,0.5)
+                       )}
+
+## Params to estimate
+parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
+              "flow.bsize","fert.bsize","surv.bsize","grow.bsize",
+              "flow.bclim","fert.bclim","surv.bclim","grow.bclim",
+              "flow.z","fert.z","surv.z","grow.z",
+              "flow.zsize","fert.zsize","surv.zsize","grow.zsize",
+              "flow.sigma.plot","fert.sigma.plot","surv.sigma.plot","grow.sigma.plot",
+              "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
+              "fert.sigma.overdisp",
+              "grow.sigma.eps",
+              "flow.fit","fert.fit","surv.fit","grow.fit",
+              "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new")
+
+## MCMC settings
+ni<-40000
+nb<-10000
+nt<-10
+nc<-3
+
+```
+
+Run this mother-fucker.
+```{r mcmc run}
+allrates.out<-jags(data=cholla.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_allrates_SVS.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
+```{r diagnostics}
+#mcmcplot(allrates.out)
+
+par(mfrow=c(2,2))
+plot(allrates.out$BUGSoutput$sims.list$flow.fit,
+     allrates.out$BUGSoutput$sims.list$flow.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+plot(allrates.out$BUGSoutput$sims.list$fert.fit,
+     allrates.out$BUGSoutput$sims.list$fert.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+plot(allrates.out$BUGSoutput$sims.list$grow.fit,
+     allrates.out$BUGSoutput$sims.list$grow.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+plot(allrates.out$BUGSoutput$sims.list$surv.fit,
+     allrates.out$BUGSoutput$sims.list$surv.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+```
+
+```{r z scores}
+allrates.out$BUGSoutput$mean$flow.z
+allrates.out$BUGSoutput$mean$fert.z
+allrates.out$BUGSoutput$mean$grow.z
+allrates.out$BUGSoutput$mean$surv.z
+
+## write z scores to file
+write.csv(data.frame(allrates.out$BUGSoutput$summary),
+          "allrates_SVS_out.csv")
+
+```
+
+Create a new "final" model based on these results for which coefficients are non-zero.
+```{r model selection}
+which(allrates.out$BUGSoutput$mean$flow.z>0.1,arr.ind=T)
+which(allrates.out$BUGSoutput$mean$fert.z>0.1,arr.ind=T)
+which(allrates.out$BUGSoutput$mean$grow.z>0.1,arr.ind=T)
+which(allrates.out$BUGSoutput$mean$surv.z>0.1,arr.ind=T)
+
+```
+
+What about keeping size? Yes, keep all of them.
+```{r}
+allrates.out$BUGSoutput$mean$flow.zsize
+allrates.out$BUGSoutput$mean$fert.zsize
+allrates.out$BUGSoutput$mean$grow.zsize
+allrates.out$BUGSoutput$mean$surv.zsize
+
+```
+
+Run the "selected model" only with coefficients that are likely (p > 0.1) non-zero.
+```{r final model}
+inits<-function(){list(flow.mu=rnorm(1),
+                       fert.mu=rnorm(1),
+                       surv.mu=rnorm(1),
+                       grow.mu=rnorm(1),
+                       
+                       flow.sigma.plot=rlnorm(1),
+                       fert.sigma.plot=rlnorm(1),
+                       surv.sigma.plot=rlnorm(1),
+                       grow.sigma.plot=rlnorm(1),
+                       
+                       flow.sigma.year=rlnorm(1),
+                       fert.sigma.year=rlnorm(1),
+                       surv.sigma.year=rlnorm(1),
+                       grow.sigma.year=rlnorm(1),
+                       
+                       fert.sigma.overdisp=rlnorm(1),
+                       grow.sigma.eps=rlnorm(1),
+                       
+                       flow.bclim=matrix(rnorm(12),nrow=4,ncol=3),
+                       fert.bclim=matrix(rnorm(12),nrow=4,ncol=3),
+                       grow.bclim=matrix(rnorm(12),nrow=4,ncol=3),
+                       surv.bclim=matrix(rnorm(12),nrow=4,ncol=3),
+                       
+                       flow.bsize=rnorm(1),
+                       fert.bsize=rnorm(1),
+                       grow.bsize=rnorm(1),
+                       surv.bsize=rnorm(1)
+                       )}
+
+## Params to estimate
+parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
+              "flow.bsize","fert.bsize","surv.bsize","grow.bsize",
+              "flow.bclim","fert.bclim","surv.bclim","grow.bclim",
+              "flow.sigma.plot","fert.sigma.plot","surv.sigma.plot","grow.sigma.plot",
+              "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
+              "fert.sigma.overdisp",
+              "grow.sigma.eps",
+              "flow.fit","fert.fit","surv.fit","grow.fit",
+              "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new")
+
+## MCMC settings
+ni<-20000
+nb<-5000
+nt<-10
+nc<-3
+
+allrates.selected.out<-jags(data=cholla.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_allrates_selected.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
