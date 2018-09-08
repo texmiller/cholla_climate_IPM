@@ -16,9 +16,6 @@ volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
 }
 invlogit<-function(x){exp(x)/(1+exp(x))}
-# there are the binning parameters for visualization
-PC_bins <- 4
-size_bin_num <- 3
 ```
 
 # Purpose: exploration of historical and future SEV climate and fitting climate-dependent demography functions for IPM analysis
@@ -259,7 +256,7 @@ allrates.out$BUGSoutput$mean$surv.zsize
 
 Run the "selected model" only with coefficients that are likely (p > 0.1) non-zero.
 ```{r final model}
-inits<-function(){list(flow.mu=rnorm(1),
+inits<-function(){list(flow.mu=rnorm(1,-10,2),
                        fert.mu=rnorm(1),
                        surv.mu=rnorm(1),
                        grow.mu=rnorm(1),
@@ -300,12 +297,328 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new")
 
 ## MCMC settings
-ni<-20000
+ni<-30000
 nb<-5000
 nt<-10
 nc<-3
 
 allrates.selected.out<-jags(data=cholla.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_allrates_selected.txt",
           n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+
+```{r diagnostics}
+#mcmcplot(allrates.selected.out)
+par(mfrow=c(2,2))
+plot(allrates.selected.out$BUGSoutput$sims.list$flow.fit,
+     allrates.selected.out$BUGSoutput$sims.list$flow.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+plot(allrates.selected.out$BUGSoutput$sims.list$fert.fit,
+     allrates.selected.out$BUGSoutput$sims.list$fert.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+plot(allrates.selected.out$BUGSoutput$sims.list$grow.fit,
+     allrates.selected.out$BUGSoutput$sims.list$grow.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+plot(allrates.selected.out$BUGSoutput$sims.list$surv.fit,
+     allrates.selected.out$BUGSoutput$sims.list$surv.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+```
+
+This all looks good. Write the mean parameter estimates, the summary, and a bunch of the posterior draws to file. 
+```{r write final params}
+write.csv(allrates.selected.out$BUGSoutput$summary,
+          "allrates.selected.summary.csv")
+saveRDS(allrates.selected.out$BUGSoutput$mean,
+        "allrates.selected.mean.rds")
+
+samples<-sample(1:7500,size=1000,replace=F)
+allrates.selected.posterior<-data.frame(allrates.selected.out$BUGSoutput$sims.matrix[samples,])
+write.csv(allrates.selected.posterior,
+          "allrates.selected.posterior.csv")
+```
+
+Now I will pick up building graphics from these parameter estimates. If I want to run or revise these figures, I can just load the csv files rather than rerunning the full bayesian model (which takes several hours).
+
+## Graphics
+```{r read params}
+## read in mean parameter estimates
+mean_params <- readRDS("allrates.selected.mean.rds")
+```
+
+Start with defining the binning parameters for size. 
+```{r binning params}
+# there are the binning parameters for visualization
+PC_bins <- 4
+size_bin_num <- 3
+bin_cols <- c("#c6dbef","#6baed6","#08519c")
+alpha.col<-0.5
+
+## here is how the size distn will be cut up:
+size_cuts <- cholla.clim %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num)) %>% 
+  group_by(size_bin) %>% 
+  summarise(bin_mean = mean(standvol_t))
+hist(cholla.clim$standvol_t)
+abline(v = size_cuts$bin_mean)
+```
+
+Graphics for flowering:
+```{r flowering graphics}
+
+flow_dat_cuts <- flow_dat %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+         size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,Year_t) %>% 
+  summarise(bin_mean = mean(standvol_t),
+            mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_flow = mean(Goodbuds_t > 0),
+            bin_n = n())
+
+#win.graph()
+par(mfrow=c(1,3))
+with(flow_dat_cuts,{
+  plot(mean_PC1,mean_flow,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),lwd=1,
+                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC1,
+        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$flow.bclim[1,1] * x_PC1),
+        lwd=3,col=bin_cols[i])
+  }
+
+  plot(mean_PC2,mean_flow,col=alpha(bin_cols[size_bins],alpha.col),pch=16,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC2,
+        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$flow.bclim[1,2] * x_PC2 + 
+                   mean_params$flow.bclim[3,2] * x_PC2 * size_cuts$bin_mean[i] +
+                   mean_params$flow.bclim[4,2] * (x_PC2^2) * size_cuts$bin_mean[i]),
+        lwd=2,col=bin_cols[i])
+  }
+  
+  plot(mean_PC3,mean_flow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1))
+    for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC3,
+        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$flow.bclim[1,3] * x_PC3 + 
+                   mean_params$flow.bclim[3,3] * x_PC3 * size_cuts$bin_mean[i] +
+                   mean_params$flow.bclim[4,3] * (x_PC3^2) * size_cuts$bin_mean[i]),
+        lwd=3,col=bin_cols[i])
+  }
+})
+
+```
+
+Graphics for survival:
+```{r survival graphics}
+
+surv_dat_cuts <- surv_dat %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+         size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,Year_t) %>% 
+  summarise(bin_mean = mean(standvol_t),
+            mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_surv = mean(Survival_t1),
+            bin_n = n())
+
+#win.graph()
+par(mfrow=c(1,3))
+with(surv_dat_cuts,{
+  plot(mean_PC1,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC1,
+        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$surv.bclim[1,1] * x_PC1),
+        lwd=3,col=bin_cols[i])
+  }
+
+  plot(mean_PC2,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC2,
+        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$surv.bclim[1,2] * x_PC2),
+        lwd=3,col=bin_cols[i])
+  }
+  
+  plot(mean_PC3,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1))
+    for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC3,
+        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$surv.bclim[1,3] * x_PC3 + 
+                   mean_params$surv.bclim[2,3] * (x_PC3^2)),
+        lwd=3,col=bin_cols[i])
+  }
+})
+
+```
+
+Graphics for growth:
+```{r growth graphics}
+grow_dat_cuts <- grow_dat %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+         size_bins = as.integer(size_bin)) 
+
+#win.graph()
+par(mfrow=c(1,3))
+with(grow_dat_cuts,{
+  plot(PC1,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+                         xlim=c(min(x_PC1),max(x_PC1)))
+  plot(PC2,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+                         xlim=c(min(x_PC2),max(x_PC2)))
+  plot(PC3,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+                         xlim=c(min(x_PC3),max(x_PC3)))
+
+})
+
+```
+
+
+Graphics for fertility. This one is a little different because we have to chop the size distribution in a different way, since non-flowering plants are excluded from this data set. 
+```{r fertility graphics}
+fert_size_cuts <- cholla.clim %>% 
+  filter(Goodbuds_t>0) %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num)) %>% 
+  group_by(size_bin) %>% 
+  summarise(bin_mean = mean(standvol_t))
+
+fert_dat_cuts <- fert_dat %>% 
+  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+         size_bins = as.integer(size_bin))
+
+ymax.fert<-100
+
+#win.graph()
+par(mfrow=c(1,3))
+with(fert_dat_cuts,{
+  plot(PC1,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,ymax.fert))
+
+  plot(PC2,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,ymax.fert))
+  for(i in 1:length(fert_size_cuts$bin_mean)){
+  lines(x_PC2,
+        exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_cuts$bin_mean[i] + 
+                   mean_params$fert.bclim[3,2] * x_PC2 * fert_size_cuts$bin_mean[i]),
+        lwd=2,col=bin_cols[i])
+  }
+  
+  plot(PC3,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,ymax.fert))
+
+})
+
+```
+
+## Big combo figure
+Something like this will be in the final paper.
+
+```{r combo fig}
+par(mfrow=c(4,3))
+with(flow_dat_cuts,{
+  plot(mean_PC1,mean_flow,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),lwd=1,
+                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC1,
+        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$flow.bclim[1,1] * x_PC1),
+        lwd=3,col=bin_cols[i])
+  }
+
+  plot(mean_PC2,mean_flow,col=alpha(bin_cols[size_bins],alpha.col),pch=16,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC2,
+        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$flow.bclim[1,2] * x_PC2 + 
+                   mean_params$flow.bclim[3,2] * x_PC2 * size_cuts$bin_mean[i] +
+                   mean_params$flow.bclim[4,2] * (x_PC2^2) * size_cuts$bin_mean[i]),
+        lwd=2,col=bin_cols[i])
+  }
+  
+  plot(mean_PC3,mean_flow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1))
+    for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC3,
+        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$flow.bclim[1,3] * x_PC3 + 
+                   mean_params$flow.bclim[3,3] * x_PC3 * size_cuts$bin_mean[i] +
+                   mean_params$flow.bclim[4,3] * (x_PC3^2) * size_cuts$bin_mean[i]),
+        lwd=3,col=bin_cols[i])
+  }
+})
+
+with(fert_dat_cuts,{
+  plot(PC1,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,ymax.fert))
+
+  plot(PC2,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,ymax.fert))
+  for(i in 1:length(fert_size_cuts$bin_mean)){
+  lines(x_PC2,
+        exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_cuts$bin_mean[i] + 
+                   mean_params$fert.bclim[3,2] * x_PC2 * fert_size_cuts$bin_mean[i]),
+        lwd=2,col=bin_cols[i])
+  }
+  
+  plot(PC3,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,ymax.fert))
+
+})
+
+with(surv_dat_cuts,{
+  plot(mean_PC1,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC1,
+        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$surv.bclim[1,1] * x_PC1),
+        lwd=3,col=bin_cols[i])
+  }
+
+  plot(mean_PC2,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1))
+  for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC2,
+        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$surv.bclim[1,2] * x_PC2),
+        lwd=3,col=bin_cols[i])
+  }
+  
+  plot(mean_PC3,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
+                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1))
+    for(i in 1:length(size_cuts$bin_mean)){
+  lines(x_PC3,
+        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+                   mean_params$surv.bclim[1,3] * x_PC3 + 
+                   mean_params$surv.bclim[2,3] * (x_PC3^2)),
+        lwd=3,col=bin_cols[i])
+  }
+})
+
+with(grow_dat_cuts,{
+  plot(PC1,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+                         xlim=c(min(x_PC1),max(x_PC1)))
+  plot(PC2,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+                         xlim=c(min(x_PC2),max(x_PC2)))
+  plot(PC3,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+                         xlim=c(min(x_PC3),max(x_PC3)))
+
+})
 ```
 
