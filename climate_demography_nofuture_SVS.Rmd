@@ -357,8 +357,8 @@ Start with defining the binning parameters for size.
 # there are the binning parameters for visualization
 PC_bins <- 4
 size_bin_num <- 3
-bin_cols <- c("#c6dbef","#6baed6","#08519c")
-alpha.col<-0.5
+bin_cols <- c("#9ecae1","#4292c6","#084594")
+alpha.col<-0.2
 
 ## here is how the size distn will be cut up:
 size_cuts <- cholla.clim %>% 
@@ -525,100 +525,4 @@ with(fert_dat_cuts,{
 
 ```
 
-## Big combo figure
-Something like this will be in the final paper.
-
-```{r combo fig}
-par(mfrow=c(4,3))
-with(flow_dat_cuts,{
-  plot(mean_PC1,mean_flow,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),lwd=1,
-                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1))
-  for(i in 1:length(size_cuts$bin_mean)){
-  lines(x_PC1,
-        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
-                   mean_params$flow.bclim[1,1] * x_PC1),
-        lwd=3,col=bin_cols[i])
-  }
-
-  plot(mean_PC2,mean_flow,col=alpha(bin_cols[size_bins],alpha.col),pch=16,cex= 3*(bin_n / max(bin_n)),
-                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1))
-  for(i in 1:length(size_cuts$bin_mean)){
-  lines(x_PC2,
-        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
-                   mean_params$flow.bclim[1,2] * x_PC2 + 
-                   mean_params$flow.bclim[3,2] * x_PC2 * size_cuts$bin_mean[i] +
-                   mean_params$flow.bclim[4,2] * (x_PC2^2) * size_cuts$bin_mean[i]),
-        lwd=2,col=bin_cols[i])
-  }
-  
-  plot(mean_PC3,mean_flow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)),
-                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1))
-    for(i in 1:length(size_cuts$bin_mean)){
-  lines(x_PC3,
-        invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
-                   mean_params$flow.bclim[1,3] * x_PC3 + 
-                   mean_params$flow.bclim[3,3] * x_PC3 * size_cuts$bin_mean[i] +
-                   mean_params$flow.bclim[4,3] * (x_PC3^2) * size_cuts$bin_mean[i]),
-        lwd=3,col=bin_cols[i])
-  }
-})
-
-with(fert_dat_cuts,{
-  plot(PC1,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
-                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,ymax.fert))
-
-  plot(PC2,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
-                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,ymax.fert))
-  for(i in 1:length(fert_size_cuts$bin_mean)){
-  lines(x_PC2,
-        exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_cuts$bin_mean[i] + 
-                   mean_params$fert.bclim[3,2] * x_PC2 * fert_size_cuts$bin_mean[i]),
-        lwd=2,col=bin_cols[i])
-  }
-  
-  plot(PC3,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
-                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,ymax.fert))
-
-})
-
-with(surv_dat_cuts,{
-  plot(mean_PC1,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
-                         xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1))
-  for(i in 1:length(size_cuts$bin_mean)){
-  lines(x_PC1,
-        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
-                   mean_params$surv.bclim[1,1] * x_PC1),
-        lwd=3,col=bin_cols[i])
-  }
-
-  plot(mean_PC2,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
-                         xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1))
-  for(i in 1:length(size_cuts$bin_mean)){
-  lines(x_PC2,
-        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
-                   mean_params$surv.bclim[1,2] * x_PC2),
-        lwd=3,col=bin_cols[i])
-  }
-  
-  plot(mean_PC3,mean_surv,col=bin_cols[size_bins],pch=1,cex= 3*(bin_n / max(bin_n)),
-                         xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1))
-    for(i in 1:length(size_cuts$bin_mean)){
-  lines(x_PC3,
-        invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
-                   mean_params$surv.bclim[1,3] * x_PC3 + 
-                   mean_params$surv.bclim[2,3] * (x_PC3^2)),
-        lwd=3,col=bin_cols[i])
-  }
-})
-
-with(grow_dat_cuts,{
-  plot(PC1,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
-                         xlim=c(min(x_PC1),max(x_PC1)))
-  plot(PC2,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
-                         xlim=c(min(x_PC2),max(x_PC2)))
-  plot(PC3,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
-                         xlim=c(min(x_PC3),max(x_PC3)))
-
-})
-```
 
