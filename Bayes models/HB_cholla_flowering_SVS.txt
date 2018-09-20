@@ -1,0 +1,73 @@
+
+    model{
+
+    ## Priors
+    ##hyperprior for intercept alpha
+    flow.mu~dnorm(0,0.001)  
+    
+    ## plot variances
+    flow.sigma.plot~dunif(0,1000)
+    flow.tau.plot<-1/(flow.sigma.plot*flow.sigma.plot)
+    
+    ## year variances
+    flow.sigma.year~dunif(0,1000)
+    flow.tau.year<-1/(flow.sigma.year*flow.sigma.year)
+    
+    ## variable selection priors for climate effects
+    ## looping over coefficients (i) and PC variables (j)
+    ## Here each coefficient has its own indicator variable
+    for(i in 1:4){
+    for(j in 1:3){
+    flow.bclim[i,j] ~ dnorm(0,flow.prec[i,j])
+    flow.prec[i,j] <- 1/flow.V[i,j]
+    flow.V[i,j] <- (1-flow.z[i,j])*0.001 + flow.z[i,j]*10
+    flow.z[i,j] ~ dbern(0.5)
+    }
+    }
+    ## prior for size slope - also do SVS
+    flow.bsize~dnorm(0,flow.precsize) 
+    flow.precsize <- 1/flow.Vsize
+    flow.Vsize <- (1-flow.zsize)*0.001 + flow.zsize*10
+    flow.zsize ~ dbern(0.5)
+
+    
+    ##plot and year deviates on the intercept
+    for(i in 1:N.plots){      
+    flow.eps.plot[i]~dnorm(0,flow.tau.plot)
+    }
+    for(i in 1:N.years){      
+    flow.eps.year[i]~dnorm(0,flow.tau.year)
+    }
+    
+    ## Likelihoods
+    
+    ## Flowering
+    for(i in 1:flow.N.obs){
+    logit(flow.p[i]) <- flow.mu + flow.eps.plot[flow.plot[i]] + flow.eps.year[flow.year[i]] + 
+    flow.bsize*flow.size[i]+ 
+    flow.bclim[1,1]*flow.PC1[i] + 
+    flow.bclim[2,1]*pow(flow.PC1[i],2) + 
+    flow.bclim[3,1]*flow.PC1[i]*flow.size[i] + 
+    flow.bclim[4,1]*pow(flow.PC1[i],2)*flow.size[i] + 
+    flow.bclim[1,2]*flow.PC2[i] + 
+    flow.bclim[2,2]*pow(flow.PC2[i],2) + 
+    flow.bclim[3,2]*flow.PC2[i]*flow.size[i] + 
+    flow.bclim[4,2]*pow(flow.PC2[i],2)*flow.size[i] + 
+    flow.bclim[1,3]*flow.PC3[i] + 
+    flow.bclim[2,3]*pow(flow.PC3[i],2) + 
+    flow.bclim[3,3]*flow.PC3[i]*flow.size[i] + 
+    flow.bclim[4,3]*pow(flow.PC3[i],2)*flow.size[i]
+    
+    flow.y[i]~dbern(flow.p[i])
+    
+    flow.Presi[i] <- abs(flow.y[i]-flow.p[i])
+    flow.y.new[i] ~ dbern(flow.p[i])
+    flow.Presi.new[i] <- abs(flow.y.new[i] - flow.p[i])
+    }
+
+    ## sum up posterior predictive checks
+    flow.fit <- sum(flow.Presi[]) 
+    flow.fit.new <- sum(flow.Presi.new[]) 
+    
+    }##end model
+    

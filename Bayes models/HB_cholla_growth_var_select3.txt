@@ -1,0 +1,44 @@
+
+    model{
+
+    ## Priors
+    ##hyperprior for intercept alpha
+    mu.alpha~dnorm(0,0.001)   
+    sigma.plot~dunif(0,1000)
+    tau.plot<-1/(sigma.plot*sigma.plot)
+    sigma.year~dunif(0,1000)
+    tau.year<-1/(sigma.year*sigma.year)
+    sigma.eps~dunif(0,1000)
+    tau.eps<-1/(sigma.eps*sigma.eps)
+
+    ## variable selection priors
+    betasize ~ dnorm(0,prec)
+    prec <- 1/V
+    V <- (1-z)*0.001 + z*10
+    z ~ dbern(0.5)
+    
+    ##plot and year deviates on the intercept
+    for(i in 1:N.plots){      
+    eps.plot[i]~dnorm(0,tau.plot)
+    }
+    for(i in 1:N.years){      
+    eps.year[i]~dnorm(0,tau.year)
+    }
+
+    ## Likelihood
+    for(i in 1:N.obs){
+    mu[i] <- mu.alpha + eps.plot[plot[i]] + eps.year[year[i]] + betasize*size[i]
+    
+    y[i]~dnorm(mu[i],tau.eps)
+    
+    #posterior predictive check
+    sq.res[i] <- pow(y[i] - mu[i],2)
+    y.new[i] ~ dnorm(mu[i], tau.eps)
+    sq.res.new[i] <- pow(y.new[i] - mu[i], 2)
+    }
+
+    fit <- sum(sq.res[]) 
+    fit.new <- sum(sq.res.new[]) 
+
+    }##end model
+
