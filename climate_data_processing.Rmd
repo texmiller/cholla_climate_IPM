@@ -14,19 +14,111 @@ library(ggfortify)
 ```
 
 ## Overview
-I am trying to wrap up the climate analysis, which has become a real shitshow. There was just (9/5/2018) an email alert that ClimateWNA now includes 2017, which will allow us to add the 2016-17 transition year. So it is a good point to re-assess the climate data and how we interpret the PCs. I will run all of Kevin's PCA code here and recreate the seasonal PCA with the updated data, just so that I have a clear understanding of what Kevin did and how to interpret it. Lastly, I am dropping future climate change projections because I am uncomfortable (for now) projecting into very different future climates. The past is hard enough!
+I am trying to wrap up the climate analysis, which has become a real shitshow. There was just (9/5/2018) an email alert that ClimateWNA now includes 2017, which will allow us to add the 2016-17 transition year. So it is a good point to re-assess the climate data and how we interpret the PCs. I will run all of Kevin's PCA code here and recreate the seasonal PCA with the updated data, just so that I have a clear understanding of what Kevin did and how to interpret it. Lastly, I am dropping future climate change projections because I am uncomfortable (for now) projecting into very different future climates. The past is hard enough! _Update: in this branch, I am actually including the RCP projections! Modifications below._
 
 ## Tidy up ClimateWNA data
 First, read in the historical data from ClimateWNA for the period 1901-2016. This comes from the lat, long, and elevation of the Blue Grama met station (34.335, -106.632, 1669). I can (need to) show elsewhere that ClimateWNA data correlate well with SEV met data. Better to do this with Deep Well, which is the longest SEV met data set. I will do this elsewhere or below. The steps below compute seasonal values (sums or averages) from the raw monthly data, where warm season is May through September and cool season is October through April.
 ```{r climate dat manip}
-SEV_clim <- read.csv("ClimWNA_SEV_1901-2017AMT.csv")
+#SEV_clim <- read.csv("ClimWNA_SEV_1901-2017AMT.csv")
+# Now working with RCP projections.
+SEV_clim_historical <- read.csv("./ClimWNA_data/ClimWNA_SEV_1901-2017AMT.csv")%>% 
+  filter(ID2 == "BlueGrama")
+
+SEV_clim_ACCESS_45 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_ACCESS1-0_RCP45.csv") %>% mutate(model = "access", RCP = 45)
+SEV_clim_ACCESS_85 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_ACCESS1-0_RCP85.csv") %>% mutate(model = "access", RCP = 85)
+SEV_clim_CanESM2_45 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CanESM2_RCP45_r11i1p1.csv") %>% mutate(model = "canesm2", RCP = 45)
+SEV_clim_CanESM2_85 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CanESM2_RCP85_r11i1p1.csv") %>% mutate(model = "canesm2", RCP = 85)
+SEV_clim_CCSM4_45 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CCSM4_RCP45.csv") %>% mutate(model = "ccsm4", RCP = 45)
+SEV_clim_CCSM4_85 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CCSM4_RCP85.csv") %>% mutate(model = "ccsm4", RCP = 85)
+SEV_clim_CNRM_45 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CNRM-CM5_RCP45.csv") %>% mutate(model = "cnrm", RCP = 45)
+SEV_clim_CNRM_85 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CNRM-CM5_RCP85.csv") %>% mutate(model = "cnrm", RCP = 85)
+SEV_clim_CSIRO_45 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CSIRO-Mk3-6-0_RCP45_r11i1p1.csv") %>% mutate(model = "csiro", RCP = 45)
+SEV_clim_CSIRO_85 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_CSIRO-Mk3-6-0_RCP85_r11i1p1.csv")%>% mutate(model = "csiro", RCP = 85)
+SEV_clim_INM_45 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_INM-CM4_RCP45.csv")%>% mutate(model = "inm", RCP = 45)
+SEV_clim_INM_85 <- read.csv("./ClimWNA_data/ClimWNA_SEV_input_INM-CM4_RCP85.csv")%>% mutate(model = "inm", RCP = 85)
+
+## bind projections together and average over 6 GCM models
+SEV_clim_future <- bind_rows(SEV_clim_ACCESS_45,SEV_clim_ACCESS_85,
+                             SEV_clim_CanESM2_45,SEV_clim_CanESM2_85,
+                             SEV_clim_CCSM4_45,SEV_clim_CCSM4_85,
+                             SEV_clim_CNRM_45,SEV_clim_CNRM_85,
+                             SEV_clim_CSIRO_45,SEV_clim_CSIRO_85,
+                             SEV_clim_INM_45,SEV_clim_INM_85) %>% 
+  filter(ID2 == "BlueGrama") %>% 
+  group_by(RCP,Year) %>% 
+  summarise(Tmax01 = mean(Tmax01),
+            Tmax02 = mean(Tmax02),
+            Tmax03 = mean(Tmax03),
+            Tmax04 = mean(Tmax04),
+            Tmax05 = mean(Tmax05),
+            Tmax06 = mean(Tmax06),
+            Tmax07 = mean(Tmax07),
+            Tmax08 = mean(Tmax08),
+            Tmax09 = mean(Tmax09),
+            Tmax10 = mean(Tmax10),
+            Tmax11 = mean(Tmax11),
+            Tmax12 = mean(Tmax12),
+            
+            Tave01 = mean(Tave01),
+            Tave02 = mean(Tave02),
+            Tave03 = mean(Tave03),
+            Tave04 = mean(Tave04),
+            Tave05 = mean(Tave05),
+            Tave06 = mean(Tave06),
+            Tave07 = mean(Tave07),
+            Tave08 = mean(Tave08),
+            Tave09 = mean(Tave09),
+            Tave10 = mean(Tave10),
+            Tave11 = mean(Tave11),
+            Tave12 = mean(Tave12),
+            
+            Tmin01 = mean(Tmin01),
+            Tmin02 = mean(Tmin02),
+            Tmin03 = mean(Tmin03),
+            Tmin04 = mean(Tmin04),
+            Tmin05 = mean(Tmin05),
+            Tmin06 = mean(Tmin06),
+            Tmin07 = mean(Tmin07),
+            Tmin08 = mean(Tmin08),
+            Tmin09 = mean(Tmin09),
+            Tmin10 = mean(Tmin10),
+            Tmin11 = mean(Tmin11),
+            Tmin12 = mean(Tmin12),
+            
+            PPT01 = mean(PPT01),
+            PPT02 = mean(PPT02),
+            PPT03 = mean(PPT03),
+            PPT04 = mean(PPT04),
+            PPT05 = mean(PPT05),
+            PPT06 = mean(PPT06),
+            PPT07 = mean(PPT07),
+            PPT08 = mean(PPT08),
+            PPT09 = mean(PPT09),
+            PPT10 = mean(PPT10),
+            PPT11 = mean(PPT11),
+            PPT12 = mean(PPT12))
+
+SEV_clim_future_45 <- SEV_clim_future %>% 
+  filter(RCP==45)
+SEV_clim_future_85 <- SEV_clim_future %>% 
+  filter(RCP==85)
 
 ## gather each climate variable into its own df and derive month
-BlueGrama_TMax <- SEV_clim %>% 
-  filter(ID2 == "BlueGrama") %>% 
+
+TMax_historical <- SEV_clim_historical %>% 
   select(Year,Tmax01:Tmax12) %>% 
   gather(Tmax01:Tmax12,key="Month",value="Tmax")%>% 
   mutate(Month = as.integer(str_sub(Month,5,6))) 
+TMax_future_45 <- SEV_clim_future_45 %>% 
+  select(Year,Tmax01:Tmax12) %>% 
+  gather(Tmax01:Tmax12,key="Month",value="Tmax")%>% 
+  mutate(Month = as.integer(str_sub(Month,5,6))) 
+TMax_future_85 <- SEV_clim_future_85 %>% 
+  select(Year,Tmax01:Tmax12) %>% 
+  gather(Tmax01:Tmax12,key="Month",value="Tmax")%>% 
+  mutate(Month = as.integer(str_sub(Month,5,6))) 
+
+## stopped here Tuesday afternoon
 BlueGrama_TMin <- SEV_clim %>% 
   filter(ID2 == "BlueGrama") %>% 
   select(Year,Tmin01:Tmin12) %>% 
