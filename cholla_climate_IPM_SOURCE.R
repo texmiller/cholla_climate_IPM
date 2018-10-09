@@ -93,10 +93,10 @@ gxy<-function(x,y,params,rfx){
 sx<-function(x,params,rfx,PC1,PC2,PC3){
   xb=pmin(pmax(x,params$min.size),params$max.size)
   p.surv<-params$surv.mu + params$surv.bsize*xb + rfx[2] + 
-    params$surv.bclim[1,1]*PC1 + 
-    params$surv.bclim[1,2]*PC2 + 
-    params$surv.bclim[1,3]*PC3 + 
-    params$surv.bclim[2,3]*(PC3^2)
+    unlist(params$surv.bclim[1,1])*PC1 + 
+    unlist(params$surv.bclim[1,2])*PC2 + 
+    unlist(params$surv.bclim[1,3])*PC3 + 
+    unlist(params$surv.bclim[2,3])*(PC3^2)
   return(invlogit(p.surv))
 }
 
@@ -109,15 +109,15 @@ pxy <- function(x,y,params,rfx,PC1,PC2,PC3){
 fx<-function(x,params,rfx,PC1,PC2,PC3){
   xb=pmin(pmax(x,params$min.size),params$max.size)
   p.flow<-invlogit(params$flow.mu + rfx[3] + params$flow.bsize*xb + 
-                     params$flow.bclim[1,1]*PC1 + 
-                     params$flow.bclim[1,2]*PC2 +
-                     params$flow.bclim[3,2]*xb*PC2 +
-                     params$flow.bclim[4,2]*xb*(PC2^2) +
-                     params$flow.bclim[1,3]*PC3 +
-                     params$flow.bclim[3,3]*xb*PC3 +
-                     params$flow.bclim[4,3]*xb*(PC3^2))
+                     unlist(params$flow.bclim[1,1])*PC1 + 
+                     unlist(params$flow.bclim[1,2])*PC2 +
+                     unlist(params$flow.bclim[3,2])*xb*PC2 +
+                     unlist(params$flow.bclim[4,2])*xb*(PC2^2) +
+                     unlist(params$flow.bclim[1,3])*PC3 +
+                     unlist(params$flow.bclim[3,3])*xb*PC3 +
+                     unlist(params$flow.bclim[4,3])*xb*(PC3^2))
   nfruits<-exp(params$fert.mu + rfx[4] + params$fert.bsize*xb + 
-                 params$fert.bclim[3,2]*PC2*xb)  
+                 unlist(params$fert.bclim[3,2])*PC2*xb)  
   return(p.flow*nfruits*params$seedsperfruit*params$seedsurv0yr)  
 }
 

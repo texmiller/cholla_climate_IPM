@@ -88,10 +88,11 @@ for(i in 10:(length(PCclim$lambda_year))){
 win.graph();
 par(mar=c(5,5,1,1))
 plot(PCclim$Year_t,PCclim$lambdaS_year,type="b",
-     pch=21,bg="tomato",cex=1.2,ylim=c(0.94,0.98),
+     pch=21,bg="tomato",cex=1.2,#ylim=c(0.94,0.98),
      xlab="Year",ylab=expression(lambda[S]),cex.lab=1.4)
+
 plot(PCclim$Year_t,PCclim$lambdaS_year,type="l",lwd=3,
-     ylim=c(0.945,1.01),col="darkblue",
+     col="darkblue",
      xlab="Year",ylab=expression(lambda[S]),cex.lab=1.4)
 abline(h=1,lty=2,col="gray")
 
@@ -115,4 +116,47 @@ plot(PCclim$Year_t,PCclim$PC3,type="l",cex.lab=1.5,
 PC3mod<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=1970))
 anova(PC3mod)
 lines(1970:2017,coef(PC3mod)[1]+coef(PC3mod)[2]*1970:2017,col="darkblue",lwd=4)
+
+## Sample from posteriors of vital rate parameters
+params_post <- read.csv("allrates.selected.posterior.csv")
+n.samples <- pmin(100,nrow(params_post))
+lambda.post <- matrix(NA,nrow=n.samples,ncol=nrow(PCclim))
+
+for(i in 1:n.samples){
+  ## convert params to list
+  sample.params <- as.list(params_post[i,])
+  sample.params$flow.bclim <- params_post[i,] %>% 
+    select(flow.bclim.1.1.:flow.bclim.4.3.) %>% 
+    matrix(nrow=4)
+  sample.params$fert.bclim <- params_post[i,] %>% 
+    select(fert.bclim.1.1.:fert.bclim.4.3.) %>% 
+    matrix(nrow=4)  
+  sample.params$grow.bclim <- params_post[i,] %>% 
+    select(grow.bclim.1.1.:grow.bclim.4.3.) %>% 
+    matrix(nrow=4) 
+  sample.params$surv.bclim <- params_post[i,] %>% 
+    select(surv.bclim.1.1.:surv.bclim.4.3.) %>% 
+    matrix(nrow=4) 
+  sample.params$seedsperfruit <- mean_params$seedsperfruit
+  sample.params$seedsurv0yr <- mean_params$seedsurv0yr
+  sample.params$germ1yo <- mean_params$germ1yo
+  sample.params$germ2yo <- mean_params$germ2yo
+  sample.params$precensus.surv <- mean_params$precensus.surv
+  sample.params$sdling.size.mean <- mean_params$sdling.size.mean
+  sample.params$sdling.size.sd <- mean_params$sdling.size.sd
+  sample.params$min.size <- mean_params$min.size
+  sample.params$max.size <- mean_params$max.size
+  
+  for(j in 1:nrow(PCclim)){
+    lambda.post[i,j]<-lambda(bigmatrix(params = sample.params,
+                                            PC1 = PCclim$PC1[j], 
+                                            PC2 = PCclim$PC2[j], 
+                                            PC3 = PCclim$PC3[j],
+                                            random = F, 
+                                            lower.extension = -.1, 
+                                            upper.extension = .5,
+                                            mat.size = mat.size)$IPMmat)
+  }
+}
+
 
