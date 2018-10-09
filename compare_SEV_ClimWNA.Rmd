@@ -1,0 +1,112 @@
+---
+title: "Compare_SEV_ClimWNA"
+author: "Tom Miller"
+date: "October 9, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+I am not sure how well I trust the WNA data, just looking at cool season temp minima. The freeze of 2011 barely even stands out but we know this was an extreme, rare event. 
+
+## Compare ClimateWNA to SEV met data
+```{r SEV met dat}
+dat_SEV1 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2001-2005.csv')
+dat_SEV2 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2006-2010.csv')
+dat_SEV3 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2011-2015.csv')
+
+##bind all years ##grab Blue Grama (50) and Deep Well (40) met stations 
+##convert Julian date to month and day
+## I think garbage readings were converted to -999. I am applying my own garbage filters
+dat_SEV <- bind_rows(dat_SEV1,dat_SEV2,dat_SEV3) %>% 
+  filter(StationID == 50 | StationID == 40) %>% 
+  mutate(Station = ifelse(StationID == 50, "BlueGrama", "DeepWell"),
+    Month = as.integer(month.day.year(jul = Julian_Day, origin. = c(month=1,day=0,year=Year))$month),
+         Day = month.day.year(jul = Julian_Day, origin. = c(month=1,day=0,year=Year))$day,
+         Temp_C = ifelse(Temp_C <= -100 | Temp_C > 100, NA, Temp_C),
+         Min_Temp_C = ifelse(Min_Temp_C <= -100 | Min_Temp_C > 100, NA, Min_Temp_C),
+         Max_Temp_C = ifelse(Max_Temp_C <= -100 | Max_Temp_C > 100, NA, Max_Temp_C),
+         Precipitation = ifelse(Precipitation < 0, NA, Precipitation)) %>% 
+  filter(Min_Temp_C != -40.00) %>%
+  group_by(Station,Year,Month)
+```
+Since the raw observations are hourly, we can sort out the problem months by asking where there are fewer than $24 * 28$ observations, which is the number expected in the shortest month (February).
+```{r problem months}
+dat_SEV %>% 
+  group_by(Station,Year,Month) %>% 
+  summarise(count = n()) %>% 
+  filter(count < 28*24)
+```
+Most of these are not too bad (ca. 500-600 hours of observion per month, probably still enough to get a good min, mean, max of temp and total precip). I am more concerned about this subset with fewer than 500 observation hours (about 20 days). I am going to assign NA values to months with <500 hours of observation. 
+```{r find bad months}
+SEV_monthly <- dat_SEV %>% 
+  group_by(Station,Year,Month) %>% 
+  summarise(TAVG = mean(Temp_C, na.rm = T),
+            TMAX = max(Max_Temp_C, na.rm = T),
+            TMIN = min(Min_Temp_C, na.rm = T),
+            PRCP = sum(Precipitation, na.rm = T),
+            count = n()) %>% 
+  mutate(TAVG = ifelse(count>500,TAVG,NA),
+         TMAX = ifelse(count>500,TMAX,NA),
+         TMIN = ifelse(count>500,TMIN,NA),
+         PRCP = ifelse(count>500,PRCP,NA))
+```
+Finally, convert to seasons.
+```{r SEV seasonal}
+SEV_seasonal <- SEV_monthly %>% 
+mutate(trans_year = ifelse(Month >=5, Year, Year-1),
+         season = ifelse(Month >=5 & Month <=9,"warm","cool")) %>% 
+  arrange(Year,Month)%>% 
+  group_by(Station,trans_year,season) %>% 
+  summarise(max_temp = max(TMAX),
+            min_temp = min(TMIN),
+            mean_temp = round(mean(TAVG),digits=1),
+            tot_prcp = sum(PRCP))
+```
+
+Now finally, let's see how well the SEV met data correlate with ClimateWNA. Focus on Deep Well, which has more years of data.
+```{r SEV WNA correspondence}
+
+SEV_WNA <- left_join(SEV_seasonal %>% filter(Station=="BlueGrama"),
+          BlueGrama_clim,
+          by=c("trans_year","season"))
+
+ggplot(SEV_WNA %>% filter(season=="warm"))+
+  geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
+  geom_point(aes(x=min_temp.x,y=min_temp.y))+
+  geom_point(aes(x=max_temp.x,y=max_temp.y))
+
+ggplot(SEV_WNA %>% filter(season=="cool"))+
+  geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
+  geom_point(aes(x=min_temp.x,y=min_temp.y))+
+  geom_point(aes(x=max_temp.x,y=max_temp.y))
+
+ggplot(SEV_WNA)+
+  geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
+  geom_point(aes(x=min_temp.x,y=min_temp.y))+
+  geom_point(aes(x=max_temp.x,y=max_temp.y))+
+  facet_grid(~season)
+
+
+ggplot()+
+  geom_point(data=SEV_WNA %>% filter(season=="cool"),
+             aes(x=tot_prcp.x,y=tot_prcp.y))+
+  geom_point(data=SEV_WNA %>% filter(season=="warm"),
+             aes(x=tot_prcp.x,y=tot_prcp.y))
+
+ggplot(SEV_WNA)+
+  geom_point(aes(x=tot_prcp.x,y=tot_prcp.y))+
+  facet_grid(~season)
+
+```
+
+Lastly, compute the correlation coefficients:
+```{r SEV WNA cor}
+
+cor(SEV_WNA[,c("mean_temp.x","min_temp.x","max_temp.x","tot_prcp.x")], 
+                    SEV_WNA[,c("mean_temp.y","min_temp.y","max_temp.y","tot_prcp.y")], method = "spearman", use = "complete.obs")
+
+```
+
+OK I am satisfied. The upshot of all this is that we should proceed with PCA on ClimateWNA. Though at some point I should do same as above but with Deep Well (more years).
