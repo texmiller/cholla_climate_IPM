@@ -8,10 +8,11 @@
 \usepackage{authblk}
 \usepackage[running]{lineno}
 \usepackage{setspace}
+\usepackage{amsfonts,amssymb,amsmath,graphicx,hyperref}
 \doublespacing
 %-------------------------------------------------------------------------
 
-\title{Backcasting and forecasting climate-dependent demography of a plant population in extinction debt}
+\title{Climate drivers of plant population extinction debt}
 
 \author{Kevin Czachura}
 \author{Tom E.X. Miller}
@@ -22,7 +23,7 @@
 %-------------------------------------------------------------------------
 \begin{document}
 \maketitle
-\end{document}
+
 
 %-------------------------------------------------------------------------
 \section*{Summary}
@@ -39,6 +40,47 @@
 \section*{Keywords}
 Listed in alphabetical order, the key-words should not exceed 10 words or short phrases. Please pay attention to the keywords you select: they should not already appear in the title or abstract. Rather, they should be selected to draw in readers from wider areas that might not otherwise pick up your paper when they are using search engines.
 
-%-------------------------------------------------------------------------
+%--------------------------------------------------------------------
 \section*{Introduction}
 \linenumbers
+
+%--------------------------------------------------------------------
+\section*{Materials and methods}
+
+%--------------------------------------------------------------------
+\section*{Results}
+
+%--------------------------------------------------------------------
+\section*{Discussion}
+
+%--------------------------------------------------------------------
+\section*{Acknowledgements}
+
+%--------------------------------------------------------------------
+\section*{Data accessiblity}
+
+%--------------------------------------------------------------------
+\newpage
+\section*{Appendix A: Vital rate modeling and stochastic variable selection}
+
+We fit generalized linear mixed effects models in a hierarchical Bayesian statistical framework to quantify climate dependence in demographic vital rates. There were four size-dependent vital rates, measured in the long-term study, for which we could additionally estimate climate dependence: survival from year \textit{t} to year \textit{t+1}, individual growth (change in size from year \textit{t} to year \textit{t+1}), probability of flowering, and the number of flowerbuds produced, given that a plant flowered. All of the vital rate models used the same general linear predictor for the expected value ($\mu$) but apply a different link function ($f(\mu)$) depending on the distribution of the observations:
+
+\begin{align}\label{eq:VR_lin_pred}
+\begin{split} 
+f(\mu) = \beta_{0} + \beta_{1}x + \\ 
+\rho^{1}_{1}PC1 + \rho^{1}_{2}PC1^{2} + \rho^{1}_{3}xPC1 + \rho^{1}_{4}xPC1^{2} + \\
+\rho^{2}_{1}PC2 + \rho^{2}_{2}PC2^{2} + \rho^{2}_{3}xPC2 + \rho^{2}_{4}xPC2^{2} + \\
+\rho^{3}_{1}PC3 + \rho^{3}_{2}PC3^{2} + \rho^{3}_{3}xPC3 + \rho^{3}_{4}xPC3^{2} + \\
+\gamma + \tau
+\end{split}
+\end{align}
+
+The linear predictor includes a grand mean intercept ($\beta_{0}$) and size-dependent slope ($\beta_{1}$). The size variable $x$ is the natural logarithm of plant volume ($log_{e}(cm^{3})$), which was standardized to mean zero and unit variance for analysis. Other fixed-effect coefficient ($\rho$) correspond to climate variables and climate $\times$ size interactions. The climate variables are the three principal components ($PC1$, $PC2$, $PC3$) of inter-annual variation in temperature and precipitation. Climate coeffificient ($\rho$) superscripts correspond to each PC, and subscripts correspond to linear, quadratic, and size-interaction effects. Finally, the linear predictor includes normally distributed random effects for plot-to-plot variation ($\gamma \sim N(0,\sigma_{plot})$) and year-to-year variation that is unrelated to climate effects captured by PCs 1-3 ($\tau \sim N(0,\sigma_{year})$).
+
+\subsection*{Stochastic variable selection}
+
+%--------------------------------------------------------------------
+\newpage
+\section*{Appendix B: Assembling life cycle components into an IPM}
+
+\end{document}
