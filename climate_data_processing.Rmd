@@ -14,7 +14,7 @@ library(ggfortify)
 ```
 
 ## Overview
-I am trying to wrap up the climate analysis, which has become a real shitshow. There was just (9/5/2018) an email alert that ClimateWNA now includes 2017, which will allow us to add the 2016-17 transition year. So it is a good point to re-assess the climate data and how we interpret the PCs. I will run all of Kevin's PCA code here and recreate the seasonal PCA with the updated data, just so that I have a clear understanding of what Kevin did and how to interpret it. Lastly, I am dropping future climate change projections because I am uncomfortable (for now) projecting into very different future climates. The past is hard enough! _Update: in this branch, I am actually including the RCP projections! Modifications below._
+I am trying to wrap up the climate analysis, which has become a real shitshow. There was just (9/5/2018) an email alert that ClimateWNA now includes 2017, which will allow us to add the 2016-17 transition year. So it is a good point to re-assess the climate data and how we interpret the PCs. I will run all of Kevin's PCA code here and recreate the seasonal PCA with the updated data, just so that I have a clear understanding of what Kevin did and how to interpret it. Lastly, I am dropping future climate change projections because I am uncomfortable (for now) projecting into very different future climates. The past is hard enough! _Update: In this branch, I am actually including the RCP projections! Modifications below._
 
 ## Tidy up ClimateWNA data
 First, read in the historical data from ClimateWNA for the period 1901-2016. This comes from the lat, long, and elevation of the Blue Grama met station (34.335, -106.632, 1669). I can (need to) show elsewhere that ClimateWNA data correlate well with SEV met data. Better to do this with Deep Well, which is the longest SEV met data set. I will do this elsewhere or below. The steps below compute seasonal values (sums or averages) from the raw monthly data, where warm season is May through September and cool season is October through April.
@@ -105,182 +105,125 @@ SEV_clim_future_85 <- SEV_clim_future %>%
 
 ## gather each climate variable into its own df and derive month
 
-TMax_historical <- SEV_clim_historical %>% 
+Tmax_historical <- SEV_clim_historical %>% 
   select(Year,Tmax01:Tmax12) %>% 
   gather(Tmax01:Tmax12,key="Month",value="Tmax")%>% 
   mutate(Month = as.integer(str_sub(Month,5,6))) 
-TMax_future_45 <- SEV_clim_future_45 %>% 
+Tmax_future_45 <- SEV_clim_future_45 %>% 
   select(Year,Tmax01:Tmax12) %>% 
   gather(Tmax01:Tmax12,key="Month",value="Tmax")%>% 
   mutate(Month = as.integer(str_sub(Month,5,6))) 
-TMax_future_85 <- SEV_clim_future_85 %>% 
+Tmax_future_85 <- SEV_clim_future_85 %>% 
   select(Year,Tmax01:Tmax12) %>% 
   gather(Tmax01:Tmax12,key="Month",value="Tmax")%>% 
   mutate(Month = as.integer(str_sub(Month,5,6))) 
 
-## stopped here Tuesday afternoon
-BlueGrama_TMin <- SEV_clim %>% 
-  filter(ID2 == "BlueGrama") %>% 
+Tmin_historical <- SEV_clim_historical %>% 
   select(Year,Tmin01:Tmin12) %>% 
   gather(Tmin01:Tmin12,key="Month",value="Tmin")%>% 
   mutate(Month = as.integer(str_sub(Month,5,6))) 
-BlueGrama_TAve <- SEV_clim %>% 
-  filter(ID2 == "BlueGrama") %>% 
+Tmin_future_45 <- SEV_clim_future_45 %>% 
+  select(Year,Tmin01:Tmin12) %>% 
+  gather(Tmin01:Tmin12,key="Month",value="Tmin")%>% 
+  mutate(Month = as.integer(str_sub(Month,5,6))) 
+Tmin_future_85 <- SEV_clim_future_85 %>% 
+  select(Year,Tmin01:Tmin12) %>% 
+  gather(Tmin01:Tmin12,key="Month",value="Tmin")%>% 
+  mutate(Month = as.integer(str_sub(Month,5,6))) 
+
+Tave_historical <- SEV_clim_historical %>% 
   select(Year,Tave01:Tave12) %>% 
   gather(Tave01:Tave12,key="Month",value="Tave")%>% 
   mutate(Month = as.integer(str_sub(Month,5,6))) 
-BlueGrama_PPT <- SEV_clim %>% 
-  filter(ID2 == "BlueGrama") %>% 
+Tave_future_45 <- SEV_clim_future_45 %>% 
+  select(Year,Tave01:Tave12) %>% 
+  gather(Tave01:Tave12,key="Month",value="Tave")%>% 
+  mutate(Month = as.integer(str_sub(Month,5,6))) 
+Tave_future_85 <- SEV_clim_future_85 %>% 
+  select(Year,Tave01:Tave12) %>% 
+  gather(Tave01:Tave12,key="Month",value="Tave")%>% 
+  mutate(Month = as.integer(str_sub(Month,5,6))) 
+
+PPT_historical <- SEV_clim_historical %>% 
   select(Year,PPT01:PPT12) %>% 
   gather(PPT01:PPT12,key="Month",value="PPT")%>% 
-  mutate(Month = as.integer(str_sub(Month,4,5)))
+  mutate(Month = as.integer(str_sub(Month,4,5))) 
+PPT_future_45 <- SEV_clim_future_45 %>% 
+  select(Year,PPT01:PPT12) %>% 
+  gather(PPT01:PPT12,key="Month",value="PPT")%>% 
+  mutate(Month = as.integer(str_sub(Month,4,5))) 
+PPT_future_85 <- SEV_clim_future_85 %>% 
+  select(Year,PPT01:PPT12) %>% 
+  gather(PPT01:PPT12,key="Month",value="PPT")%>% 
+  mutate(Month = as.integer(str_sub(Month,4,5))) 
 
-## merge into one, assign transition year and season
-BlueGrama_clim <- left_join(left_join(left_join(BlueGrama_TMax,BlueGrama_TMin,by=c("Year","Month")),
-                            BlueGrama_TAve,by=c("Year","Month")),
-                            BlueGrama_PPT,by=c("Year","Month")) %>% 
+## merge variables into single df's
+historical_clim <- left_join(left_join(left_join(Tmax_historical,Tmin_historical,by=c("Year","Month")),
+                            Tave_historical,by=c("Year","Month")),
+                            PPT_historical,by=c("Year","Month"))
+future_45_clim <- left_join(left_join(left_join(Tmax_future_45,Tmin_future_45,by=c("RCP","Year","Month")),
+                            Tave_future_45,by=c("RCP","Year","Month")),
+                            PPT_future_45,by=c("RCP","Year","Month")) 
+future_85_clim <- left_join(left_join(left_join(Tmax_future_85,Tmin_future_85,by=c("RCP","Year","Month")),
+                            Tave_future_85,by=c("RCP","Year","Month")),
+                            PPT_future_85,by=c("RCP","Year","Month"))
+
+## bind the 3 data types and assign transition year and season
+#
+SEV_clim_final <- bind_rows(historical_clim,future_45_clim,future_85_clim) %>% 
   mutate(trans_year = ifelse(Month >=5, Year, Year-1),
          season = ifelse(Month >=5 & Month <=9,"warm","cool")) %>% 
-  arrange(Year,Month)%>% 
-  group_by(trans_year,season) %>% 
+  arrange(RCP,Year,Month)%>% 
+  group_by(RCP,trans_year,season) %>% 
   summarise(max_temp = max(Tmax),
             min_temp = min(Tmin),
             mean_temp = round(mean(Tave),digits=1),
             tot_prcp = sum(PPT)) %>% 
-  filter(trans_year>=1901 & trans_year<=2016) %>% 
-  mutate(demographic_data = ifelse(trans_year>=2004,T,F))
+  filter(trans_year>=1901) %>% 
+  mutate(demographic_data = ifelse(trans_year>=2004 & trans_year<2017,T,F))
   
-BlueGrama_clim %>% filter(season=="cool") %>% 
+SEV_clim_final %>% filter(season=="cool") %>% 
 ggplot()+
-  geom_line(aes(x=trans_year,y=min_temp,color=demographic_data))
+  geom_point(aes(x=trans_year,y=min_temp,color=demographic_data))
 
 ```
 
-I am not sure how well I trust the WNA data, just looking at cool season temp minima. The freeze of 2011 barely even stands out but we know this was an extreme, rare event. 
-
-## Compare ClimateWNA to SEV met data
-```{r SEV met dat}
-dat_SEV1 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2001-2005.csv')
-dat_SEV2 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2006-2010.csv')
-dat_SEV3 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2011-2015.csv')
-
-##bind all years ##grab Blue Grama (50) and Deep Well (40) met stations 
-##convert Julian date to month and day
-## I think garbage readings were converted to -999. I am applying my own garbage filters
-dat_SEV <- bind_rows(dat_SEV1,dat_SEV2,dat_SEV3) %>% 
-  filter(StationID == 50 | StationID == 40) %>% 
-  mutate(Station = ifelse(StationID == 50, "BlueGrama", "DeepWell"),
-    Month = as.integer(month.day.year(jul = Julian_Day, origin. = c(month=1,day=0,year=Year))$month),
-         Day = month.day.year(jul = Julian_Day, origin. = c(month=1,day=0,year=Year))$day,
-         Temp_C = ifelse(Temp_C <= -100 | Temp_C > 100, NA, Temp_C),
-         Min_Temp_C = ifelse(Min_Temp_C <= -100 | Min_Temp_C > 100, NA, Min_Temp_C),
-         Max_Temp_C = ifelse(Max_Temp_C <= -100 | Max_Temp_C > 100, NA, Max_Temp_C),
-         Precipitation = ifelse(Precipitation < 0, NA, Precipitation)) %>% 
-  filter(Min_Temp_C != -40.00) %>%
-  group_by(Station,Year,Month)
+Something weird is happening in 2017, which bridges 'past' and 'future'.
+```{r weirdness}
+SEV_clim_final %>% filter(trans_year==2016)
+SEV_clim_final %>% filter(trans_year==2017)
+SEV_clim_final %>% filter(trans_year==2018)
 ```
-Since the raw observations are hourly, we can sort out the problem months by asking where there are fewer than $24 * 28$ observations, which is the number expected in the shortest month (February).
-```{r problem months}
-dat_SEV %>% 
-  group_by(Station,Year,Month) %>% 
-  summarise(count = n()) %>% 
-  filter(count < 28*24)
-```
-Most of these are not too bad (ca. 500-600 hours of observion per month, probably still enough to get a good min, mean, max of temp and total precip). I am more concerned about this subset with fewer than 500 observation hours (about 20 days). I am going to assign NA values to months with <500 hours of observation. 
-```{r find bad months}
-SEV_monthly <- dat_SEV %>% 
-  group_by(Station,Year,Month) %>% 
-  summarise(TAVG = mean(Temp_C, na.rm = T),
-            TMAX = max(Max_Temp_C, na.rm = T),
-            TMIN = min(Min_Temp_C, na.rm = T),
-            PRCP = sum(Precipitation, na.rm = T),
-            count = n()) %>% 
-  mutate(TAVG = ifelse(count>500,TAVG,NA),
-         TMAX = ifelse(count>500,TMAX,NA),
-         TMIN = ifelse(count>500,TMIN,NA),
-         PRCP = ifelse(count>500,PRCP,NA))
-```
-Finally, convert to seasons.
-```{r SEV seasonal}
-SEV_seasonal <- SEV_monthly %>% 
-mutate(trans_year = ifelse(Month >=5, Year, Year-1),
-         season = ifelse(Month >=5 & Month <=9,"warm","cool")) %>% 
-  arrange(Year,Month)%>% 
-  group_by(Station,trans_year,season) %>% 
-  summarise(max_temp = max(TMAX),
-            min_temp = min(TMIN),
-            mean_temp = round(mean(TAVG),digits=1),
-            tot_prcp = sum(PRCP))
+It appears that the 2017-18 transition year is getting two cool seasons: one from the real data (Oct-Dec 2017) and one from the projected data (Jan-May 2018). This is super annoying. I think the easiest solution is to remove the 2017-18 transition year altogether.
+```{r drop 2017}
+dim(SEV_clim_final)
+SEV_clim_final <- SEV_clim_final %>% 
+  filter(trans_year!=2017)
 ```
 
-Now finally, let's see how well the SEV met data correlate with ClimateWNA. Focus on Deep Well, which has more years of data.
-```{r SEV WNA correspondence}
-
-SEV_WNA <- left_join(SEV_seasonal %>% filter(Station=="BlueGrama"),
-          BlueGrama_clim,
-          by=c("trans_year","season"))
-
-ggplot(SEV_WNA %>% filter(season=="warm"))+
-  geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
-  geom_point(aes(x=min_temp.x,y=min_temp.y))+
-  geom_point(aes(x=max_temp.x,y=max_temp.y))
-
-ggplot(SEV_WNA %>% filter(season=="cool"))+
-  geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
-  geom_point(aes(x=min_temp.x,y=min_temp.y))+
-  geom_point(aes(x=max_temp.x,y=max_temp.y))
-
-ggplot(SEV_WNA)+
-  geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
-  geom_point(aes(x=min_temp.x,y=min_temp.y))+
-  geom_point(aes(x=max_temp.x,y=max_temp.y))+
-  facet_grid(~season)
-
-
-ggplot()+
-  geom_point(data=SEV_WNA %>% filter(season=="cool"),
-             aes(x=tot_prcp.x,y=tot_prcp.y))+
-  geom_point(data=SEV_WNA %>% filter(season=="warm"),
-             aes(x=tot_prcp.x,y=tot_prcp.y))
-
-ggplot(SEV_WNA)+
-  geom_point(aes(x=tot_prcp.x,y=tot_prcp.y))+
-  facet_grid(~season)
-
-```
-
-Lastly, compute the correlation coefficients:
-```{r SEV WNA cor}
-
-cor(SEV_WNA[,c("mean_temp.x","min_temp.x","max_temp.x","tot_prcp.x")], 
-                    SEV_WNA[,c("mean_temp.y","min_temp.y","max_temp.y","tot_prcp.y")], method = "spearman", use = "complete.obs")
-
-```
-
-OK I am satisfied. The upshot of all this is that we should proceed with PCA on ClimateWNA. Though at some point I should do same as above but with Deep Well (more years).
 
 ## Principal Components Analysis
 I first need to spread the seasonal values, then I can run the PCA.
 ```{r PCA}
-A<-BlueGrama_clim %>% 
+A<-SEV_clim_final %>% 
   select(trans_year,season,min_temp) %>% 
   spread(key=season,value=min_temp) %>% 
-  set_names(c("trans_year","min_temp_cool","min_temp_warm"))
-B<-BlueGrama_clim %>% 
+  set_names(c("RCP","trans_year","min_temp_cool","min_temp_warm"))
+B<-SEV_clim_final %>% 
   select(trans_year,season,mean_temp) %>% 
   spread(key=season,value=mean_temp) %>% 
-  set_names(c("trans_year","mean_temp_cool","mean_temp_warm"))
-C<-BlueGrama_clim %>% 
+  set_names(c("RCP","trans_year","mean_temp_cool","mean_temp_warm"))
+C<-SEV_clim_final %>% 
   select(trans_year,season,max_temp) %>% 
   spread(key=season,value=max_temp) %>% 
-  set_names(c("trans_year","max_temp_cool","max_temp_warm"))
-D<-BlueGrama_clim %>% 
+  set_names(c("RCP","trans_year","max_temp_cool","max_temp_warm"))
+D<-SEV_clim_final %>% 
   select(trans_year,season,tot_prcp) %>% 
   spread(key=season,value=tot_prcp) %>% 
-  set_names(c("trans_year","tot_prcp_cool","tot_prcp_warm"))
+  set_names(c("RCP","trans_year","tot_prcp_cool","tot_prcp_warm"))
 
 PCA_dat <- left_join(left_join(left_join(A,B),C),D) 
-SEV_PCA <- prcomp(PCA_dat[,2:9],center = TRUE, scale. = TRUE)
+SEV_PCA <- prcomp(PCA_dat[,3:10],center = TRUE, scale. = TRUE)
 ## find the weight of each climate variable in the PCs
 SEV_PCA$rotation
 summary(SEV_PCA)
@@ -294,5 +237,30 @@ names(out)[1]<-"Year_t"
 #do this only once
 #write.csv(out,"climateWNA_PCvalues_out.csv")
 #write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv")
+```
+
+```{r}
+PC_gather <- as_tibble(cbind(PCA_dat$trans_year,SEV_PCA$x))
+names(PC_gather)[1] <- "Year_t"
+PC_gather <- PC_gather%>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"past",ifelse(Year_t>2016,"future","present")))
+
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
+ggplot(PC_gather)+
+  geom_histogram(aes(x=value,fill=time))+
+    facet_grid(PC~.)
+
+ggplot(PC_gather)+
+  geom_line(aes(x=Year_t,y=value,color=time))+
+    facet_grid(PC~.)
 ```
 
