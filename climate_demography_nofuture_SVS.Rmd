@@ -293,6 +293,7 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
               "fert.sigma.overdisp",
               "grow.sigma.eps",
+              "flow.eps.year","fert.eps.year","surv.eps.year","grow.eps.year",
               "flow.fit","fert.fit","surv.fit","grow.fit",
               "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new")
 
