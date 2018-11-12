@@ -127,6 +127,7 @@ Now finally, let's see how well the SEV met data correlate with ClimateWNA. Focu
 SEV_WNA <- left_join(SEV_seasonal %>% filter(Station=="BlueGrama"),
           BlueGrama_clim,
           by=c("trans_year","season"))
+#write.csv(SEV_WNA,"SEV_WNA.csv")
 
 ggplot(SEV_WNA %>% filter(season=="warm"))+
   geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
@@ -142,18 +143,25 @@ ggplot(SEV_WNA)+
   geom_point(aes(x=mean_temp.x,y=mean_temp.y))+
   geom_point(aes(x=min_temp.x,y=min_temp.y))+
   geom_point(aes(x=max_temp.x,y=max_temp.y))+
-  facet_grid(~season)
+  facet_grid(~season)+
+  theme_bw()
 
+ggplot(SEV_WNA)+
+  geom_point(aes(x=mean_temp.x,y=mean_temp.y,col=season))+
+  geom_point(aes(x=min_temp.x,y=min_temp.y,col=season))+
+  geom_point(aes(x=max_temp.x,y=max_temp.y,col=season))+
+  theme_bw()
 
 ggplot()+
   geom_point(data=SEV_WNA %>% filter(season=="cool"),
              aes(x=tot_prcp.x,y=tot_prcp.y))+
   geom_point(data=SEV_WNA %>% filter(season=="warm"),
-             aes(x=tot_prcp.x,y=tot_prcp.y))
+             aes(x=tot_prcp.x,y=tot_prcp.y))+
+  theme_bw()
 
 ggplot(SEV_WNA)+
-  geom_point(aes(x=tot_prcp.x,y=tot_prcp.y))+
-  facet_grid(~season)
+  geom_point(aes(x=tot_prcp.x,y=tot_prcp.y,colour=season))+
+  theme_bw()
 
 ```
 
@@ -202,5 +210,7 @@ names(out)[1]<-"Year_t"
 #do this only once
 #write.csv(out,"climateWNA_PCvalues_out.csv")
 #write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv")
+#write.csv(data.frame(summary(SEV_PCA)$importance),"climateWNA_variableimportance_out.csv")
+
 ```
 
