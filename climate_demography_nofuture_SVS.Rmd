@@ -12,6 +12,8 @@ library(lme4)
 library(mcmcplots)
 library(R2jags)
 PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
+PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
 volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
 }
