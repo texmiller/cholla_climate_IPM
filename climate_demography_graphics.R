@@ -1,4 +1,37 @@
 ## Will need to run the nofuture_SVS.Rmd file for the objects needed for these figures
+
+# Climate data figures ----------------------------------------------------
+PCclim
+PCclim_rotation
+
+PC_cols <- c("#deebf7", "#9ecae1", "#3182bd", "#de2d26")
+
+win.graph()
+par(mfrow=c(2,1))
+barplot(as.matrix(PCclim_var[2:3,2:4]),
+        beside=T,col=c("black","white"),ylim=c(0,1),
+        ylab="Proportion of variance explained",cex.lab=1.4,cex.names=1.4)
+legend("topleft",fil=c("black","white"),bty="n",cex=1.2,
+       legend=c("Proportion of variance","Cumulative proportion"))
+title("A",adj=0,font=3,cex.main=2)
+
+par(lwd = 2)
+barplot(as.matrix(PCclim_rotation[,c("PC1","PC2","PC3")]),
+        horiz=F,beside=T,ylim=c(-1,1),
+        ylab="Variable loading",cex.lab=1.4,cex.names=1.4,
+        border=rep(PC_cols,each=2),
+        col=c(PC_cols[1],"white",
+              PC_cols[2],"white",
+              PC_cols[3],"white",
+              PC_cols[4],"white"))
+legend("topright",fil=c("black","white"),bty="n",cex=1.2,
+       legend=c("Cool season","Warm season"))
+legend("topleft",fil=PC_cols,border=PC_cols,bty="n",cex=1.2,
+       legend=c("Min temp","Mean temp", "Max temp", "Precip"))
+title("B",adj=0,font=3,cex.main=2)
+
+# Demography figures ------------------------------------------------------
+
 #win.graph()
 par(mfrow=c(4,3),mar=c(4,5,2,1))
 with(flow_dat_cuts,{
