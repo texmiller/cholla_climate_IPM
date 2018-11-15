@@ -55,7 +55,7 @@ BlueGrama_clim <- left_join(left_join(left_join(BlueGrama_TMax,BlueGrama_TMin,by
             min_temp = min(Tmin),
             mean_temp = round(mean(Tave),digits=1),
             tot_prcp = sum(PPT)) %>% 
-  filter(trans_year>=1901 & trans_year<=2016) %>% 
+  filter(trans_year>=1901 & trans_year<=2017) %>% 
   mutate(demographic_data = ifelse(trans_year>=2004,T,F))
   
 BlueGrama_clim %>% filter(season=="cool") %>% 
@@ -127,12 +127,13 @@ mutate(trans_year = ifelse(Month >=5, Year, Year-1),
             tot_prcp = sum(PRCP))
 ```
 
-Now finally, let's see how well the SEV met data correlate with ClimateWNA. Focus on Deep Well, which has more years of data.
+Now finally, let's see how well the SEV met data correlate with ClimateWNA. Focus on Deep Well, which has more years of data. Note that below I cut out the 2017 transition year cool season, since the latest monthly estimates (from both data sets) come from December 2017.
 ```{r SEV WNA correspondence}
 
 SEV_WNA <- left_join(SEV_seasonal %>% filter(Station=="BlueGrama"),
           BlueGrama_clim,
-          by=c("trans_year","season"))
+          by=c("trans_year","season")) %>% 
+  filter(season=="warm" | trans_year<2017)
 #write.csv(SEV_WNA,"SEV_WNA.csv")
 
 ggplot(SEV_WNA %>% filter(season=="warm"))+
