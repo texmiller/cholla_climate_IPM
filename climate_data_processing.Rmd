@@ -71,11 +71,17 @@ I am not sure how well I trust the WNA data, just looking at cool season temp mi
 dat_SEV1 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2001-2005.csv')
 dat_SEV2 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2006-2010.csv')
 dat_SEV3 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2011-2015.csv')
+dat_SEV4 <- read.csv("SEV_hourly_meteorology_2016.csv") %>% 
+  mutate(Max_Temp_C = Max_Temp,
+         Min_Temp_C = Min_Temp)
+dat_SEV5 <- read.csv("SEV_hourly_meteorology_2017.csv")%>% 
+  mutate(Max_Temp_C = Max_Temp,
+         Min_Temp_C = Min_Temp)
 
 ##bind all years ##grab Blue Grama (50) and Deep Well (40) met stations 
 ##convert Julian date to month and day
 ## I think garbage readings were converted to -999. I am applying my own garbage filters
-dat_SEV <- bind_rows(dat_SEV1,dat_SEV2,dat_SEV3) %>% 
+dat_SEV <- bind_rows(dat_SEV1,dat_SEV2,dat_SEV3,dat_SEV4,dat_SEV5) %>% 
   filter(StationID == 50 | StationID == 40) %>% 
   mutate(Station = ifelse(StationID == 50, "BlueGrama", "DeepWell"),
     Month = as.integer(month.day.year(jul = Julian_Day, origin. = c(month=1,day=0,year=Year))$month),
@@ -94,7 +100,7 @@ dat_SEV %>%
   summarise(count = n()) %>% 
   filter(count < 28*24)
 ```
-Most of these are not too bad (ca. 500-600 hours of observion per month, probably still enough to get a good min, mean, max of temp and total precip). I am more concerned about this subset with fewer than 500 observation hours (about 20 days). I am going to assign NA values to months with <500 hours of observation. 
+Most of these are not too bad (ca. 500-600 hours of observion per month, probably still enough to get a good min, mean, max of temp and total precip). Also, it seems that there were a lot of issues with Deep Well in 2015. I am more concerned about this subset with fewer than 500 observation hours (about 20 days). I am going to assign NA values to months with <500 hours of observation. 
 ```{r find bad months}
 SEV_monthly <- dat_SEV %>% 
   group_by(Station,Year,Month) %>% 
