@@ -159,12 +159,12 @@ cool_min <- cor.test(SEV_WNA_cool$min_temp.x,SEV_WNA_cool$min_temp.y,method="pea
 cool_max <- cor.test(SEV_WNA_cool$max_temp.x,SEV_WNA_cool$max_temp.y,method="pearson")
 cool_mean <- cor.test(SEV_WNA_cool$mean_temp.x,SEV_WNA_cool$mean_temp.y,method="pearson")
 cool_prcp <- cor.test(SEV_WNA_cool$tot_prcp.x,SEV_WNA_cool$tot_prcp.y,method="pearson")
-
 @
 We compared warm- and cool-season values of four climate variables (total precipitation and minimum, mean, and maximum temperature) between two data sources: the SEV-LTER meteorological station nearest our study site (station 50) and downscaled data from ClimateWNA corresponding to the same latitude, longitude, and elevation as station 50. Our goal was to determine how well the downscaled data captured conditions `on the ground' as measured directly by the meteorological station. We compared the years \Sexpr{SEV_WNA_yr_range[1]} through \Sexpr{SEV_WNA_yr_range[2]}, which are the years of overlap between the two data sources.
 
 There was strong agreement between the two data sources.
 
+\newpage
 \begin{table}[h!]
   \caption{Correlations between seasonal climate values measured by an on-site meteorological station versus dowwscaled data from ClimateWNA corresponding to the same years and location. Correlation values show Pearson correlations and P-values come from $t$-tests with \Sexpr{warm_min$parameter} degrees of freedom.}
   \label{TabVar}
@@ -186,6 +186,18 @@ There was strong agreement between the two data sources.
     \end{tabular}
   \end{center}
 \end{table}
+
+\begin{figure}[h!]
+  \caption{}
+  \label{Fig1}
+<<SEV_WNA corr,echo=F, message=F, warning=F,fig.width=4,fig.height=4,fig.align='center'>>=
+plot(SEV_WNA$mean_temp.x,SEV_WNA$mean_temp.y,
+     xlab="SEV-LTER Temperature C",ylab="ClimateWNA Temperature C",
+     xlim=c(-25,45),ylim=c(-25,45))
+points(SEV_WNA$min_temp.x,SEV_WNA$min_temp.y,pch=2)
+points(SEV_WNA$max_temp.x,SEV_WNA$max_temp.y,pch=3)
+@
+\end{figure}
 
 %--------------------------------------------------------------------
 \newpage
