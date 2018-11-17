@@ -136,9 +136,13 @@ We built generalized linear mixed models (GLMM) in a hierarchical Bayesian frame
 %--------------------------------------------------------------------
 \newpage
 \section*{Appendix A: Correspondence between downscaled and locally measured climate variables}
+\renewcommand{\thefigure}{A\arabic{figure}}\setcounter{figure}{0}
+\renewcommand{\thetable}{A\arabic{table}}\setcounter{table}{0}
+
 <<climate correlation,echo=F, message=F, warning=F>>=
 setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 SEV_WNA <- read.csv("SEV_WNA.csv")
+SEV_WNA$color <- ifelse(SEV_WNA$season=="cool","dodgerblue","orangered")
 SEV_WNA_yr_range <- range(SEV_WNA$trans_year)
 SEV_WNA_warm <- SEV_WNA %>% filter(season=="warm")
 SEV_WNA_cool <- SEV_WNA %>% filter(season=="cool")
@@ -167,7 +171,7 @@ There was strong agreement between the two data sources.
 \newpage
 \begin{table}[h!]
   \caption{Correlations between seasonal climate values measured by an on-site meteorological station versus dowwscaled data from ClimateWNA corresponding to the same years and location. Correlation values show Pearson correlations and P-values come from $t$-tests with \Sexpr{warm_min$parameter} degrees of freedom.}
-  \label{TabVar}
+  \label{tab:WNASEV}
   \begin{center}
     \begin{tabular}{p{2cm}p{5cm}p{2cm}p{2cm}}
       \hline
@@ -188,14 +192,23 @@ There was strong agreement between the two data sources.
 \end{table}
 
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
-<<SEV_WNA corr,echo=F, message=F, warning=F,fig.width=4,fig.height=4,fig.align='center'>>=
-plot(SEV_WNA$mean_temp.x,SEV_WNA$mean_temp.y,
-     xlab="SEV-LTER Temperature C",ylab="ClimateWNA Temperature C",
-     xlim=c(-25,45),ylim=c(-25,45))
-points(SEV_WNA$min_temp.x,SEV_WNA$min_temp.y,pch=2)
-points(SEV_WNA$max_temp.x,SEV_WNA$max_temp.y,pch=3)
+  \caption{Correlations between seasonal climate values between SEV-LTER metereological data and downscaled estimates from ClimateWNA for years \Sexpr{min(SEV_WNA$trans_year)}--\Sexpr{max(SEV_WNA$trans_year)}.}
+  \label{fig:WNASEV}
+<<SEV_WNA corr,echo=F, message=F, warning=F,fig.width=9,fig.height=5,fig.align='center'>>=
+par(mfrow=c(1,2))
+plot(SEV_WNA$mean_temp.x,SEV_WNA$mean_temp.y,col=SEV_WNA$color,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,xlim=c(-25,45),ylim=c(-10,35))
+points(SEV_WNA$min_temp.x,SEV_WNA$min_temp.y,pch=2,col=SEV_WNA$color)
+points(SEV_WNA$max_temp.x,SEV_WNA$max_temp.y,pch=3,col=SEV_WNA$color)
+abline(0,1,col="darkgrey")
+legend("topleft",legend = c("Cool season","Warm season","Min","Mean","Max"),bty="n",cex=1.2,
+       pch=c(16,16,2,1,3),col=c("dodgerblue","orangered",rep("darkgrey",3)))
+
+plot(SEV_WNA$tot_prcp.x,SEV_WNA$tot_prcp.y,col=SEV_WNA$color,pch=16,cex.lab=1.2,
+     xlab="SEV-LTER Precipitation (mm)",ylab="ClimateWNA Precipitation (mm)")
+abline(0,1,col="darkgrey")
 @
 \end{figure}
 
