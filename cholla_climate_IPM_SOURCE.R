@@ -134,9 +134,9 @@ bigmatrix<-function(params,
                     random = F, ## If TRUE, the model includes random year deviates
                     lower.extension = 0, ## I'll need to extend lower and upper beyond true size limits
                     upper.extension = 0,
-                    sigma = NULL, ## VCov for random year effects
                     rand.seed = NULL, ## random seed for stochastic model runs
-                    mat.size ## matrix dimensions
+                    mat.size, ## matrix dimensions
+                    rfx = c(0,0,0,0) ## default is no random years effects
 ){
   
   n<-mat.size
@@ -149,7 +149,6 @@ bigmatrix<-function(params,
   #these are the boundary points (b) and mesh points (y)
   
   #Set year random effect to 0 by default, modify if random=T
-  rfx <- c(0,0,0,0)   
   if(random==T){        
     set.seed(rand.seed)
     rfx = rnorm(n=4, mean=0, sd=c(params$grow.sigma.year,
@@ -157,6 +156,7 @@ bigmatrix<-function(params,
                                   params$flow.sigma.year,
                                   params$fert.sigma.year))
   }
+  
   
   # Fertility matrix
   Fmat<-matrix(0,(n+2),(n+2))

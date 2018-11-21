@@ -1,20 +1,45 @@
 ## source the IPM functions
 library(popbio)
+library(reshape2)
 source("cholla_climate_IPM_SOURCE.R")
 
 mat.size = 200
 ## try estimating lambda with all PCs=0, which should be an average climate year
-cholla_mean_mat <- bigmatrix(params = mean_params,
+cholla_mean <- bigmatrix(params = mean_params,
           PC1 = 0, PC2 = 0, PC3 = 0,
           random = F, 
           lower.extension = -.1, 
           upper.extension = .5,
-          mat.size = mat.size)$IPMmat
+          mat.size = mat.size)
+lambda(cholla_mean$IPMmat)
 
+## Visualize T and F kernels
+cholla_Tmat <- cholla_mean$Tmat[3:202,3:202] 
+colnames(cholla_Tmat)<-1:dim(cholla_Tmat)[2]
+rownames(cholla_Tmat)<-1:dim(cholla_Tmat)[1]
+melt(cholla_Tmat) %>% 
+  ggplot(aes(x = Var2, y = Var1)) + 
+  geom_raster(aes(fill=value)) + 
+  scale_fill_gradient(low="grey90", high="red") +
+  labs(x="Size year t+1", y="Size year t", title="Survival-growth matrix") +
+  theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
+                     axis.text.y=element_text(size=9),
+                     plot.title=element_text(size=11))
 
-lambda(cholla_mean_mat)
+cholla_Fmat <- cholla_mean$Fmat
+colnames(cholla_Fmat)<-1:dim(cholla_Fmat)[2]
+rownames(cholla_Fmat)<-1:dim(cholla_Fmat)[1]
+melt(cholla_Fmat) %>% 
+  ggplot(aes(x = Var2, y = Var1)) + 
+  geom_raster(aes(fill=value)) + 
+  scale_fill_gradient(low="grey90", high="red") +
+  labs(x="Size year t+1", y="Size year t", title="Fertility matrix") +
+  theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
+                     axis.text.y=element_text(size=9),
+                     plot.title=element_text(size=11))
+
 win.graph()
-plot(stable.stage(cholla_mean_mat)[3:mat.size])
+plot(stable.stage(cholla_mean$IPMmat)[3:mat.size])
 
 ggplot(cholla.clim)+
   geom_histogram(aes(x=standvol_t))+
@@ -67,7 +92,8 @@ lines(x_PC3,lambda_PC3,type="l",lwd=4,col="red")
 
 ## estimate lambda by year
 PCclim$lambda_year<-c()
-for(i in 1:nrow(PCclim)){
+for(i in 1:length(min(PCclim$Year_t):2003)){
+  
   PCclim$lambda_year[i]<-lambda(bigmatrix(params = mean_params,
                                           PC1 = PCclim$PC1[i], 
                                           PC2 = PCclim$PC2[i], 
@@ -77,7 +103,108 @@ for(i in 1:nrow(PCclim)){
                                           upper.extension = .5,
                                           mat.size = mat.size)$IPMmat)
 }
-plot(PCclim$Year_t,PCclim$lambda_year,type="b")
+for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
+  PCclim$lambda_year[i]<-lambda(bigmatrix(params = mean_params,
+                                          PC1 = PCclim$PC1[i], 
+                                          PC2 = PCclim$PC2[i], 
+                                          PC3 = PCclim$PC3[i],
+                                          random = F, 
+                                          lower.extension = -.1, 
+                                          upper.extension = .5,
+                                          mat.size = mat.size,
+                                          rfx = c(mean_params$grow.eps.year[i-length(min(PCclim$Year_t):2003)],
+                                                  mean_params$surv.eps.year[i-length(min(PCclim$Year_t):2003)],
+                                                  mean_params$flow.eps.year[i-length(min(PCclim$Year_t):2003)],
+                                                  mean_params$fert.eps.year[i-length(min(PCclim$Year_t):2003)]))$IPMmat)
+}
+
+plot(PCclim$Year_t,PCclim$lambda_year,type="b",
+     ylim=c(0.75,1.01))
+
+## That was the posterior mean. Now sample the uncertainty. 
+params_post <- read.csv("allrates.selected.posterior.csv")
+n_post <- pmin(1000,nrow(params_post)) ## number of posterior draws
+window_yrs <- 10 ## window size (in years) for stochastic growth rates
+lambda_posterior <- matrix(NA, ncol = length(PCclim$Year_t), nrow = n_post)
+lambdaS_posterior <- matrix(NA, ncol = (length(PCclim$Year_t)-window_yrs+1), nrow = n_post)
+rseed.vec <- runif(n=length(PCclim$Year_t), min=0, max = 1e7) ## vector of seeds for random numbers
+
+for(i in 1:n_post){
+  ## now convert params to list for the rest of it
+  sample.params <- as.list(params_post[i,])
+  sample.params$flow.bclim <- params_post[i,] %>% 
+    select(flow.bclim.1.1.:flow.bclim.4.3.) %>% 
+    matrix(nrow=4)
+  sample.params$fert.bclim <- params_post[i,] %>% 
+    select(fert.bclim.1.1.:fert.bclim.4.3.) %>% 
+    matrix(nrow=4)  
+  sample.params$grow.bclim <- params_post[i,] %>% 
+    select(grow.bclim.1.1.:grow.bclim.4.3.) %>% 
+    matrix(nrow=4) 
+  sample.params$surv.bclim <- params_post[i,] %>% 
+    select(surv.bclim.1.1.:surv.bclim.4.3.) %>% 
+    matrix(nrow=4) 
+  
+  sample.params$grow.eps.year <- params_post[i,] %>% 
+    select(grow.eps.year.1.:grow.eps.year.13.) %>% 
+    matrix(nrow=1)
+  sample.params$surv.eps.year <- params_post[i,] %>% 
+    select(surv.eps.year.1.:surv.eps.year.13.) %>% 
+    matrix(nrow=1)
+  sample.params$flow.eps.year <- params_post[i,] %>% 
+    select(flow.eps.year.1.:flow.eps.year.13.) %>% 
+    matrix(nrow=1) 
+  sample.params$fert.eps.year <- params_post[i,] %>% 
+    select(fert.eps.year.1.:fert.eps.year.13.) %>% 
+    matrix(nrow=1)
+
+  sample.params$seedsperfruit <- mean_params$seedsperfruit
+  sample.params$seedsurv0yr <- mean_params$seedsurv0yr
+  sample.params$germ1yo <- mean_params$germ1yo
+  sample.params$germ2yo <- mean_params$germ2yo
+  sample.params$precensus.surv <- mean_params$precensus.surv
+  sample.params$sdling.size.mean <- mean_params$sdling.size.mean
+  sample.params$sdling.size.sd <- mean_params$sdling.size.sd
+  sample.params$min.size <- mean_params$min.size
+  sample.params$max.size <- mean_params$max.size
+
+  ## loop over years preceding study, where we draw random year effects from 
+  ## vital rate variances
+  for(j in 1:length(min(PCclim$Year_t):2003)){
+    lambda_posterior[i,j]<-lambda(bigmatrix(params = sample.params,
+                                       PC1 = PCclim$PC1[j], 
+                                       PC2 = PCclim$PC2[j], 
+                                       PC3 = PCclim$PC3[j],
+                                       random = T,
+                                       rand.seed=rseed.vec[j],
+                                       lower.extension = -.1, 
+                                       upper.extension = .5,
+                                       mat.size = mat.size)$IPMmat)
+  }
+  ## loop over years of study. we no longer draw random year effects. Instead,
+  ## we specify the year effect estimated for these particular years
+  year_fx <- data.frame(t(rbind(sample.params$grow.eps.year,sample.params$surv.eps.year,
+                     sample.params$flow.eps.year,sample.params$fert.eps.year)))
+  for(j in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
+        lambda_posterior[i,j]<-lambda(bigmatrix(params = sample.params,
+                                       PC1 = PCclim$PC1[j], 
+                                       PC2 = PCclim$PC2[j], 
+                                       PC3 = PCclim$PC3[j],
+                                       random = F,
+                                       lower.extension = -.1, 
+                                       upper.extension = .5,
+                                       mat.size = mat.size,
+                                       rfx = c(unlist(sample.params$grow.eps.year[1,j-length(min(PCclim$Year_t):2003)]),
+                                               unlist(sample.params$surv.eps.year[1,j-length(min(PCclim$Year_t):2003)]),
+                                               unlist(sample.params$flow.eps.year[1,j-length(min(PCclim$Year_t):2003)]),
+                                               unlist(sample.params$fert.eps.year[1,j-length(min(PCclim$Year_t):2003)]))
+                                       )$IPMmat)
+  }
+}
+
+
+
+
 
 ## calculate a simple geometric mean over 10-year windows
 PCclim$lambdaS_year<-NA
@@ -117,46 +244,5 @@ PC3mod<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=1970))
 anova(PC3mod)
 lines(1970:2017,coef(PC3mod)[1]+coef(PC3mod)[2]*1970:2017,col="darkblue",lwd=4)
 
-## Sample from posteriors of vital rate parameters
-params_post <- read.csv("allrates.selected.posterior.csv")
-n.samples <- pmin(100,nrow(params_post))
-lambda.post <- matrix(NA,nrow=n.samples,ncol=nrow(PCclim))
-
-for(i in 1:n.samples){
-  ## convert params to list
-  sample.params <- as.list(params_post[i,])
-  sample.params$flow.bclim <- params_post[i,] %>% 
-    select(flow.bclim.1.1.:flow.bclim.4.3.) %>% 
-    matrix(nrow=4)
-  sample.params$fert.bclim <- params_post[i,] %>% 
-    select(fert.bclim.1.1.:fert.bclim.4.3.) %>% 
-    matrix(nrow=4)  
-  sample.params$grow.bclim <- params_post[i,] %>% 
-    select(grow.bclim.1.1.:grow.bclim.4.3.) %>% 
-    matrix(nrow=4) 
-  sample.params$surv.bclim <- params_post[i,] %>% 
-    select(surv.bclim.1.1.:surv.bclim.4.3.) %>% 
-    matrix(nrow=4) 
-  sample.params$seedsperfruit <- mean_params$seedsperfruit
-  sample.params$seedsurv0yr <- mean_params$seedsurv0yr
-  sample.params$germ1yo <- mean_params$germ1yo
-  sample.params$germ2yo <- mean_params$germ2yo
-  sample.params$precensus.surv <- mean_params$precensus.surv
-  sample.params$sdling.size.mean <- mean_params$sdling.size.mean
-  sample.params$sdling.size.sd <- mean_params$sdling.size.sd
-  sample.params$min.size <- mean_params$min.size
-  sample.params$max.size <- mean_params$max.size
-  
-  for(j in 1:nrow(PCclim)){
-    lambda.post[i,j]<-lambda(bigmatrix(params = sample.params,
-                                            PC1 = PCclim$PC1[j], 
-                                            PC2 = PCclim$PC2[j], 
-                                            PC3 = PCclim$PC3[j],
-                                            random = F, 
-                                            lower.extension = -.1, 
-                                            upper.extension = .5,
-                                            mat.size = mat.size)$IPMmat)
-  }
-}
 
 
