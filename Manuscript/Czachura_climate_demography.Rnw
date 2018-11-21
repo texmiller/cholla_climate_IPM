@@ -50,6 +50,29 @@ Listed in alphabetical order, the key-words should not exceed 10 words or short 
 %--------------------------------------------------------------------
 \section*{Introduction}
 \linenumbers
+Climate change has had a major impact around the globe, and the climate is projected to continue changing in the future (IPCC 2007). 
+Moreover, ecological studies have found that climate change has the potential to cause massive change in Earth’s ecosystems in a short span of time (Walther et al. 2002). 
+At the population level, long-term monitoring has suggested that the effects of climate change over the past century are already apparent (Hughes 2000). 
+Thus, we should prioritize studies connecting long-term biological datasets to abiotic environmental drivers such as climate (Harrington et al. 1999). 
+We can make this connection using the framework of population ecology.\\ \\
+
+Demographic models are a useful tool for studying populations, and there are a number of methods to incorporate climate variables into them. 
+Maschinski et al. (2006) simply categorized years as drought or non-drought in their demographic model of an endangered shrub in the Sonoran Desert. 
+Dalgleish et al. (2011) compiled a list of climate variables that correlated with random effects of year for their three-year study of a sagebrush steppe species, then ran candidate models with different combinations of these short-listed climate models to find the best model.\\ \\
+
+Demographic studies have found that the dynamics of a variety of different plant populations in various ecosystems have shown climate change responses (Dalgleish et al. 2011, Sletvold et al. 2013, Williams et al. 2015).
+Sletvold et al. (2013) found that the growth rate of a population of orchids increased due to warmer summer temperatures, which increased the survival rate of individuals in the population. 
+In another orchid species, Williams et al. (2015) found that different vital rates were affected by different climatic variables, but that number of flowers produced was reduced in warmer years. 
+Climate has also been found to influence the population growth rate of three different plant species that dominate the landscape in the sagebrush steppe of Western North America (Dalgleish et al. 2011).\\ \\
+
+Climate can also be linked to the population growth rate \(\lambda\), and there are a couple of ways to do this. 
+In the past, matrix models have been widely used to understand population dynamics and inform population management, but there has been criticism that their results may not be entirely reliable (Crone et al. 2011). 
+One suggestion Crone et al. (2011) has to make these models more reliable is to use more long-term datasets. 
+Another method of understanding population dynamics is to use an integral projection model (IPM). 
+An IPM is useful because it allows for structural traits to be continuous instead of arbitrarily discrete, and can incorporate more complex demographical traits (Ellner and Rees 2006). 
+In this study, we approach our research questions using an IPM.\\ \\
+
+Here we use demographic modeling with a 12-year set of data from a population of \textit{O. imbricata} to ask four questions regarding climate effects on this species: (1) Can climate variables explain some of the year-to-year variation in vital rates? (2) How does climate affect \(\lambda\), the population growth rate? (3) Given that recent \(\lambda\) indicates a population in decline, can we use historical climate data to determine the conditions under which \(\lambda\) $>$ 1? (4) What implications does climate change hold for the population?
 
 %--------------------------------------------------------------------
 \section*{Materials and methods}
@@ -164,13 +187,13 @@ cool_max <- cor.test(SEV_WNA_cool$max_temp.x,SEV_WNA_cool$max_temp.y,method="pea
 cool_mean <- cor.test(SEV_WNA_cool$mean_temp.x,SEV_WNA_cool$mean_temp.y,method="pearson")
 cool_prcp <- cor.test(SEV_WNA_cool$tot_prcp.x,SEV_WNA_cool$tot_prcp.y,method="pearson")
 @
-We compared warm- and cool-season values of four climate variables (total precipitation and minimum, mean, and maximum temperature) between two data sources: the SEV-LTER meteorological station nearest our study site (station 50) and downscaled data from ClimateWNA corresponding to the same latitude, longitude, and elevation as station 50. Our goal was to determine how well the downscaled data captured conditions `on the ground' as measured directly by the meteorological station. We compared the years \Sexpr{SEV_WNA_yr_range[1]} through \Sexpr{SEV_WNA_yr_range[2]}, which are the years of overlap between the two data sources.
+We compared warm- and cool-season values of four climate variables (total precipitation and minimum, mean, and maximum temperature) between two data sources: the SEV-LTER meteorological station nearest our study site (station 50 in the SEV-LTER meteorological network) and downscaled data from ClimateWNA corresponding to the same latitude, longitude, and elevation as station 50. Our goal was to determine how well the downscaled data captured conditions `on the ground' as measured directly by the meteorological station. We compared the years \Sexpr{SEV_WNA_yr_range[1]} through \Sexpr{SEV_WNA_yr_range[2]}, which are the years of overlap between the two data sources.
 
-There was strong agreement between the two data sources.
+There was strong agreement between the two data sources, with statistically significant positive correlations (at $\alpha = 0.1$) for nearly all variables (Table \ref{tab:WNASEV}, Figure \ref{fig:WNASEV}). Temperature extrema were less strongly correlated between the two data sets than temperature means, which is unsurprisingly given that extreme values may be sensitive to local micro-environmental conditions that the relatively coarse downscaled data would miss. The weakest correlation was that of warm-season temperature (Spearman's $r = \Sexpr{round(warm_max$estimate,2)}$, $P = \Sexpr{round(warm_max$p.value,2)}$). 
 
 \newpage
 \begin{table}[h!]
-  \caption{Correlations between seasonal climate values measured by an on-site meteorological station versus dowwscaled data from ClimateWNA corresponding to the same years and location. Correlation values show Pearson correlations and P-values come from $t$-tests with \Sexpr{warm_min$parameter} degrees of freedom.}
+  \caption{Correlations between seasonal climate values measured by an on-site meteorological station versus dowwscaled data from ClimateWNA corresponding to the same years and location. Correlation values show Pearson correlations and P-values come from $t$-tests with \Sexpr{warm_min$parameter} degrees of freedom. Gray lines show $y=x$.}
   \label{tab:WNASEV}
   \begin{center}
     \begin{tabular}{p{2cm}p{5cm}p{2cm}p{2cm}}
