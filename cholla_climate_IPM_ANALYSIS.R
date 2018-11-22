@@ -2,6 +2,10 @@
 library(popbio)
 library(reshape2)
 source("cholla_climate_IPM_SOURCE.R")
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
 
 mat.size = 200
 ## try estimating lambda with all PCs=0, which should be an average climate year
@@ -124,9 +128,7 @@ plot(PCclim$Year_t,PCclim$lambda_year,type="b",
 ## That was the posterior mean. Now sample the uncertainty. 
 params_post <- read.csv("allrates.selected.posterior.csv")
 n_post <- pmin(1000,nrow(params_post)) ## number of posterior draws
-window_yrs <- 10 ## window size (in years) for stochastic growth rates
 lambda_posterior <- matrix(NA, ncol = length(PCclim$Year_t), nrow = n_post)
-lambdaS_posterior <- matrix(NA, ncol = (length(PCclim$Year_t)-window_yrs+1), nrow = n_post)
 rseed.vec <- runif(n=length(PCclim$Year_t), min=0, max = 1e7) ## vector of seeds for random numbers
 
 for(i in 1:n_post){
@@ -202,9 +204,50 @@ for(i in 1:n_post){
   }
 }
 
+## estimate CI for lambda years <2004
+lambda_posterior_CI <- matrix(NA,4,length(PCclim$Year_t))
+for(j in 1:ncol(lambda_posterior)){
+  lambda_posterior_CI[c(1,3),j] <- quantile(na.omit(lambda_posterior[,j]),
+                                             probs=c(0.05,0.95))
+  lambda_posterior_CI[2,j] <- mean(na.omit(lambda_posterior[,j]))
+  lambda_posterior_CI[4,j] <- getmode(na.omit(lambda_posterior[,j]))
+}
+
+plot(PCclim$Year_t,lambda_posterior_CI[2,],type="l",lwd=4,ylim=c(0.0,1))
+lines(PCclim$Year_t,lambda_posterior_CI[4,],col="red")
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_posterior_CI[1,],rev(lambda_posterior_CI[3,])),
+        col=adjustcolor("grey",alpha.f=0.5))
+abline(h=1)
+
+## I did not finish the full posterior sample, so here is a subset of 182 samples
+window_yrs <- 10 ## window size (in years) for stochastic growth rates
+lambdaS_posterior <- matrix(NA, ncol = (length(PCclim$Year_t)-window_yrs+1), 
+                            nrow = nrow(na.omit(lambda_posterior)))
+lambdaS_posterior_CI<-matrix(0,4,ncol(lambdaS_posterior))
+lambdaS_years <- PCclim$Year_t[1]:PCclim$Year_t[ncol(lambdaS_posterior)]
+
+for(i in 1:nrow(lambdaS_posterior)){
+  for(j in 1:ncol(lambdaS_posterior)){
+  lambdaS_posterior[i,j]<-exp(mean(log(na.omit(lambda_posterior)[i,j:(j+(window_yrs-1))])))
+  }
+}
+
+for(j in 1:ncol(lambdaS_posterior)){
+  lambdaS_posterior_CI[2,j] <- mean(lambdaS_posterior[,j])
+  lambdaS_posterior_CI[4,j] <- getmode(lambdaS_posterior[,j])
+  lambdaS_posterior_CI[c(1,3),j] <- quantile(lambdaS_posterior[,j],
+                                            probs=c(0.025,0.975))
+}
+
+plot(lambdaS_years,lambdaS_posterior_CI[4,],type="l",lwd=4,ylim=c(0.8,1))
+lines(lambdaS_years,lambdaS_posterior_CI[2,])
+polygon(x=c(lambdaS_years,rev(lambdaS_years)),
+        y=c(lambdaS_posterior_CI[1,],rev(lambdaS_posterior_CI[3,])),
+        col=adjustcolor("grey",alpha.f=0.5))
 
 
-
+hist(lambdaS_posterior[,75])
 
 ## calculate a simple geometric mean over 10-year windows
 PCclim$lambdaS_year<-NA
