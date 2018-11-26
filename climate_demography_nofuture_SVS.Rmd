@@ -81,8 +81,8 @@ Plus the same terms for PC2 and PC3 (not shown for space), so a total of 14 fixe
 ```{r data prep}
 ## cut NAs and bundle data
 flow_dat <- cholla.clim %>% 
-  filter(!is.na(standvol_t),
-         !is.na(Goodbuds_t),
+  filter(!is.na(standvol_t1),
+         !is.na(Goodbuds_t1),
          !is.na(PC1))
 surv_dat <- cholla.clim %>% 
   filter(!is.na(standvol_t),
@@ -94,9 +94,9 @@ grow_dat <- cholla.clim %>%
          !is.na(PC1)) %>% 
   mutate(growth_t1 = standvol_t1 - standvol_t)
 fert_dat <- cholla.clim %>% 
-  filter(Goodbuds_t>0,
+  filter(Goodbuds_t1>0,
          !is.na(standvol_t),
-         !is.na(Goodbuds_t),
+         !is.na(Goodbuds_t1),
          !is.na(PC1))
 
 ## N plots and years should be the same across vital rates, just check
@@ -112,8 +112,8 @@ cholla.dat<-list(N.plots = max(flow_dat$plot_int),
                flow.PC1 = flow_dat$PC1,
                flow.PC2 = flow_dat$PC2,
                flow.PC3 = flow_dat$PC3,
-               flow.size = flow_dat$standvol_t,
-               flow.y = flow_dat$Goodbuds_t > 0,
+               flow.size = flow_dat$standvol_t1,
+               flow.y = flow_dat$Goodbuds_t1 > 0,
                
                surv.N.obs = nrow(surv_dat),
                surv.plot = surv_dat$plot_int,
@@ -139,8 +139,8 @@ cholla.dat<-list(N.plots = max(flow_dat$plot_int),
                fert.PC1 = fert_dat$PC1,
                fert.PC2 = fert_dat$PC2,
                fert.PC3 = fert_dat$PC3,
-               fert.size = fert_dat$standvol_t,
-               fert.y = fert_dat$Goodbuds_t)
+               fert.size = fert_dat$standvol_t1,
+               fert.y = fert_dat$Goodbuds_t1)
 ```
 
 ```{r mcmc setup}
@@ -475,16 +475,23 @@ Graphics for growth:
 ```{r growth graphics}
 grow_dat_cuts <- grow_dat %>% 
   mutate(size_bin = cut_number(standvol_t,size_bin_num),
-         size_bins = as.integer(size_bin)) 
+         size_bins = as.integer(size_bin)) %>% 
+  group_by(size_bins,Year_t) %>% 
+  summarise(bin_mean = mean(standvol_t),
+            mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_grow = mean(growth_t1),
+            bin_n = n())
 
 #win.graph()
 par(mfrow=c(1,3))
 with(grow_dat_cuts,{
-  plot(PC1,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+  plot(mean_PC1,mean_grow,col=bin_cols[size_bins],pch=1,cex=3*(bin_n / max(bin_n)),
                          xlim=c(min(x_PC1),max(x_PC1)))
-  plot(PC2,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+  plot(mean_PC2,mean_grow,col=bin_cols[size_bins],pch=1,cex=3*(bin_n / max(bin_n)),
                          xlim=c(min(x_PC2),max(x_PC2)))
-  plot(PC3,growth_t1,col=bin_cols[size_bins],pch=1,cex=1.5,
+  plot(mean_PC3,mean_grow,col=bin_cols[size_bins],pch=1,cex=3*(bin_n / max(bin_n)),
                          xlim=c(min(x_PC3),max(x_PC3)))
 
 })
@@ -502,17 +509,24 @@ fert_size_cuts <- cholla.clim %>%
 
 fert_dat_cuts <- fert_dat %>% 
   mutate(size_bin = cut_number(standvol_t,size_bin_num),
-         size_bins = as.integer(size_bin))
+         size_bins = as.integer(size_bin))%>% 
+  group_by(size_bins,Year_t) %>% 
+  summarise(bin_mean = mean(standvol_t),
+            mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_fert = mean(Goodbuds_t),
+            bin_n = n())
 
 ymax.fert<-100
 
 #win.graph()
 par(mfrow=c(1,3))
 with(fert_dat_cuts,{
-  plot(PC1,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+  plot(mean_PC1,mean_fert,col=bin_cols[size_bins],pch=1.4,cex=3*(bin_n / max(bin_n)),
                          xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,ymax.fert))
 
-  plot(PC2,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+  plot(mean_PC2,mean_fert,col=bin_cols[size_bins],pch=1.4,cex=3*(bin_n / max(bin_n)),
                          xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,ymax.fert))
   for(i in 1:length(fert_size_cuts$bin_mean)){
   lines(x_PC2,
@@ -521,7 +535,7 @@ with(fert_dat_cuts,{
         lwd=2,col=bin_cols[i])
   }
   
-  plot(PC3,Goodbuds_t,col=alpha(bin_cols[size_bins],alpha.fert),pch=1.4,cex=1.5,
+  plot(mean_PC3,mean_fert,col=bin_cols[size_bins],pch=1.4,cex=3*(bin_n / max(bin_n)),
                          xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,ymax.fert))
 
 })
