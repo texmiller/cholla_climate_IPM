@@ -110,14 +110,18 @@ fx<-function(x,params,rfx,PC1,PC2,PC3){
   xb=pmin(pmax(x,params$min.size),params$max.size)
   p.flow<-invlogit(params$flow.mu + rfx[3] + params$flow.bsize*xb + 
                      unlist(params$flow.bclim[1,1])*PC1 + 
-                     unlist(params$flow.bclim[1,2])*PC2 +
+                     unlist(params$flow.bclim[3,1])*PC1*xb + 
                      unlist(params$flow.bclim[3,2])*xb*PC2 +
                      unlist(params$flow.bclim[4,2])*xb*(PC2^2) +
-                     unlist(params$flow.bclim[1,3])*PC3 +
                      unlist(params$flow.bclim[3,3])*xb*PC3 +
                      unlist(params$flow.bclim[4,3])*xb*(PC3^2))
   nfruits<-exp(params$fert.mu + rfx[4] + params$fert.bsize*xb + 
-                 unlist(params$fert.bclim[3,2])*PC2*xb)  
+                 unlist(params$fert.bclim[1,2])*PC2 +
+                 unlist(params$fert.bclim[3,2])*PC2*xb +
+                 unlist(params$fert.bclim[4,2])*(PC2^2)*xb +
+                 unlist(params$fert.bclim[1,3])*PC3 +
+                 unlist(params$fert.bclim[3,3])*PC3*xb +
+                 unlist(params$fert.bclim[4,3])*(PC3^2)*xb)  
   return(p.flow*nfruits*params$seedsperfruit*params$seedsurv0yr)  
 }
 
