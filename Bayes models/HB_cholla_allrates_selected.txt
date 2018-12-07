@@ -71,9 +71,9 @@
     for(i in 1:flow.N.obs){
     logit(flow.p[i]) <- flow.mu + flow.eps.plot[flow.plot[i]] + flow.eps.year[flow.year[i]] + flow.bsize*flow.size[i]+ 
     flow.bclim[1,1]*flow.PC1[i] + 
-    flow.bclim[3,1]*flow.PC1[i]*flow.size[i] +
-    flow.bclim[1,2]*flow.PC2[i] + 
+    flow.bclim[3,1]*flow.PC1[i]*flow.size[i] + 
     flow.bclim[3,2]*flow.PC2[i]*flow.size[i] + 
+    flow.bclim[4,2]*pow(flow.PC2[i],2)*flow.size[i] + 
     flow.bclim[3,3]*flow.PC3[i]*flow.size[i] + 
     flow.bclim[4,3]*pow(flow.PC3[i],2)*flow.size[i]
     
