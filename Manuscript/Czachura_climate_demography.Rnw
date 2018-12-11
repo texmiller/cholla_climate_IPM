@@ -112,26 +112,80 @@ We derived seasonal estimates (warm-season and cool-season) of total precipitati
 To reduce the dimensionality of the climate data, we conducted Principal Component Analysis (PCA) on the eight climate variables (two seasons x four variables) for the years 1900-2017, with climate values scaled to unit variance. We used the prcomp() function in R version to estimate variance in the climate data explained by each PC and variable loadings, which give the correlations between original variables and PC values.
 
 \subsection*{Statistical modeling}
-<<>>=
+<<PCA data, echo=F, message=F, warning=F>>=
 setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
 var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"PC3"]*100,2)
 @
 
-We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{var_explained}\% of the inter-annual variation in climate.
+%We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{var_explained}\% of the inter-annual variation in climate.
 
 \subsection*{Demographic modeling}
 
 %--------------------------------------------------------------------
 \section*{Results}
 
-\newpage
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
-  \begin{center}
-    \includegraphics[width=0.5\linewidth]{Figures/PCA.pdf}
-  \end{center}
+  \label{fig:PCA}
+<<PCA results,echo=F, message=F, warning=F,fig.width=7,fig.height=7,fig.align='center'>>=
+setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
+regression_start_yr <- 1900
+PC1mod<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regression_start_yr))
+PC2mod<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regression_start_yr))
+PC3mod<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regression_start_yr))
+PC_cols <- c("#deebf7", "#9ecae1", "#3182bd", "#de2d26")
+
+layout(matrix(c(1,1,1,2,2,2,3,3,4,4,5,5), 6, 2, byrow = F))
+par(mar=c(5,6,3,1))
+barplot(as.matrix(PCclim_var[2:3,2:4]),
+        beside=T,col=c("black","white"),ylim=c(0,1),
+        ylab="Proportion of variance explained",cex.lab=1.4,cex.names=1.4)
+box()
+legend("topleft",fil=c("black","white"),bty="n",cex=1.2,
+       legend=c("Proportion of variance","Cumulative proportion"))
+title("A",adj=0,font=3,cex.main=2)
+
+par(lwd = 2)
+barplot(as.matrix(PCclim_rotation[,c("PC1","PC2","PC3")]),
+        horiz=F,beside=T,ylim=c(-1,1),
+        ylab="Variable loading",cex.lab=1.4,cex.names=1.4,
+        border=rep(PC_cols,each=2),
+        col=c(PC_cols[1],"white",
+              PC_cols[2],"white",
+              PC_cols[3],"white",
+              PC_cols[4],"white"))
+box(lwd=1)
+legend("topright",fil=c("black","white"),bty="n",cex=1.2,
+       legend=c("Cool season","Warm season"))
+legend("topleft",fil=PC_cols,border=PC_cols,bty="n",cex=1.2,
+       legend=c("Min temp","Mean temp", "Max temp", "Precip"))
+title("B",adj=0,font=3,cex.main=2)
+
+par(lwd = 1)
+plot(PCclim$Year_t,PCclim$PC1,type="l",cex.lab=1.5,col="darkgrey",
+     xlab="Year",ylab="PC1\n(34% of variation)")
+lines(regression_start_yr:2017,coef(PC1mod)[1]+coef(PC1mod)[2]*regression_start_yr:2017,col="black",lwd=2)
+title("C",adj=0,font=3,cex.main=2)
+
+plot(PCclim$Year_t,PCclim$PC2,type="l",cex.lab=1.5,col="darkgrey",
+     xlab="Year",ylab="PC2\n(22% of variation)")
+lines(regression_start_yr:2017,coef(PC2mod)[1]+coef(PC2mod)[2]*regression_start_yr:2017,col="black",lwd=2)
+title("D",adj=0,font=3,cex.main=2)
+
+plot(PCclim$Year_t,PCclim$PC3,type="l",cex.lab=1.5,col="darkgrey",
+     xlab="Year",ylab="PC3\n(18% of variation)")
+lines(regression_start_yr:2017,coef(PC3mod)[1]+coef(PC3mod)[2]*regression_start_yr:2017,col="black",lwd=2)
+title("E",adj=0,font=3,cex.main=2)
+@
+  \caption{Principal component analysis (PCA) of eight seasonal climate variables for demographic transition years (May 1 -- April 30) of \Sexpr{min(PCclim$Year_t)} through \Sexpr{max(PCclim$Year_t)}. 
+  (A) Variance and cumulative variance explained by first three principal components. 
+  (B) Loadings of original variables onto PC axes. Loading values can be interpreted as correlations between each raw variable and each PC. 
+  (C--E) Temporal trends in climate; PC values shown in grey and regression lines shown in black. 
+  PC1: $F_{\Sexpr{anova(PC1mod)["Df"][1,1]},\Sexpr{anova(PC1mod)["Df"][2,1]}} = \Sexpr{round(anova(PC1mod)["F value"][1,1],2)}$, $P < \Sexpr{pmax(0.001, round(anova(PC1mod)["Pr(>F)"][1,1],2))}$; 
+  PC2: $F_{\Sexpr{anova(PC2mod)["Df"][1,1]},\Sexpr{anova(PC2mod)["Df"][2,1]}} = \Sexpr{round(anova(PC2mod)["F value"][1,1],2)}$, $P < \Sexpr{pmax(0.001, round(anova(PC2mod)["Pr(>F)"][1,1],2))}$; 
+  PC3: $F_{\Sexpr{anova(PC3mod)["Df"][1,1]},\Sexpr{anova(PC3mod)["Df"][2,1]}} = \Sexpr{round(anova(PC3mod)["F value"][1,1],2)}$, $P < \Sexpr{pmax(0.001, round(anova(PC3mod)["Pr(>F)"][1,1],2))}$.}
 \end{figure}
 
 \newpage
@@ -267,37 +321,37 @@ setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 SVS_post<-read.csv("allrates_SVS_out.csv")[,c("X","mean")]
 fert_z <- SVS_post %>% 
   filter(str_detect(X, 'fert.z')) %>% 
-  slice(c(13,1:12)) %>% 
+  slice(c(10,1:9)) %>% 
   select(mean) %>% 
   mutate(mean = round(mean,2)) %>% 
-  mutate(mean = ifelse(mean>0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
 flow_z <- SVS_post %>% 
   filter(str_detect(X, 'flow.z')) %>% 
-  slice(c(13,1:12)) %>% 
+  slice(c(10,1:9)) %>% 
   select(mean) %>% 
   mutate(mean = round(mean,2)) %>% 
-  mutate(mean = ifelse(mean>0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
 grow_z <- SVS_post %>% 
   filter(str_detect(X, 'grow.z')) %>% 
-  slice(c(13,1:12)) %>% 
+  slice(c(10,1:9)) %>% 
   select(mean) %>% 
   mutate(mean = round(mean,2)) %>% 
-  mutate(mean = ifelse(mean>0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
 surv_z <- SVS_post %>% 
   filter(str_detect(X, 'surv.z')) %>% 
-  slice(c(13,1:12)) %>% 
+  slice(c(10,1:9)) %>% 
   select(mean) %>% 
   mutate(mean = round(mean,2)) %>% 
-  mutate(mean = ifelse(mean>0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
 
-coef_names <- as_tibble(c("Size",rep(c("PC","PC*PC","PC*size","PC*PC*size"),3)))
-PC_names <- as_tibble(c(NA,rep(1:3,each=4)))
+coef_names <- as_tibble(c("Size",rep(c("PC","PC*PC","PC*size"),3)))
+PC_names <- as_tibble(c(NA,rep(1:3,each=3)))
 coefficients <- as_tibble(c("$\\beta_1$", 
-                    "$\\rho^{1}_{1}$","$\\rho^{1}_{2}$","$\\rho^{1}_{3}$","$\\rho^{1}_{4}$",
-                    "$\\rho^{2}_{1}$","$\\rho^{2}_{2}$","$\\rho^{2}_{3}$","$\\rho^{2}_{4}$",
-                    "$\\rho^{3}_{1}$","$\\rho^{3}_{2}$","$\\rho^{3}_{3}$","$\\rho^{3}_{4}$"))
+                    "$\\rho^{1}_{1}$","$\\rho^{1}_{2}$","$\\rho^{1}_{3}$",
+                    "$\\rho^{2}_{1}$","$\\rho^{2}_{2}$","$\\rho^{2}_{3}$",
+                    "$\\rho^{3}_{1}$","$\\rho^{3}_{2}$","$\\rho^{3}_{3}$"))
 all_z <- bind_cols(PC_names,coef_names,surv_z,grow_z,flow_z,fert_z)
-colnames(all_z) <- c("Cliamte PC","Model term","Survival","Growth","Flowering","Fertility")
+colnames(all_z) <- c("Climate PC","Model term","Survival","Growth","Flowering","Fertility")
 
 print(xtable(all_z, caption = "Stochastic variable selection results. Bolded values indicate terms retained in the final model.", label = "tab:SVS"), 
       include.rownames=F, 
