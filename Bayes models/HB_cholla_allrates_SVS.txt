@@ -39,7 +39,8 @@
     ## variable selection priors for climate effects
     ## looping over coefficients (i) and PC variables (j)
     ## Here each coefficient has its own indicator variable
-    for(i in 1:4){
+    ## for(i in 1:4){
+    for(i in 1:3){
     for(j in 1:3){
     flow.bclim[i,j] ~ dnorm(0,flow.prec[i,j])
     flow.prec[i,j] <- 1/flow.V[i,j]
@@ -105,15 +106,15 @@
     flow.bclim[1,1]*flow.PC1[i] + 
     flow.bclim[2,1]*pow(flow.PC1[i],2) + 
     flow.bclim[3,1]*flow.PC1[i]*flow.size[i] + 
-    flow.bclim[4,1]*pow(flow.PC1[i],2)*flow.size[i] + 
+    ##flow.bclim[4,1]*pow(flow.PC1[i],2)*flow.size[i] + 
     flow.bclim[1,2]*flow.PC2[i] + 
     flow.bclim[2,2]*pow(flow.PC2[i],2) + 
     flow.bclim[3,2]*flow.PC2[i]*flow.size[i] + 
-    flow.bclim[4,2]*pow(flow.PC2[i],2)*flow.size[i] + 
+    ##flow.bclim[4,2]*pow(flow.PC2[i],2)*flow.size[i] + 
     flow.bclim[1,3]*flow.PC3[i] + 
     flow.bclim[2,3]*pow(flow.PC3[i],2) + 
-    flow.bclim[3,3]*flow.PC3[i]*flow.size[i] + 
-    flow.bclim[4,3]*pow(flow.PC3[i],2)*flow.size[i]
+    flow.bclim[3,3]*flow.PC3[i]*flow.size[i]
+    ## + flow.bclim[4,3]*pow(flow.PC3[i],2)*flow.size[i]
     
     flow.y[i]~dbern(flow.p[i])
     
@@ -128,15 +129,15 @@
     surv.bclim[1,1]*surv.PC1[i] + 
     surv.bclim[2,1]*pow(surv.PC1[i],2) + 
     surv.bclim[3,1]*surv.PC1[i]*surv.size[i] + 
-    surv.bclim[4,1]*pow(surv.PC1[i],2)*surv.size[i] + 
+    ##surv.bclim[4,1]*pow(surv.PC1[i],2)*surv.size[i] + 
     surv.bclim[1,2]*surv.PC2[i] + 
     surv.bclim[2,2]*pow(surv.PC2[i],2) + 
     surv.bclim[3,2]*surv.PC2[i]*surv.size[i] + 
-    surv.bclim[4,2]*pow(surv.PC2[i],2)*surv.size[i] + 
+    ##surv.bclim[4,2]*pow(surv.PC2[i],2)*surv.size[i] + 
     surv.bclim[1,3]*surv.PC3[i] + 
     surv.bclim[2,3]*pow(surv.PC3[i],2) + 
-    surv.bclim[3,3]*surv.PC3[i]*surv.size[i] + 
-    surv.bclim[4,3]*pow(surv.PC3[i],2)*surv.size[i]
+    surv.bclim[3,3]*surv.PC3[i]*surv.size[i]
+    ## + surv.bclim[4,3]*pow(surv.PC3[i],2)*surv.size[i]
     
     surv.y[i]~dbern(surv.p[i])
     
@@ -154,15 +155,15 @@
     fert.bclim[1,1]*fert.PC1[i] + 
     fert.bclim[2,1]*pow(fert.PC1[i],2) + 
     fert.bclim[3,1]*fert.PC1[i]*fert.size[i] + 
-    fert.bclim[4,1]*pow(fert.PC1[i],2)*fert.size[i] + 
+    ##fert.bclim[4,1]*pow(fert.PC1[i],2)*fert.size[i] + 
     fert.bclim[1,2]*fert.PC2[i] + 
     fert.bclim[2,2]*pow(fert.PC2[i],2) + 
     fert.bclim[3,2]*fert.PC2[i]*fert.size[i] + 
-    fert.bclim[4,2]*pow(fert.PC2[i],2)*fert.size[i] + 
+    ##fert.bclim[4,2]*pow(fert.PC2[i],2)*fert.size[i] + 
     fert.bclim[1,3]*fert.PC3[i] + 
     fert.bclim[2,3]*pow(fert.PC3[i],2) + 
-    fert.bclim[3,3]*fert.PC3[i]*fert.size[i] + 
-    fert.bclim[4,3]*pow(fert.PC3[i],2)*fert.size[i]
+    fert.bclim[3,3]*fert.PC3[i]*fert.size[i]
+    ## + fert.bclim[4,3]*pow(fert.PC3[i],2)*fert.size[i]
     
     fert.y[i]~dpois(fert.lambda[i])
     
@@ -180,15 +181,15 @@
     grow.bclim[1,1]*grow.PC1[i] + 
     grow.bclim[2,1]*pow(grow.PC1[i],2) + 
     grow.bclim[3,1]*grow.PC1[i]*grow.size[i] + 
-    grow.bclim[4,1]*pow(grow.PC1[i],2)*grow.size[i] + 
+    ##grow.bclim[4,1]*pow(grow.PC1[i],2)*grow.size[i] + 
     grow.bclim[1,2]*grow.PC2[i] + 
     grow.bclim[2,2]*pow(grow.PC2[i],2) + 
     grow.bclim[3,2]*grow.PC2[i]*grow.size[i] + 
-    grow.bclim[4,2]*pow(grow.PC2[i],2)*grow.size[i] + 
+    ##grow.bclim[4,2]*pow(grow.PC2[i],2)*grow.size[i] + 
     grow.bclim[1,3]*grow.PC3[i] + 
     grow.bclim[2,3]*pow(grow.PC3[i],2) + 
-    grow.bclim[3,3]*grow.PC3[i]*grow.size[i] + 
-    grow.bclim[4,3]*pow(grow.PC3[i],2)*grow.size[i]
+    grow.bclim[3,3]*grow.PC3[i]*grow.size[i]
+    ## + grow.bclim[4,3]*pow(grow.PC3[i],2)*grow.size[i]
     
     grow.y[i]~dnorm(grow.mean[i],grow.tau.eps)
     
