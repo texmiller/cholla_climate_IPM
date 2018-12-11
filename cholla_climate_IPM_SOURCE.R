@@ -93,10 +93,9 @@ gxy<-function(x,y,params,rfx){
 sx<-function(x,params,rfx,PC1,PC2,PC3){
   xb=pmin(pmax(x,params$min.size),params$max.size)
   p.surv<-params$surv.mu + params$surv.bsize*xb + rfx[2] + 
-    unlist(params$surv.bclim[1,1])*PC1 + 
-    unlist(params$surv.bclim[1,2])*PC2 + 
-    unlist(params$surv.bclim[1,3])*PC3 + 
-    unlist(params$surv.bclim[2,3])*(PC3^2)
+    unlist(params$surv.bclim[1,1])*PC1[2] + 
+    unlist(params$surv.bclim[1,2])*PC2[2] + 
+    unlist(params$surv.bclim[1,3])*PC3[2]
   return(invlogit(p.surv))
 }
 
@@ -106,23 +105,28 @@ pxy <- function(x,y,params,rfx,PC1,PC2,PC3){
 }
 
 #PRODUCTION OF 1-YO SEEDS IN THE SEED BANK FROM X-SIZED MOMS
-fx<-function(x,params,rfx,PC1,PC2,PC3){
+flow.x <- function(x,params,rfx,PC1,PC2,PC3){
   xb=pmin(pmax(x,params$min.size),params$max.size)
-  p.flow<-invlogit(params$flow.mu + rfx[3] + params$flow.bsize*xb + 
-                     unlist(params$flow.bclim[1,1])*PC1 + 
-                     unlist(params$flow.bclim[3,1])*PC1*xb + 
-                     unlist(params$flow.bclim[3,2])*xb*PC2 +
-                     unlist(params$flow.bclim[4,2])*xb*(PC2^2) +
-                     unlist(params$flow.bclim[3,3])*xb*PC3 +
-                     unlist(params$flow.bclim[4,3])*xb*(PC3^2))
-  nfruits<-exp(params$fert.mu + rfx[4] + params$fert.bsize*xb + 
-                 unlist(params$fert.bclim[1,2])*PC2 +
-                 unlist(params$fert.bclim[3,2])*PC2*xb +
-                 unlist(params$fert.bclim[4,2])*(PC2^2)*xb +
-                 unlist(params$fert.bclim[1,3])*PC3 +
-                 unlist(params$fert.bclim[3,3])*PC3*xb +
-                 unlist(params$fert.bclim[4,3])*(PC3^2)*xb)  
-  return(p.flow*nfruits*params$seedsperfruit*params$seedsurv0yr)  
+  p.flow<-params$flow.mu + rfx[3] + params$flow.bsize*xb + 
+                     unlist(params$flow.bclim[1,1])*PC1[1] + 
+                     unlist(params$flow.bclim[1,2])*PC2[1] + 
+                     unlist(params$flow.bclim[3,2])*xb*PC2[1] +
+                     unlist(params$flow.bclim[1,3])*PC3[1] +
+                     unlist(params$flow.bclim[3,3])*xb*PC3[1]
+  return(invlogit(p.flow))
+}
+
+fert.x <- function(x,params,rfx,PC1,PC2,PC3){
+  xb=pmin(pmax(x,params$min.size),params$max.size)
+  nfruits<-params$fert.mu + rfx[4] + params$fert.bsize*xb + 
+                 unlist(params$fert.bclim[1,2])*PC2[1] +
+                 unlist(params$fert.bclim[3,2])*PC2[1]*xb +
+                 unlist(params$fert.bclim[1,3])*PC3[1]
+  return(exp(nfruits))
+}
+
+fx<-function(x,params,rfx,PC1,PC2,PC3){
+  return(flow.x(x,params,rfx,PC1,PC2,PC3)*fert.x(x,params,rfx,PC1,PC2,PC3)*params$seedsperfruit*params$seedsurv0yr)  
 }
 
 #SIZE DISTRIBUTION OF RECRUITS

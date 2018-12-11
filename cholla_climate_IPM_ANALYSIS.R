@@ -10,10 +10,10 @@ getmode <- function(v) {
 mat.size = 200
 ## try estimating lambda with all PCs=0, which should be an average climate year
 cholla_mean <- bigmatrix(params = mean_params,
-          PC1 = 0, PC2 = 0, PC3 = 0,
+          PC1 = c(0,0), PC2 = c(0,0), PC3 = c(0,0),
           random = F, 
-          lower.extension = -.1, 
-          upper.extension = .5,
+          lower.extension = -.2, 
+          upper.extension = 1,
           mat.size = mat.size)
 lambda(cholla_mean$IPMmat)
 
@@ -60,14 +60,14 @@ PC_range <- PC_gather %>%
   group_by(PC) %>% 
   summarise(PC_min = min(value),
             PC_max = max(value))
-x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
-x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
-x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.5)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.5)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.5)
 lambda_PC1<-lambda_PC2<-lambda_PC3<-c()
 
 for(i in 1:length(x_PC1)){
   lambda_PC1[i]<-lambda(bigmatrix(params = mean_params,
-                                  PC1 = x_PC1[i], PC2 = 0, PC3 = 0,
+                                  PC1 = rep(x_PC1[i],2), PC2 = rep(0,2), PC3 = rep(0,2),
                                   random = F, 
                                   lower.extension = -.1, 
                                   upper.extension = .5,
@@ -75,7 +75,7 @@ for(i in 1:length(x_PC1)){
 }
 for(i in 1:length(x_PC2)){
   lambda_PC2[i]<-lambda(bigmatrix(params = mean_params,
-                                  PC1 = 0, PC2 = x_PC2[i], PC3 = 0,
+                                  PC1 = rep(0,2), PC2 = rep(x_PC2[i],2), PC3 = rep(0,2),
                                   random = F, 
                                   lower.extension = -.1, 
                                   upper.extension = .5,
@@ -83,7 +83,7 @@ for(i in 1:length(x_PC2)){
 }
 for(i in 1:length(x_PC3)){
   lambda_PC3[i]<-lambda(bigmatrix(params = mean_params,
-                                  PC1 = 0, PC2 = 0, PC3 = x_PC3[i],
+                                  PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(x_PC3[i],2),
                                   random = F, 
                                   lower.extension = -.1, 
                                   upper.extension = .5,
@@ -95,13 +95,15 @@ lines(x_PC2,lambda_PC2,type="l",lwd=4,col="blue")
 lines(x_PC3,lambda_PC3,type="l",lwd=4,col="red")
 
 ## estimate lambda by year
-PCclim$lambda_year<-c()
-for(i in 1:length(min(PCclim$Year_t):2003)){
+PCclim$lambda_year<-rep(NA,times = length(min(PCclim$Year_t):2016))
+PCclim$lambda_year_RFX<-rep(NA,times = length(min(PCclim$Year_t):2016))
+
+for(i in 2:length(PCclim$lambda_year)){
   
   PCclim$lambda_year[i]<-lambda(bigmatrix(params = mean_params,
-                                          PC1 = PCclim$PC1[i], 
-                                          PC2 = PCclim$PC2[i], 
-                                          PC3 = PCclim$PC3[i],
+                                          PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
+                                          PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
+                                          PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
                                           random = F, 
                                           lower.extension = -.1, 
                                           upper.extension = .5,
@@ -109,25 +111,121 @@ for(i in 1:length(min(PCclim$Year_t):2003)){
 }
 for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
   PCclim$lambda_year[i]<-lambda(bigmatrix(params = mean_params,
-                                          PC1 = PCclim$PC1[i], 
-                                          PC2 = PCclim$PC2[i], 
-                                          PC3 = PCclim$PC3[i],
+                                              PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
+                                              PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
+                                              PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
+                                              random = F, 
+                                              lower.extension = -.1, 
+                                              upper.extension = .5,
+                                              mat.size = mat.size)$IPMmat)
+  PCclim$lambda_year_RFX[i]<-lambda(bigmatrix(params = mean_params,
+                                          PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
+                                          PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
+                                          PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
                                           random = F, 
                                           lower.extension = -.1, 
                                           upper.extension = .5,
-                                          mat.size = mat.size,
+                                          mat.size = mat.size
+                                          ,
                                           rfx = c(mean_params$grow.eps.year[i-length(min(PCclim$Year_t):2003)],
                                                   mean_params$surv.eps.year[i-length(min(PCclim$Year_t):2003)],
                                                   mean_params$flow.eps.year[i-length(min(PCclim$Year_t):2003)],
-                                                  mean_params$fert.eps.year[i-length(min(PCclim$Year_t):2003)]))$IPMmat)
+                                                  mean_params$fert.eps.year[i-length(min(PCclim$Year_t):2003)])
+                                          )$IPMmat)
 }
 
-plot(PCclim$Year_t,PCclim$lambda_year,type="b",
-     ylim=c(0.75,1.01))
+## calculate a simple geometric mean over 10-year windows
+PCclim$lambdaS_year<-NA
+for(i in 11:(length(PCclim$lambda_year))){
+  PCclim$lambdaS_year[i]<-exp(mean(log(PCclim$lambda_year[(i-9):i])))
+}
+
+
+
+par(mfrow=c(2,1))
+plot(PCclim$Year_t,PCclim$lambda_year,type="b",ylim=c(0.75,1),
+     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+points(PCclim$Year_t,PCclim$lambda_year_RFX,type="b",pch=16)
+plot(PCclim$Year_t,PCclim$lambdaS_year,type="b",
+     pch=21,bg="tomato",cex=1.2,#ylim=c(0.94,0.98),
+     xlab="Year",ylab=expression(lambda[S]),cex.lab=1.4)
+
+
+# posterior samples of lambda v PC ----------------------------------------
+params_post <- read.csv("allrates.selected.posterior.csv")
+n_post <- pmin(50,nrow(params_post)) ## number of posterior draws
+
+lambda_PC1_post <-matrix(NA,nrow=n_post,ncol=length(x_PC1))
+lambda_PC2_post <-matrix(NA,nrow=n_post,ncol=length(x_PC2))
+lambda_PC3_post <-matrix(NA,nrow=n_post,ncol=length(x_PC3))
+
+for(i in 1:n_post){
+  ## now convert params to list for the rest of it
+  sample.params <- as.list(params_post[i,])
+  sample.params$flow.bclim <- params_post[i,] %>% 
+    select(flow.bclim.1.1.:flow.bclim.3.3.) %>% 
+    matrix(nrow=3)
+  sample.params$fert.bclim <- params_post[i,] %>% 
+    select(fert.bclim.1.1.:fert.bclim.3.3.) %>% 
+    matrix(nrow=3)  
+  sample.params$grow.bclim <- params_post[i,] %>% 
+    select(grow.bclim.1.1.:grow.bclim.3.3.) %>% 
+    matrix(nrow=3) 
+  sample.params$surv.bclim <- params_post[i,] %>% 
+    select(surv.bclim.1.1.:surv.bclim.3.3.) %>% 
+    matrix(nrow=3) 
+  
+  sample.params$seedsperfruit <- mean_params$seedsperfruit
+  sample.params$seedsurv0yr <- mean_params$seedsurv0yr
+  sample.params$germ1yo <- mean_params$germ1yo
+  sample.params$germ2yo <- mean_params$germ2yo
+  sample.params$precensus.surv <- mean_params$precensus.surv
+  sample.params$sdling.size.mean <- mean_params$sdling.size.mean
+  sample.params$sdling.size.sd <- mean_params$sdling.size.sd
+  sample.params$min.size <- mean_params$min.size
+  sample.params$max.size <- mean_params$max.size
+  
+  
+  for(j in 1:length(x_PC1)){
+    lambda_PC1_post[i,j]<-lambda(bigmatrix(params = sample.params,
+                                    PC1 = rep(x_PC1[j],2), PC2 = rep(0,2), PC3 = rep(0,2),
+                                    random = F, 
+                                    lower.extension = -.1, 
+                                    upper.extension = .5,
+                                    mat.size = mat.size)$IPMmat)
+  }
+  for(j in 1:length(x_PC2)){
+    lambda_PC2_post[i,j]<-lambda(bigmatrix(params = sample.params,
+                                    PC1 = rep(0,2), PC2 = rep(x_PC2[j],2), PC3 = rep(0,2),
+                                    random = F, 
+                                    lower.extension = -.1, 
+                                    upper.extension = .5,
+                                    mat.size = mat.size)$IPMmat)
+  }
+  for(j in 1:length(x_PC3)){
+    lambda_PC3_post[i,j]<-lambda(bigmatrix(params = sample.params,
+                                    PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(x_PC3[j],2),
+                                    random = F, 
+                                    lower.extension = -.1, 
+                                    upper.extension = .5,
+                                    mat.size = mat.size)$IPMmat)
+  }
+}
+
+plot(x_PC1,lambda_PC1,lwd=4,ylim=c(0.75,1),type="n")
+for(i in 1:n_post){
+  lines(x_PC1,lambda_PC1_post[i,],col=alpha("black",0.1))
+  lines(x_PC1,lambda_PC2_post[i,],col=alpha("blue",0.1))
+  lines(x_PC1,lambda_PC3_post[i,],col=alpha("red",0.1))
+}
+lines(x_PC1,lambda_PC1,type="l",lwd=4,col="blue")
+lines(x_PC2,lambda_PC2,type="l",lwd=4,col="blue")
+lines(x_PC3,lambda_PC3,type="l",lwd=4,col="red")
+
+# lambdaS posterior samples -------------------------------------------------------
+
 
 ## That was the posterior mean. Now sample the uncertainty. 
-params_post <- read.csv("allrates.selected.posterior.csv")
-n_post <- pmin(1000,nrow(params_post)) ## number of posterior draws
 lambda_posterior <- matrix(NA, ncol = length(PCclim$Year_t), nrow = n_post)
 rseed.vec <- runif(n=length(PCclim$Year_t), min=0, max = 1e7) ## vector of seeds for random numbers
 
@@ -135,17 +233,17 @@ for(i in 1:n_post){
   ## now convert params to list for the rest of it
   sample.params <- as.list(params_post[i,])
   sample.params$flow.bclim <- params_post[i,] %>% 
-    select(flow.bclim.1.1.:flow.bclim.4.3.) %>% 
-    matrix(nrow=4)
+    select(flow.bclim.1.1.:flow.bclim.3.3.) %>% 
+    matrix(nrow=3)
   sample.params$fert.bclim <- params_post[i,] %>% 
-    select(fert.bclim.1.1.:fert.bclim.4.3.) %>% 
-    matrix(nrow=4)  
+    select(fert.bclim.1.1.:fert.bclim.3.3.) %>% 
+    matrix(nrow=3)  
   sample.params$grow.bclim <- params_post[i,] %>% 
-    select(grow.bclim.1.1.:grow.bclim.4.3.) %>% 
-    matrix(nrow=4) 
+    select(grow.bclim.1.1.:grow.bclim.3.3.) %>% 
+    matrix(nrow=3) 
   sample.params$surv.bclim <- params_post[i,] %>% 
-    select(surv.bclim.1.1.:surv.bclim.4.3.) %>% 
-    matrix(nrow=4) 
+    select(surv.bclim.1.1.:surv.bclim.3.3.) %>% 
+    matrix(nrow=3) 
   
   sample.params$grow.eps.year <- params_post[i,] %>% 
     select(grow.eps.year.1.:grow.eps.year.13.) %>% 
@@ -240,8 +338,8 @@ for(j in 1:ncol(lambdaS_posterior)){
                                             probs=c(0.025,0.975))
 }
 
-plot(lambdaS_years,lambdaS_posterior_CI[4,],type="l",lwd=4,ylim=c(0.8,1))
-lines(lambdaS_years,lambdaS_posterior_CI[2,])
+plot(lambdaS_years,lambdaS_posterior_CI[2,],type="l",lwd=4,ylim=c(0.8,1))
+#lines(lambdaS_years,lambdaS_posterior_CI[2,])
 polygon(x=c(lambdaS_years,rev(lambdaS_years)),
         y=c(lambdaS_posterior_CI[1,],rev(lambdaS_posterior_CI[3,])),
         col=adjustcolor("grey",alpha.f=0.5))
