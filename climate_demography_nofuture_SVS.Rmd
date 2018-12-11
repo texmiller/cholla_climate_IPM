@@ -95,7 +95,7 @@ grow_dat <- cholla.clim %>%
   mutate(growth_t1 = standvol_t1 - standvol_t)
 fert_dat <- cholla.clim %>% 
   filter(Goodbuds_t1>0,
-         !is.na(standvol_t),
+         !is.na(standvol_t1),
          !is.na(Goodbuds_t1),
          !is.na(PC1))
 
@@ -162,10 +162,10 @@ inits<-function(){list(flow.mu=rnorm(1),
                        fert.sigma.overdisp=rlnorm(1),
                        grow.sigma.eps=rlnorm(1),
                        
-                       flow.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
-                       fert.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
-                       grow.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
-                       surv.z=matrix(rbinom(12,1,0.5),nrow=4,ncol=3),
+                       flow.z=matrix(rbinom(9,1,0.5),nrow=3,ncol=3),
+                       fert.z=matrix(rbinom(9,1,0.5),nrow=3,ncol=3),
+                       grow.z=matrix(rbinom(9,1,0.5),nrow=3,ncol=3),
+                       surv.z=matrix(rbinom(9,1,0.5),nrow=3,ncol=3),
                        
                        flow.zsize=rbinom(1,1,0.5),
                        fert.zsize=rbinom(1,1,0.5),
@@ -228,6 +228,8 @@ abline(0,1, col='darkgray',lwd=3)
 
 ```{r z scores}
 allrates.out$BUGSoutput$mean$flow.z
+allrates.out$BUGSoutput$mean$flow.zsize
+
 allrates.out$BUGSoutput$mean$fert.z
 allrates.out$BUGSoutput$mean$grow.z
 allrates.out$BUGSoutput$mean$surv.z
@@ -258,7 +260,7 @@ allrates.out$BUGSoutput$mean$surv.zsize
 
 Run the "selected model" only with coefficients that are likely (p > 0.1) non-zero.
 ```{r final model}
-inits<-function(){list(flow.mu=rnorm(1,-10,2),
+inits<-function(){list(flow.mu=rnorm(1,mean=-10),
                        fert.mu=rnorm(1),
                        surv.mu=rnorm(1),
                        grow.mu=rnorm(1),
@@ -276,10 +278,10 @@ inits<-function(){list(flow.mu=rnorm(1,-10,2),
                        fert.sigma.overdisp=rlnorm(1),
                        grow.sigma.eps=rlnorm(1),
                        
-                       flow.bclim=matrix(rnorm(12),nrow=4,ncol=3),
-                       fert.bclim=matrix(rnorm(12),nrow=4,ncol=3),
-                       grow.bclim=matrix(rnorm(12),nrow=4,ncol=3),
-                       surv.bclim=matrix(rnorm(12),nrow=4,ncol=3),
+                       flow.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       fert.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       grow.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       surv.bclim=matrix(rnorm(9),nrow=3,ncol=3),
                        
                        flow.bsize=rnorm(1),
                        fert.bsize=rnorm(1),
@@ -376,14 +378,14 @@ Graphics for flowering:
 ```{r flowering graphics}
 
 flow_dat_cuts <- flow_dat %>% 
-  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+  mutate(size_bin = cut_number(standvol_t1,size_bin_num),
          size_bins = as.integer(size_bin)) %>% 
   group_by(size_bins,Year_t) %>% 
-  summarise(bin_mean = mean(standvol_t),
+  summarise(bin_mean = mean(standvol_t1),
             mean_PC1 = mean(PC1),
             mean_PC2 = mean(PC2),
             mean_PC3 = mean(PC3),
-            mean_flow = mean(Goodbuds_t > 0),
+            mean_flow = mean(Goodbuds_t1 > 0),
             bin_n = n())
 
 #win.graph()
@@ -502,20 +504,20 @@ with(grow_dat_cuts,{
 Graphics for fertility. This one is a little different because we have to chop the size distribution in a different way, since non-flowering plants are excluded from this data set. 
 ```{r fertility graphics}
 fert_size_cuts <- cholla.clim %>% 
-  filter(Goodbuds_t>0) %>% 
-  mutate(size_bin = cut_number(standvol_t,size_bin_num)) %>% 
+  filter(Goodbuds_t1>0) %>% 
+  mutate(size_bin = cut_number(standvol_t1,size_bin_num)) %>% 
   group_by(size_bin) %>% 
-  summarise(bin_mean = mean(standvol_t))
+  summarise(bin_mean = mean(standvol_t1))
 
 fert_dat_cuts <- fert_dat %>% 
-  mutate(size_bin = cut_number(standvol_t,size_bin_num),
+  mutate(size_bin = cut_number(standvol_t1,size_bin_num),
          size_bins = as.integer(size_bin))%>% 
   group_by(size_bins,Year_t) %>% 
-  summarise(bin_mean = mean(standvol_t),
+  summarise(bin_mean = mean(standvol_t1),
             mean_PC1 = mean(PC1),
             mean_PC2 = mean(PC2),
             mean_PC3 = mean(PC3),
-            mean_fert = mean(Goodbuds_t),
+            mean_fert = mean(Goodbuds_t1),
             bin_n = n())
 
 ymax.fert<-100
