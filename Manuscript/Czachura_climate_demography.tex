@@ -164,13 +164,25 @@ To reduce the dimensionality of the climate data, we conducted Principal Compone
 %--------------------------------------------------------------------
 \section*{Results}
 
-\newpage
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
-  \begin{center}
-    \includegraphics[width=0.75\linewidth]{Figures/PCA.pdf}
-  \end{center}
+  \label{fig:PCA}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+{\centering \includegraphics[width=\maxwidth]{figure/PCA_results-1} 
+
+}
+
+
+
+\end{knitrout}
+  \caption{Principal component analysis (PCA) of eight seasonal climate variables for demographic transition years (May 1 -- April 30) of 1901 through 2016. 
+  (A) Variance and cumulative variance explained by first three principal components. 
+  (B) Loadings of original variables onto PC axes. Loading values can be interpreted as correlations between each raw variable and each PC. 
+  (C--E) Temporal trends in climate; PC values shown in grey and regression lines shown in black. 
+  PC1: $F_{1,114} = 21.72$, $P < 0.001$; 
+  PC2: $F_{1,114} = 3.98$, $P < 0.05$; 
+  PC3: $F_{1,114} = 12.77$, $P < 0.001$.}
 \end{figure}
 
 \newpage
@@ -272,26 +284,23 @@ z_i \sim Bernoulli(0.5)
 The first term of the mixture distribution assigns, with probability $(1-z_i)$, a prior with mean zero and arbitrarily small variance, effectively forcing the posterior estimate to equal zero. The second term assigns, with probability $z_i$, a prior with mean zero and arbitrarily large variance, which allows for a non-zero posterior estimate. The posterior distribution of the indicator variable $z_i$ gives the probability that the coefficient is non-zero. We estimated this probability for each coefficient in Eq. \ref{eq:SVS} and retained in the final model all coefficients with a posterior mean $\hat{z_i} > 0.1$, meaning that the model term is assumed to be zero with 90\% confidence. All $z_i$ values from the full model are shown in Table \ref{tab:SVS}.
 
 % latex table generated in R 3.4.0 by xtable 1.8-2 package
-% Tue Nov 20 21:05:32 2018
+% Tue Dec 11 10:32:59 2018
 \begin{table}[ht]
 \centering
 \begin{tabular}{rlllll}
   \hline
-Cliamte PC & Model term & Survival & Growth & Flowering & Fertility \\ 
+Climate PC & Model term & Survival & Growth & Flowering & Fertility \\ 
   \hline
- & Size & $\mathbf{1}$ & $\mathbf{0.55}$ & $\mathbf{1}$ & $\mathbf{1}$ \\ 
-    1 & PC & $\mathbf{0.15}$ & 0.04 & $\mathbf{0.14}$ & 0.06 \\ 
-    1 & PC*PC & 0.04 & 0.01 & 0.05 & 0.01 \\ 
-    1 & PC*size & 0.05 & 0.03 & 0.08 & 0.06 \\ 
-    1 & PC*PC*size & 0.01 & 0.01 & 0.02 & 0.01 \\ 
-    2 & PC & $\mathbf{0.2}$ & 0.04 & $\mathbf{0.12}$ & 0.06 \\ 
-    2 & PC*PC & 0.07 & 0.01 & 0.05 & 0.03 \\ 
-    2 & PC*size & 0.04 & 0.01 & $\mathbf{0.23}$ & $\mathbf{0.39}$ \\ 
-    2 & PC*PC*size & 0.02 & 0.01 & $\mathbf{0.12}$ & 0.03 \\ 
-    3 & PC & $\mathbf{0.19}$ & 0.02 & $\mathbf{0.18}$ & 0.04 \\ 
-    3 & PC*PC & $\mathbf{0.12}$ & 0.01 & 0.09 & 0.03 \\ 
-    3 & PC*size & 0.06 & 0.02 & $\mathbf{0.48}$ & 0.05 \\ 
-    3 & PC*PC*size & 0.02 & 0.01 & $\mathbf{0.19}$ & 0.03 \\ 
+ & Size & $\mathbf{1}$ & $\mathbf{0.53}$ & $\mathbf{1}$ & $\mathbf{1}$ \\ 
+    1 & PC & $\mathbf{0.13}$ & 0.04 & $\mathbf{0.12}$ & 0.05 \\ 
+    1 & PC*PC & 0.03 & 0.01 & 0.03 & 0.01 \\ 
+    1 & PC*size & 0.06 & 0.01 & 0.08 & 0.07 \\ 
+    2 & PC & $\mathbf{0.18}$ & 0.03 & $\mathbf{0.11}$ & $\mathbf{0.14}$ \\ 
+    2 & PC*PC & 0.06 & 0.01 & 0.06 & 0.03 \\ 
+    2 & PC*size & 0.04 & 0.02 & $\mathbf{1}$ & $\mathbf{0.27}$ \\ 
+    3 & PC & $\mathbf{0.18}$ & 0.02 & $\mathbf{0.12}$ & $\mathbf{0.18}$ \\ 
+    3 & PC*PC & 0.09 & 0.01 & 0.09 & 0.06 \\ 
+    3 & PC*size & 0.06 & 0.01 & $\mathbf{0.13}$ & 0.03 \\ 
    \hline
 \end{tabular}
 \caption{Stochastic variable selection results. Bolded values indicate terms retained in the final model.} 
