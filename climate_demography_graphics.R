@@ -2,38 +2,25 @@
 
 # Climate data figures ----------------------------------------------------
 PC_cols <- c("#deebf7", "#9ecae1", "#3182bd", "#de2d26")
-regression_start_yr <- 1900
+regressionA_start_yr <- 1900
+regressionB_start_yr <- 1970
+PC1modA<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC1modB<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
+PC2modA<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC2modB<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
+PC3modA<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
 
 win.graph()
-layout.show(layout(matrix(c(1,1,2,2,3,3,4,4,4,5,5,5), 6, 2, byrow = F)))
-par(lwd=1,mar=c(5,6,3,1))
-plot(PCclim$Year_t,PCclim$PC1,type="l",cex.lab=1.5,col="darkgrey",
-     xlab="Year",ylab="PC1\n(34% of interannual variation)")
-PC1mod<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regression_start_yr))
-anova(PC1mod)
-lines(regression_start_yr:2017,coef(PC1mod)[1]+coef(PC1mod)[2]*regression_start_yr:2017,col="black",lwd=2)
-title("A",adj=0,font=3,cex.main=2)
-
-plot(PCclim$Year_t,PCclim$PC2,type="l",cex.lab=1.5,col="darkgrey",
-     xlab="Year",ylab="PC2\n(22% of interannual variation)")
-PC2mod<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regression_start_yr))
-anova(PC2mod)
-lines(regression_start_yr:2017,coef(PC2mod)[1]+coef(PC2mod)[2]*regression_start_yr:2017,col="black",lwd=2)
-title("B",adj=0,font=3,cex.main=2)
-
-plot(PCclim$Year_t,PCclim$PC3,type="l",cex.lab=1.5,col="darkgrey",
-     xlab="Year",ylab="PC3\n(18% of interannual variation)")
-PC3mod<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regression_start_yr))
-anova(PC3mod)
-lines(regression_start_yr:2017,coef(PC3mod)[1]+coef(PC3mod)[2]*regression_start_yr:2017,col="black",lwd=2)
-title("C",adj=0,font=3,cex.main=2)
-
+layout(matrix(c(1,1,1,2,2,2,3,3,4,4,5,5), 6, 2, byrow = F))
+par(mar=c(5,6,3,1))
 barplot(as.matrix(PCclim_var[2:3,2:4]),
         beside=T,col=c("black","white"),ylim=c(0,1),
         ylab="Proportion of variance explained",cex.lab=1.4,cex.names=1.4)
+box()
 legend("topleft",fil=c("black","white"),bty="n",cex=1.2,
        legend=c("Proportion of variance","Cumulative proportion"))
-title("D",adj=0,font=3,cex.main=2)
+title("A",adj=0,font=3,cex.main=2)
 
 par(lwd = 2)
 barplot(as.matrix(PCclim_rotation[,c("PC1","PC2","PC3")]),
@@ -44,10 +31,30 @@ barplot(as.matrix(PCclim_rotation[,c("PC1","PC2","PC3")]),
               PC_cols[2],"white",
               PC_cols[3],"white",
               PC_cols[4],"white"))
+box(lwd=1)
 legend("topright",fil=c("black","white"),bty="n",cex=1.2,
        legend=c("Cool season","Warm season"))
 legend("topleft",fil=PC_cols,border=PC_cols,bty="n",cex=1.2,
        legend=c("Min temp","Mean temp", "Max temp", "Precip"))
+title("B",adj=0,font=3,cex.main=2)
+
+par(lwd = 1)
+plot(PCclim$Year_t,PCclim$PC1,type="l",cex.lab=1.5,col="darkgrey",
+     xlab="Year",ylab="PC1\n(34% of variation)")
+lines(regressionA_start_yr:2017,coef(PC1modA)[1]+coef(PC1modA)[2]*regressionA_start_yr:2017,col="black",lwd=2)
+lines(regressionB_start_yr:2017,coef(PC1modB)[1]+coef(PC1modB)[2]*regressionB_start_yr:2017,col="black",lwd=2,lty=2)
+title("C",adj=0,font=3,cex.main=2)
+
+plot(PCclim$Year_t,PCclim$PC2,type="l",cex.lab=1.5,col="darkgrey",
+     xlab="Year",ylab="PC2\n(22% of variation)")
+lines(regressionA_start_yr:2017,coef(PC2modA)[1]+coef(PC2modA)[2]*regressionA_start_yr:2017,col="black",lwd=2)
+lines(regressionB_start_yr:2017,coef(PC2modB)[1]+coef(PC2modB)[2]*regressionB_start_yr:2017,col="black",lwd=2,lty=2)
+title("D",adj=0,font=3,cex.main=2)
+
+plot(PCclim$Year_t,PCclim$PC3,type="l",cex.lab=1.5,col="darkgrey",
+     xlab="Year",ylab="PC3\n(18% of variation)")
+lines(regressionA_start_yr:2017,coef(PC3modA)[1]+coef(PC3modA)[2]*regressionA_start_yr:2017,col="black",lwd=2)
+lines(regressionB_start_yr:2017,coef(PC3modB)[1]+coef(PC3modB)[2]*regressionB_start_yr:2017,col="black",lwd=2,lty=2)
 title("E",adj=0,font=3,cex.main=2)
 
 # Demography figures ------------------------------------------------------
