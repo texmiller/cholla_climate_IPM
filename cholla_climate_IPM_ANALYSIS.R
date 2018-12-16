@@ -157,6 +157,12 @@ for(i in 1:n_post){
                                            mat.size = mat.size)$IPMmat)
   }
 }
+
+## Save these posterior samples, because they take a while
+#write.csv(lambda_PC1_post,"lambda_PC1_post.csv")
+#write.csv(lambda_PC2_post,"lambda_PC2_post.csv")
+#write.csv(lambda_PC3_post,"lambda_PC3_post.csv")
+
 PC1.lambda.CI<-matrix(0,2,length(x_PC1))
 for(j in 1:length(x_PC1)){
   PC1.lambda.CI[,j]<-quantile(lambda_PC1_post[,j],probs=c(0.025,0.975))
@@ -170,8 +176,7 @@ for(j in 1:length(x_PC3)){
   PC3.lambda.CI[,j]<-quantile(lambda_PC3_post[,j],probs=c(0.025,0.975))
 }
 
-## Save these posterior samples, because they take a while
-## write.csv()
+
 
 win.graph()
 par(mfrow=c(1,3),mar=c(5,5,1,1))
