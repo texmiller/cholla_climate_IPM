@@ -265,11 +265,16 @@ for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
 }
 
 
+## to do the anova decomposition, I need to associate the year-specific lambdas with climate in year t and year t-1
+PCclim$PC1_lastyr <- c(NA,PCclim$PC1[1:(nrow(PCclim)-1)])
+PCclim$PC2_lastyr <- c(NA,PCclim$PC2[1:(nrow(PCclim)-1)])
+PCclim$PC3_lastyr <- c(NA,PCclim$PC3[1:(nrow(PCclim)-1)])
+
 ## how much variation do the PCs explain in lambda_t
-lambda_t_PC_mod <- lm(lambda_year_RFX ~ PC1 + PC2 + PC3, data = PCclim)
+lambda_t_PC_mod <- lm(lambda_year_RFX ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
 summary(lambda_t_PC_mod)
 ## how much does 2010 bias this result?
-lambda_t_PC_mod_drop2010 <- lm(lambda_year_RFX ~ PC1 + PC2 + PC3, data = subset(PCclim,Year_t!=2010))
+lambda_t_PC_mod_drop2010 <- lm(lambda_year_RFX ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = subset(PCclim,Year_t!=2010))
 summary(lambda_t_PC_mod_drop2010)
 
 ## temporal trend in lambda_clim
@@ -296,9 +301,9 @@ lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,co
 
 
 ## ANOVA of lambda_clim
-PC1_only <- lm(lambda_year ~ PC1, data = PCclim)
-PC2_only <- lm(lambda_year ~ PC2, data = PCclim)
-PC3_only <- lm(lambda_year ~ PC3, data = PCclim)
+PC1_only <- lm(lambda_year ~ PC1 + PC1_lastyr, data = PCclim)
+PC2_only <- lm(lambda_year ~ PC2 + PC2_lastyr, data = PCclim)
+PC3_only <- lm(lambda_year ~ PC3 + PC3_lastyr, data = PCclim)
 
 summary(PC1_only)$r.squared
 summary(PC2_only)$r.squared
@@ -306,8 +311,77 @@ summary(PC3_only)$r.squared
 
 summary(PC1_only)$r.squared + summary(PC2_only)$r.squared + summary(PC3_only)$r.squared
 
-all_PC <- lm(lambda_year ~ PC1 + PC2 + PC3, data = PCclim)
+all_PC <- lm(lambda_year ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
 summary(all_PC)$r.squared
+
+
+# LTRE --------------------------------------------------------------------
+## decompose inter-annual variation by vital rate responses to PCs
+coef(all_PC) ## this is what I am trying to decompose (the PC coefficients)
+
+## First create a vector identifying the climate-dependent parameters
+PC_params <- c("surv.mu","surv.bsize","flow.mu","flow.bsize","fert.mu","fert.bsize")
+## collect parameter sensitivities to climate
+dtheta.dPC1 <- dtheta.dPC2 <- dtheta.dPC3 <- rep(0,times = length(PC_params))
+## PC1 - survival intercept and flowering intercept
+dtheta.dPC1[1] <- mean_params$surv.bclim[1,1]
+dtheta.dPC1[3] <- mean_params$flow.bclim[1,1]
+## PC2 - surv int and flow/fert int and slope
+dtheta.dPC2[1] <- mean_params$surv.bclim[1,2]
+dtheta.dPC2[3] <- mean_params$flow.bclim[1,2]
+dtheta.dPC2[4] <- mean_params$flow.bclim[3,2]
+dtheta.dPC2[5] <- mean_params$fert.bclim[1,2]
+dtheta.dPC2[6] <- mean_params$fert.bclim[3,2]
+## PC3 - surv int, fert int, and flow int and slope
+dtheta.dPC3[1] <- mean_params$surv.bclim[1,3]
+dtheta.dPC3[3] <- mean_params$flow.bclim[1,3]
+dtheta.dPC3[4] <- mean_params$flow.bclim[3,3]
+dtheta.dPC3[5] <- mean_params$fert.bclim[1,3]
+
+## calculate sensitivities of these parameters at the mean model (all PC=0)
+base_lambda <- lambda(bigmatrix(params = mean_params,
+                 PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(0,2),
+                 random = F, 
+                 lower.extension = -.1, 
+                 upper.extension = .5,
+                 mat.size = mat.size)$IPMmat)
+perturbation <- 0.001
+dlambda.dtheta <- c()
+
+for(i in 1:length(PC_params)){
+  LTRE_params <- mean_params
+  LTRE_params[paste(PC_params[i])] <- as.numeric(LTRE_params[paste(PC_params[i])])+perturbation
+  LTRE_lambda <- lambda(bigmatrix(params = LTRE_params,
+                                  PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(0,2),
+                                  random = F, 
+                                  lower.extension = -.1, 
+                                  upper.extension = .5,
+                                  mat.size = mat.size)$IPMmat)
+  dlambda.dtheta[i] <- (LTRE_lambda-base_lambda) / perturbation
+}
+
+
+LTRE_PC1 <- dtheta.dPC1 * dlambda.dtheta
+sum(LTRE_PC1)
+coef(all_PC)[2]+coef(all_PC)[5]
+
+LTRE_PC2 <- dtheta.dPC2 * dlambda.dtheta
+sum(LTRE_PC2)
+coef(all_PC)[3]+coef(all_PC)[6]
+
+LTRE_PC3 <- dtheta.dPC3 * dlambda.dtheta
+sum(LTRE_PC3)
+coef(all_PC)[4]+coef(all_PC)[7]
+
+barplot(cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3),beside=T)
+
+
+lambda(bigmatrix(params = mean_params,
+                 PC1 = rep(x_PC1[i],2), PC2 = rep(0,2), PC3 = rep(0,2),
+                 random = F, 
+                 lower.extension = -.1, 
+                 upper.extension = .5,
+                 mat.size = mat.size)$IPMmat)
 
 
 ## calculate a simple geometric mean over 10-year windows
