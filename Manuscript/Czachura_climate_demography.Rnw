@@ -127,37 +127,37 @@ var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"
 
 \newpage
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
+  \label{figure:PCA}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/climate_trends.pdf}
+  \caption{Principal component analysis (PCA) of inter-annual climate variability at Sevilleta National Wildlife Refuge, 1901--2017. \textbf{A}, Proportion and cumulative proportion of variation in seasonal temperatures (minimum, mean, maximum) and precipitation explained by the first three PCs. \textbf{B}, Loadings of seasonal climate variables onto PC1-3. Because climate data were standardized to mean zero and unit variance, loadings can be interpreted as the correlation between the climate variable and the PC. \textbf{C--E}, Time series of PC values, with regression lines showing long-term trends since 1901 (solid lines) or 1970 (dashed lines).}
   \end{center}
 \end{figure}
 
 \newpage
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
+  \label{figure:vital_rates}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/vital_rates.pdf}
+  \caption{Climate- and size-dependent varation in survival (A-C), growth (D-F), flowering (G-I), and fertility of flowering plants (J-L) in relation to three principal components of seasonal climate variation (columns). For visualization only, the plant size distribution was discretized into three groups (small, medium, and large, corresponding to darker shades of blue). Points show means for each size group in each year, where different years have unique PC values and point size is proportional to sample size for each size group in each year (min, max). Lines show fitted statistical models using posterior mean parameter values, with colors corresponding to size group colors. Panels with no lines indicate that the climate predictor was not statistically supported through stochastic variable selection.}
   \end{center}
 \end{figure}
 
 \newpage
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
+  \label{figure:lambda_PC}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_PC.pdf}
+  \caption{Predicted asymptotic population growth rate ($\lambda$) in response to three principal components of inter-annual climatic variation (A-C). For each panel, the indicated principal component is varying while the others are held at zero (the average value). Lines show the expected relationships based on posterior mean parameter values and shaded regions indicate the 95\% credible interval, representing uncertainty in demographic parameters. Points highlight the change the PC value (on the $x$-axis) between 1970 and 2017, based on the regression lines shown in Fig. \ref{figure:PCA}, and the predicted corresponding change in $\lambda$ ($y$-axis).}
   \end{center}
 \end{figure}
 
 \newpage
 \begin{figure}[h!]
-  \caption{}
-  \label{Fig1}
+  \label{figure:lambda_year}
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/lambda_year.pdf}
+    \includegraphics[width=\linewidth]{Figures/lambda_year_LTRE.pdf}
+  \caption{\textbf{A}, Time series of asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in climate. Black lines show linear regressions for temporal trends in $\lambda$ since 1901 (solid) or 1970 (dashed). Vertical line separates years that were back-casted versus years that were directly observed. The observation years (2004 and later) include growth rates expected based on climate alone (line) and those that incorporate additional, non-designated sources of inter-annual demographic variation (points), captured statistically as year-specific random effects. \textbf{B}, LTRE decomposition of inter-annual variability in population growth rates (based on climate alone). Bars show how each vital rate, responding to each climate PC, accounted for the overall pattern of inter-annual variation in $\lambda$. Survival dominated all vital rate responses to all climate PCs.}
   \end{center}
 \end{figure}
 %--------------------------------------------------------------------

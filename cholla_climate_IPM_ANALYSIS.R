@@ -177,11 +177,10 @@ for(j in 1:length(x_PC3)){
 }
 
 
-
 win.graph()
-par(mfrow=c(1,3),mar=c(5,5,1,1))
+par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(x_PC1,lambda_PC1,type="n",lwd=4,ylim=c(0.7,1),
-     ylab=expression(paste(lambda)),xlab="PC 1",cex.lab=1.6)
+     ylab=expression(paste(lambda)),xlab="Climate PC 1",cex.lab=1.6)
 polygon(x=c(x_PC1,rev(x_PC1)),
         y=c(PC1.lambda.CI[1,],rev(PC1.lambda.CI[2,])),
         col=alpha("black",0.05),border=NA)
@@ -195,9 +194,10 @@ points(coef(PC1modB)[1]+coef(PC1modB)[2]*2017,lambda_PC1[which.min(abs(x_PC1-(co
 text(coef(PC1modB)[1]+coef(PC1modB)[2]*2017,lambda_PC1[which.min(abs(x_PC1-(coef(PC1modB)[1]+coef(PC1modB)[2]*2017)))]+0.02,
      2017)
 abline(h=1,lty=3)
+title("A",font=3,adj=0)
 
 plot(x_PC2,lambda_PC2,type="n",lwd=4,ylim=c(0.7,1),
-     ylab=expression(paste(lambda)),xlab="PC 2",cex.lab=1.6)
+     ylab=expression(paste(lambda)),xlab="Climate PC 2",cex.lab=1.6)
 polygon(x=c(x_PC2,rev(x_PC2)),
         y=c(PC2.lambda.CI[1,],rev(PC2.lambda.CI[2,])),
         col=alpha("black",0.05),border=NA)
@@ -211,9 +211,10 @@ points(coef(PC2modB)[1]+coef(PC2modB)[2]*2017,lambda_PC2[which.min(abs(x_PC2-(co
 text(coef(PC2modB)[1]+coef(PC2modB)[2]*2017,lambda_PC2[which.min(abs(x_PC2-(coef(PC2modB)[1]+coef(PC2modB)[2]*2017)))]+0.02,
      2017)
 abline(h=1,lty=3)
+title("B",font=3,adj=0)
 
 plot(x_PC3,lambda_PC3,type="n",lwd=4,ylim=c(0.7,1),
-     ylab=expression(paste(lambda)),xlab="PC 3",cex.lab=1.6)
+     ylab=expression(paste(lambda)),xlab="Climate PC 3",cex.lab=1.6)
 polygon(x=c(x_PC3,rev(x_PC3)),
         y=c(PC3.lambda.CI[1,],rev(PC3.lambda.CI[2,])),
         col=alpha("black",0.05),border=NA)
@@ -227,6 +228,7 @@ points(coef(PC3modB)[1]+coef(PC3modB)[2]*2017,lambda_PC3[which.min(abs(x_PC3-(co
 text(coef(PC3modB)[1]+coef(PC3modB)[2]*2017,lambda_PC3[which.min(abs(x_PC3-(coef(PC3modB)[1]+coef(PC3modB)[2]*2017)))]+0.02,
      2017)
 abline(h=1,lty=3)
+title("C",font=3,adj=0)
 
 # estimate lambda by year -------------------------------------------------
 
@@ -287,23 +289,6 @@ lambda_trend <- lm(lambda_year ~ Year_t, data = PCclim)
 summary(lambda_trend)
 lambda_trend1970 <- lm(lambda_year ~ Year_t, data = subset(PCclim,Year_t >= 1970))
 summary(lambda_trend1970)
-
-win.graph()
-plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.78,1),
-     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
-lines(PCclim$Year_t[1:which(PCclim$Year_t==2003)],
-      PCclim$lambda_year[1:which(PCclim$Year_t==2003)],
-      lwd=1,col=alpha("black",0.5))
-lines(PCclim$Year_t[which(PCclim$Year_t>2003)],
-      PCclim$lambda_year[which(PCclim$Year_t>2003)],
-      lwd=1,col=alpha("black",1))
-abline(v=2003,lty=3)
-abline(h=1,col="lightgray")
-points(PCclim$Year_t,PCclim$lambda_year_RFX,cex=0.6,
-       pch=16,col=alpha("black",0.8))
-lines(1901:2017,coef(lambda_trend)[1]+coef(lambda_trend)[2]*1901:2017,col="black",lwd=2)
-lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,col="black",lwd=2,lty=2)
-
 
 ## ANOVA of lambda_clim
 PC1_only <- lm(lambda_year ~ PC1 + PC1_lastyr, data = PCclim)
@@ -378,16 +363,31 @@ LTRE_PC3 <- dtheta.dPC3 * dlambda.dtheta
 sum(LTRE_PC3)
 coef(all_PC)[4]+coef(all_PC)[7]
 
-barplot(cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3),beside=T)
+win.graph()
+par(mfrow=c(1,2),mar=c(5,5,2,1))
+plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.78,1),
+     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+lines(PCclim$Year_t[1:which(PCclim$Year_t==2003)],
+      PCclim$lambda_year[1:which(PCclim$Year_t==2003)],
+      lwd=1,col=alpha("black",0.25))
+lines(PCclim$Year_t[which(PCclim$Year_t>2003)],
+      PCclim$lambda_year[which(PCclim$Year_t>2003)],
+      lwd=1,col=alpha("black",1))
+abline(v=2003,lty=3)
+abline(h=1,col="lightgray")
+points(PCclim$Year_t,PCclim$lambda_year_RFX,cex=0.6,
+       pch=16,col=alpha("black",0.8))
+lines(1901:2017,coef(lambda_trend)[1]+coef(lambda_trend)[2]*1901:2017,col="black",lwd=2)
+lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,col="black",lwd=2,lty=2)
+title("A",adj=0,font=3)
 
+barplot((cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3)),beside=T,ylab=expression(paste("LTRE contribution (d ",lambda / "dPC)")),
+        col="black",names.arg=c("PC1","PC2","PC3"),ylim=c(-.01,0.01))
+legend("topright",c("Survival","Growth","Flowering","Fertility"),bty="n",fill=c("black","gray50","gray80","white"))
+title("B",adj=0,font=3)
+box()
 
-lambda(bigmatrix(params = mean_params,
-                 PC1 = rep(x_PC1[i],2), PC2 = rep(0,2), PC3 = rep(0,2),
-                 random = F, 
-                 lower.extension = -.1, 
-                 upper.extension = .5,
-                 mat.size = mat.size)$IPMmat)
-
+sum(abs(LTRE_PC2)) > sum(abs(LTRE_PC1)) + sum(abs(LTRE_PC3))
 
 ## calculate a simple geometric mean over 10-year windows
 PCclim$lambdaS_year<-NA
