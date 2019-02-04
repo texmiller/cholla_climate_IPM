@@ -87,12 +87,12 @@ n_trans_yr <- cholla %>% summarise(n())
 The focal species \textit{Opuntia imbricata} Haw. [D.C.] (`tree cholla cactus') is widely distributed throughout desert and grassland habitats of the southwest U.S.
 These long-lived (30-plus-year), CAM plants grow through the production and elongation of cyclindrical stem segments. These vegetative structures as well as flowerbuds are initiated in late spring. 
 Flowering occurs in early summer and stem segment elongation takes place during the remainder of the growing season. 
-We divide the calendar year into warm-season months (May through September), when vegetative growth and reproduction occur, and cool-season months (October through April).
+For climate analyses, we divide the calendar year into warm-season months (May through September), when vegetative growth and reproduction occur, and cool-season months (October through April).
 
-This study was conducted at the Sevilleta National Wildlife Refuge (SNWR), a Long-Term Ecological Research (SEV-LTER) site in central New Mexico. 
-Our focal population occurs in the Los Pinos mountains at an elevation of blank and give lat-long. 
-Tree cholla are a dominant component of the vegetation in this area (give density), along with oaks, yucca, Pinon pine, and perennial grasses (\textit{Bouteloua gracilis} and \textit{B. eriopoda}).
-The present study relies on long-term (2004--2017) demographic data on individual-level measures of growth (change in size, approximated as the volume of a cone based on height and width measurements), survival, and reproduction (number of flowerbuds) recorded from tagged plants in late May or early June of each year, a pre-breeding census. 
+This study was conducted at the Sevilleta National Wildlife Refuge (SNWR), a Long-Term Ecological Research site (SEV-LTER) in central New Mexico (lat long). 
+Our focal population occurs in the Los Pinos mountains at an elevation of 1790 m. 
+Tree cholla are a dominant component of the vegetation in this area (give density), along with oaks, yucca, Pinon pine, and the grasses (\textit{Bouteloua gracilis} and \textit{B. eriopoda}).
+The present study relies on long-term (2004--2017) demographic data on individual-level measures of growth, survival, and reproduction recorded from tagged plants in late May or early June of each year, a pre-breeding census. 
 We treat May 1 as the start of the transition year (coincident with the start of the warm-season months).
 There are a total of \Sexpr{n_cholla} unique individuals in the data set and \Sexpr{n_trans_yr} transition-year observations from 4--8 plots or spatial blocks depending on the year. 
 Full details of the study design and data collection are given elsewhere (cite Compagnoni, Ohm, Miller and Elderd).
@@ -103,13 +103,15 @@ Our goal was to connect inter-annual variation in demography to corresponding va
 SEV-LTER collects climate data from a network of meteorolgical stations throughout SNWR, with the oldest records coming from the late 1980s.
 While the SEV-LTER climate data cover years of our plant demographic data collection, our intention was to ``back-cast" demographic performance farther back into the 20th century. 
 We therefore gathered climate data from ClimateWNA v5.60 \citep{wang2016locally}, a software package that uses PRISM \cite{daly_physiographically_2008} and WorldClim \cite{hijmans_very_2005} data to calculate downscaled data for western North America based on location and elevation, going back as far back as 1900.
-By relying on downscaled, interpolated climate data instead of direct observations from meteorological stations, we knew that we were trading off local resolution in favor of more historical years of data.
-We quantified this loss of resolution by comparing predictions from ClimateWNA to SEV-LTER data for years that they over-lapped (give years), with downscaled data based on the lat-long (give) and elevation (give) of the SEV-LTER meteorological station that was nearsest our study population (station ID 50, ca. 2 km from our study sites).
-We found that the two data sets were highly correlated (Appendix), which bolstered our confidence that ClimateWNA provided locally accurate climate data for both the demographic observation period as well as historical years that preceded our study.
+By relying on downscaled, interpolated climate data instead of direct observations from meteorological stations, we we are trading off local resolution in favor of more historical years of data.
+We quantified this loss of resolution by comparing predictions from ClimateWNA to SEV-LTER data for years that they over-lapped, using the SEV-LTER meteorological station that was nearsest our study population (station ID 50, ca. 2 km from our study sites).
+We found that the two data sets were highly correlated (Appendix A), which bolstered our confidence that ClimateWNA provided locally accurate climate data for both the demographic observation period as well as historical years that preceded our study.
 
-We derived seasonal estimates (warm-season and cool-season) of total precipitation and mean, minimum, and maximum temperature from monthly climate data, for a total of eight variables. Months were aligned to correspond to demographic transition years rather than calendar years, which means the cool-season climate for a transition year beginning in May of calendar year $t$ spans October of year $t$ through April of year $t+1$. 
+We derived seasonal estimates (warm-season and cool-season) of total precipitation and mean, minimum, and maximum temperature from monthly climate data, for a total of eight variables. 
+Months were aligned to correspond to demographic transition years rather than calendar years, which means the cool-season climate for a transition year beginning in May of calendar year $t$ spans October of year $t$ through April of year $t+1$. 
 
-To reduce the dimensionality of the climate data, we conducted Principal Component Analysis (PCA) on the eight climate variables (two seasons x four variables) for the years 1900-2017, with climate values scaled to unit variance. We used the prcomp() function in R version to estimate variance in the climate data explained by each PC and variable loadings, which give the correlations between original variables and PC values.
+To reduce the dimensionality of the climate data, we conducted Principal Component Analysis (PCA) on the eight climate variables (two seasons x four variables) for the years 1900-2017, with climate values scaled to unit variance. 
+We estimated the variance in the climate data explained by each PC and the variable loadings, which give the correlations between original variables and PC values.
 
 \subsection*{Statistical modeling}
 <<PCA data, echo=F, message=F, warning=F>>=
@@ -118,7 +120,14 @@ PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
 var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"PC3"]*100,2)
 @
 
-%We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{var_explained}\% of the inter-annual variation in climate.
+We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}).
+Climate-dependence was limited to the four demographic vital rates for which we had long-term data: survival, growth (change in size), reproductive status (vegetative or flowering), and fertility of flowering plants (number of flower buds produced). 
+For each of these vital rates, we fit a statical model that included fixed effects of size, climate, size*climate interaction, and a quadratic term for climate to account for possible non-monotonic effects. 
+``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model, which also included random effects of year and plot or spatial block (Appendix B). 
+Survival to year $t$ and growth from year $t-1$ to $t$ were dependent on size in year $t-1$, and the climate covariate for each observation corresponded to the climate year $t-1$ to $t$. 
+Reproductive status and fertility in year $t$ were dependent on size in year $t$ and on climate from $t-1$ to $t$. 
+Because our analyses rely on extrapolation to climate states that were observed infrequently or not at all during the demographic study, we sought to simplify the statistical models
+
 
 \subsection*{Demographic modeling}
 
