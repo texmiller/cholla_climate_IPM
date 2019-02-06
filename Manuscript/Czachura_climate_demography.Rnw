@@ -113,35 +113,90 @@ Months were aligned to correspond to demographic transition years rather than ca
 To reduce the dimensionality of the climate data, we conducted Principal Component Analysis (PCA) on the eight climate variables (two seasons x four variables) for the years 1900-2017, with climate values scaled to unit variance. 
 We estimated the variance in the climate data explained by each PC and the variable loadings, which give the correlations between original variables and PC values.
 
-\subsection*{Statistical modeling}
+\subsection*{Statistical estimation of climate-dependence}
 <<PCA data, echo=F, message=F, warning=F>>=
 setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
 var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"PC3"]*100,2)
+PC1_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC1"]*100,2)
+PC2_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC2"]*100,2)
+PC3_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC3"]*100,2)
 @
 
 We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}).
 Climate-dependence was limited to the four demographic vital rates for which we had long-term data: survival, growth (change in size), reproductive status (vegetative or flowering), and fertility of flowering plants (number of flower buds produced). 
 For each of these vital rates, we fit a statical model that included fixed effects of size, climate, size*climate interaction, and a quadratic term for climate to account for possible non-monotonic effects. 
-``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model, which also included random effects of year and plot or spatial block (Appendix B). 
+``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model (Table A2). 
+We used stochastic variable selection in a Bayesian framework to reduce model complexity, dropping coefficients that were effectively zero with $\>90\%$ certainty.
+All models additionally included random intercepts for spatial (plot or spatial block) and temporal (year) heterogeneity.
+The year random-effect can be interpreted as inter-annual variability in demography that cannot be explained by the climate PCs.
+Full details for the statistical models are provided in Appendix B. 
+
 Survival to year $t$ and growth from year $t-1$ to $t$ were dependent on size in year $t-1$, and the climate covariate for each observation corresponded to the climate year $t-1$ to $t$. 
 Reproductive status and fertility in year $t$ were dependent on size in year $t$ and on climate from $t-1$ to $t$. 
-Because our analyses rely on extrapolation to climate states that were observed infrequently or not at all during the demographic study, we sought to simplify the statistical models
-
+This timing of size and climate effects was intended to match processes in the demographic model (below).
+Beyond these four vital rates, parameters for other processes in the life cycle were estimated from field data but were not replicated across years so we could not assess climate dependence. 
+The details are provided in Appendix N.
 
 \subsection*{Demographic modeling}
+We used the statistical models for vital rate responses to build a stochastic, size-structured integral projection model that incorporated climate dependence. 
+Details of IPM construction are provided in Appendix N. 
+We used the model to predict how the asymptotic population growth rate ($\lambda$) responds to different dimensions of climate variability and change, and to identify the demographic processes underlying those responses. 
+First, to evluate the consequences of different aspects of climate, we quantified the relationship between $\lambda$ and each of the three principal components of climate variation, holding the other two constant at their means. 
+Because we estimated vital rates in a Bayesian framework, we were able to generate posterior distributions of $\lambda$ that reflect to combined uncertainties of all the underlying vital rates. 
+Second, we used statistical relationships between climate drivers and vital rate responses, estimated during our 14-year field study, to ``back-cast'' expected population growth rates over the entire climataological record, 1900--2017. 
+We used simple linear regression to test for temporal trends in $\lambda$ over this period. 
+We used an ANOVA-style Life Table Response Experiment to decompose the total inter-annual variation in $\lambda$ into contributions from each of the underlying vital rate. 
+For the years of demographic data collection (2004--2017), we were able to partitional inter-annual variation in $\lambda$ due to variation in the three climate PCs versus other, unspecific sources of variation (including climate drivers that were not captured by the climate PCs), which were statistically estimated as random year effects. 
+Finally, we estimated a time series for the stochastic population growth rate ($\lambda_S$) over the period 1900-2017 using a moving window approach with a window size of 10 years. 
+While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate incorporates the influences of year-to-year fluctuations and auto-correlation of climatic conditions. 
 
 %--------------------------------------------------------------------
 \section*{Results}
 
-\newpage
+\subsection*{Climate trends}
+<<temporal trends, echo=F, message=F, warning=F>>=
+setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+regressionA_start_yr <- 1900
+regressionB_start_yr <- 1970
+PC1modA<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC1modA_anova<-anova(lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr)))
+PC1modB<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
+PC2modA<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC2modA_anova<-anova(lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr)))
+PC2modB<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
+PC3modA<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC3modA_anova<-anova(lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr)))
+PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
+@
+%\newpage
 \begin{figure}[h!]
-  \label{figure:PCA}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/climate_trends.pdf}
   \caption{Principal component analysis (PCA) of inter-annual climate variability at Sevilleta National Wildlife Refuge, 1901--2017. \textbf{A}, Proportion and cumulative proportion of variation in seasonal temperatures (minimum, mean, maximum) and precipitation explained by the first three PCs. \textbf{B}, Loadings of seasonal climate variables onto PC1-3. Because climate data were standardized to mean zero and unit variance, loadings can be interpreted as the correlation between the climate variable and the PC. \textbf{C--E}, Time series of PC values, with regression lines showing long-term trends since 1901 (solid lines) or 1970 (dashed lines).}
-  \end{center}
+   \label{figure:PCA}
+   \end{center}
 \end{figure}
+
+Three principal components cumulatively explained \Sexpr{var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}A). 
+PC1, which explained \Sexpr{PC1_var_explained}\% of climate variation, was dominanted by inter-annual differences in temperature and precipitation, regardless of season, and the three components of temperature (mean, min, max) loaded similarly onto this component (Figure \ref{figure:PCA}B). 
+Over the last century, PC1 trends have fluctuated, with prolonged periods of relatively low values (e.g., the warm and dry years of the 1950s) and other periods of relatively high values (cool and wet years, such as the 1970s), though the overall temporal trend for PC1 is negative ($F_{\Sexpr{PC1modA_anova$Df}}=\Sexpr{round(PC1modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC1modA_anova$`Pr(>F)`[1],5)}$).
+The decline per-year is nearly five times stronger since 1970 compared to the long-term average (Figure \ref{figure:PCA}C), indicating an accelerating trajectory of warmer and drier years. 
+
+The second principal component explained \Sexpr{PC2_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was strongly correlated with cool-season climate, especially precipitation, such that greater values corresponded to wetter winters with low temperature maxima and high temperature minima (Figure \ref{figure:PCA}B). 
+Warm-season temperatures also loaded positively onto this axis to a lesser degree (Figure \ref{figure:PCA}B). 
+PC2 has increased significantly significantly since 1900 ($F_{\Sexpr{PC2modA_anova$Df}}=\Sexpr{round(PC2modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC2modA_anova$`Pr(>F)`[1],5)}$) and the change per-year is nearly four times stronger since 1970 (Figure \ref{figure:PCA}D), indicating an accelerating trend of wetter and more moderate cool seasons. 
+
+Lastly, PC3 explained \Sexpr{PC3_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was correlated with a combination of warm- and cool-season climate variables. 
+The strongest variable loadings on this principal component were minimum and mean temperatures in the cool season and warm-season precipitation. 
+Temporal trends for PC3 show significant declines since 1900 ($F_{\Sexpr{PC3modA_anova$Df}}=\Sexpr{round(PC3modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC3modA_anova$`Pr(>F)`[1],5)}$), correspdoning to milder winters with higher minimum and mean temperatures and wetter warm seasons; this trend has been slightly stronger since 1970 (Figure \ref{figure:PCA}E). 
+
+
+\subsection*{Vital rate responses to climate}
+
+\subsection*{Back-casted population dynamics}
+
 
 \newpage
 \begin{figure}[h!]
