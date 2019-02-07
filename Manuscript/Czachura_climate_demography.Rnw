@@ -192,20 +192,25 @@ Lastly, PC3 explained \Sexpr{PC3_var_explained}\% of climate variation (Figure \
 The strongest variable loadings on this principal component were minimum and mean temperatures in the cool season and warm-season precipitation. 
 Temporal trends for PC3 show significant declines since 1900 ($F_{\Sexpr{PC3modA_anova$Df}}=\Sexpr{round(PC3modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC3modA_anova$`Pr(>F)`[1],5)}$), correspdoning to milder winters with higher minimum and mean temperatures and wetter warm seasons; this trend has been slightly stronger since 1970 (Figure \ref{figure:PCA}E). 
 
-
 \subsection*{Vital rate responses to climate}
-
-\subsection*{Back-casted population dynamics}
-
-
 \newpage
 \begin{figure}[h!]
-  \label{figure:vital_rates}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/vital_rates.pdf}
   \caption{Climate- and size-dependent varation in survival (A-C), growth (D-F), flowering (G-I), and fertility of flowering plants (J-L) in relation to three principal components of seasonal climate variation (columns). For visualization only, the plant size distribution was discretized into three groups (small, medium, and large, corresponding to darker shades of blue). Points show means for each size group in each year, where different years have unique PC values and point size is proportional to sample size for each size group in each year (min, max). Lines show fitted statistical models using posterior mean parameter values, with colors corresponding to size group colors. Panels with no lines indicate that the climate predictor was not statistically supported through stochastic variable selection.}
+  \label{figure:vital_rates}
   \end{center}
 \end{figure}
+
+All of the vital rates estimated from long-term data (survival, growth, reproductive status, and fertility of flowering plants) were strongly, positively size-dependent but there was heterogeneity in their sensitivity to climate across vital rates and across principal components of climatic variation.
+Figure \label{figure:vital_rates} shows vital rate data and fitted statistical models following variable selection procedures that elimated climate coefficients that were weakly supported (Table \ref{tab:SVS}). 
+(This figure also shows the range of climate variation over which vital rate responses were extrapolated to predict dynamics under historical conditions.)
+Responses to PC1 were limited to survival (Fig. \label{figure:vital_rates}A) and flowering probability (Fig. \label{figure:vital_rates}G), both of which were predicted to decline at higher values (cooler, wetter years). 
+
+
+
+\subsection*{Back-casted population dynamics}
+
 
 \newpage
 \begin{figure}[h!]
