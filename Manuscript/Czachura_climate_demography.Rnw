@@ -11,7 +11,6 @@
 \usepackage{amsfonts,amssymb,amsmath,graphicx,hyperref}
 \doublespacing
 
-
 <<setup,echo=F, message=F, warning=F>>=
 library(tidyverse)
 library(xtable)
@@ -19,7 +18,7 @@ library(xtable)
 
 %-------------------------------------------------------------------------
 
-\title{Back-casting the climate-dependent demography of a plant population in extinction debt}
+\title{Subtle dimensions of climate change have strong demographic effects on a cactus population in extinction debt}
 
 \author{Kevin Czachura}
 \author{Tom E.X. Miller}
@@ -34,45 +33,45 @@ library(xtable)
 
 %-------------------------------------------------------------------------
 \section*{Summary}
-\begin{enumerate}
-  \item The background to the question (why it is interesting)
-  \item What the question is
-  \item What was done in the study
-  \item What was found
-  \item  What this means in the context of the broad field of animal ecology
-   \ldots
-   \end{enumerate}
+
    
 %-------------------------------------------------------------------------
 \section*{Keywords}
-Listed in alphabetical order, the key-words should not exceed 10 words or short phrases. Please pay attention to the keywords you select: they should not already appear in the title or abstract. Rather, they should be selected to draw in readers from wider areas that might not otherwise pick up your paper when they are using search engines.
+
 
 %--------------------------------------------------------------------
+\newpage
 \section*{Introduction}
 \linenumbers
-Climate change has had a major impact around the globe, and the climate is projected to continue changing in the future (IPCC 2007). 
-Moreover, ecological studies have found that climate change has the potential to cause massive change in Earth’s ecosystems in a short span of time (Walther et al. 2002). 
-At the population level, long-term monitoring has suggested that the effects of climate change over the past century are already apparent (Hughes 2000). 
-Thus, we should prioritize studies connecting long-term biological datasets to abiotic environmental drivers such as climate (Harrington et al. 1999). 
-We can make this connection using the framework of population ecology.\\ \\
 
-Demographic models are a useful tool for studying populations, and there are a number of methods to incorporate climate variables into them. 
-Maschinski et al. (2006) simply categorized years as drought or non-drought in their demographic model of an endangered shrub in the Sonoran Desert. 
-Dalgleish et al. (2011) compiled a list of climate variables that correlated with random effects of year for their three-year study of a sagebrush steppe species, then ran candidate models with different combinations of these short-listed climate models to find the best model.\\ \\
+Understanding abiotic drivers of distribution and abundance is a foundational objective of ecology and takes on urgency in the context of ongoing global climate change. 
+The study of population dynamics is particularly well suited to identifying climate drivers of population growth or abundance, and this may facilitate forecasting responses to future climate change or hind-casting responses to historical climate trends. 
+Climate drivers may be inferred from temporal fluctuations in population size or individual demographic performance; in either case, long-term data are essential for teasing apart the roles of particular climatic factors from other sources of inter-annual variability. 
 
-Demographic studies have found that the dynamics of a variety of different plant populations in various ecosystems have shown climate change responses (Dalgleish et al. 2011, Sletvold et al. 2013, Williams et al. 2015).
-Sletvold et al. (2013) found that the growth rate of a population of orchids increased due to warmer summer temperatures, which increased the survival rate of individuals in the population. 
-In another orchid species, Williams et al. (2015) found that different vital rates were affected by different climatic variables, but that number of flowers produced was reduced in warmer years. 
-Climate has also been found to influence the population growth rate of three different plant species that dominate the landscape in the sagebrush steppe of Western North America (Dalgleish et al. 2011).\\ \\
+Population extinction debt is likely to increase in frequency as a fingerprint of global change, including climate change \citep{dullinger2012extinction,urban2015accelerating}. 
+Extinction debt is a form of transient dynamics whereby populations persist despite having population growth rates that fall below replacement level ($\lambda=1$), suggesting a long-term trajectory toward extinction but with long time lags \citep{hastings2018transient,kuussaari2009extinction}. 
+This may be more likely for species with life cycles that are slow relative to environmental change \citep{vellend2006extinction}.
+While extinction debt is often studied as a regional process, there is recent emphasis on the underlying local dynamics whereby single populations transition from positive to negative growth rates \citep{lehtila2016forest,hylander2013mechanisms}.
+Local extinction debt is indicative of environmental change, since transient persistence suggests that the environment was favorable for population growth at some time in the past. 
+However, while evidence for extinction debt is growing, the mechanismss that cause populations to tip from positive to negative growth rates are rarely known, and this information may be critical for effective conservation planning \citep{hylander2013mechanisms}. 
 
-Climate can also be linked to the population growth rate \(\lambda\), and there are a couple of ways to do this. 
-In the past, matrix models have been widely used to understand population dynamics and inform population management, but there has been criticism that their results may not be entirely reliable (Crone et al. 2011). 
-One suggestion Crone et al. (2011) has to make these models more reliable is to use more long-term datasets. 
-Another method of understanding population dynamics is to use an integral projection model (IPM). 
-An IPM is useful because it allows for structural traits to be continuous instead of arbitrarily discrete, and can incorporate more complex demographical traits (Ellner and Rees 2006). 
-In this study, we approach our research questions using an IPM.\\ \\
+Structured population models built from individual-level demographic rates provide a powerful framework for studying drivers of extinction debt \citep{lehtila2016forest} and environment-dependent population dynamics more generally \citep{ehrlen2015predicting}. 
+These methods derive predictions for population growth from a suite of statistical models fitted to individual-level vital rates. 
+By incorporating climatic factors as statistical covariates, previous studies have identified climatic limits of population viability \citep{ilerreproductive} and forecasted population responses to particular types of climate change \citep{Adler2013}. 
+Additionally, articulating the connections between environment and demography can allow for `back-casting' population dynamics into historical environmental regimes \citep{Smith2005}, which may provide insight regarding when and why populations fell into extinction debt. 
 
-Here we use demographic modeling with a 12-year set of data from a population of \textit{O. imbricata} to ask four questions regarding climate effects on this species: (1) Can climate variables explain some of the year-to-year variation in vital rates? (2) How does climate affect \(\lambda\), the population growth rate? (3) Given that recent \(\lambda\) indicates a population in decline, can we use historical climate data to determine the conditions under which \(\lambda\) $>$ 1? (4) What implications does climate change hold for the population?
+Despite the potential of demographic methods to reveal climate drivers of population dynamics, there are several challenges in scaling up from individual-level data to population responses to environmental change. 
+Climate change is a multi-dimensional process that may involve shifts in the means, variances, and seasonal distributions of multiple variables related to temperature and precipitation, and, for a given region, some aspects of climate change are greater in magnitude than others (cite IPCC?). 
+Yet, it is not always apparent which dimensions of climate are most important for a given species, and it is possible that subtle environmental changes can elicit strong ecological responses (cite some tipping point papers). 
+Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting}, and single life stages or vital rates may be affected by multiple drivers, including interactions \citep{dalgleish2011climate,williams2015life}. 
+These complications, common to environmentally explicit demographic studies \citep{ehrlen2016advancing}, highlight the value of leveraging long-term data to gain resolution of climate drivers and the importance of accounting for demographic complexity across the life cycle. 
+
+We used long-term demographic data to study climate-dependent population dynamics of a long-lived Chihuahuan desert cactus persisting under extinction debt. 
+Our previous work with the tree cholla cactus (\textit{Cylindriopuntia imbricata} Haw. D.C.) indicated, with >$95\%$ certainty, that our focal population is in decline (stochastic population growth rate $\lambda_S < 1$) despite current densities that are reasonably high \citep{ohm2014balancing,miller2009impacts,elderd2016quantifying}.
+Our study region in the northern Chihuahuan Desert (New Mexico, USA) has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
+Recent and projected climate change in our study region includes increases in temperature and shifts in the seasonal timing of precipitation; the combined effects of these changes may further elevate drought risk \citep{petrie2014regional,cook2013response,cook2015unprecedented}. 
+We sought to understand how historical climate patterns affected cactus population viability and to test the hypothesis that recent climate change has driven this population into extinction debt; this hypothesis predicts at least occasional periods of positive population growth over the past century. 
+Our specific objectives were to: (1) Characterize climatic drivers of inter-annual variability in demographic rates, (2) Back-cast climate-dependent population growth to determine whether the past century included periods that were favorable for population growth, and (3) Identify which aspects of climate change and which demographic responses to climate most strongly determine temporal trends in population growth.
 
 %--------------------------------------------------------------------
 \section*{Materials and methods}
@@ -238,7 +237,7 @@ Responses to PC1 were limited to survival (Fig. \label{figure:vital_rates}A) and
 %--------------------------------------------------------------------
 \section*{Data accessiblity}
 
-\bibliographystyle{jae}%Compile with jae.bst style file
+\bibliographystyle{gcb}%Compile with jae.bst style file
 \bibliography{cholla_climate}
 
 %--------------------------------------------------------------------
