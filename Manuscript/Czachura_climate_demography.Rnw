@@ -9,9 +9,11 @@
 \usepackage[running]{lineno}
 \usepackage{setspace}
 \usepackage{amsfonts,amssymb,amsmath,graphicx,hyperref}
+\usepackage{float}
 \doublespacing
 
 <<setup,echo=F, message=F, warning=F>>=
+knitr::opts_chunk$set(fig.pos = 'H')
 library(tidyverse)
 library(xtable)
 @
@@ -51,28 +53,32 @@ Climate drivers may be inferred from temporal fluctuations in population size or
 Population extinction debt is likely to increase in frequency as a fingerprint of global change, including climate change \citep{dullinger2012extinction,urban2015accelerating}. 
 Extinction debt is a form of transient dynamics whereby populations persist despite having population growth rates that fall below replacement level ($\lambda=1$), suggesting a long-term trajectory toward extinction but with long time lags \citep{hastings2018transient,kuussaari2009extinction}. 
 This may be more likely for species with life cycles that are slow relative to environmental change \citep{vellend2006extinction}.
-While extinction debt is often studied as a regional process, there is recent emphasis on the underlying local dynamics whereby single populations transition from positive to negative growth rates \citep{lehtila2016forest,hylander2013mechanisms}.
+While extinction debt is often studied as a regional process (EXPLAIN), there is recent emphasis on the underlying local dynamics whereby single populations transition from positive to negative growth rates \citep{lehtila2016forest,hylander2013mechanisms}.
 In the absence of significant migration, local extinction debt is indicative of environmental change, since transient persistence suggests that the environment was favorable for population growth at some time in the past. 
-However, while evidence for extinction debt is growing, the mechanismss that cause populations to tip from positive to negative growth rates are rarely known, and this information may be critical for effective conservation planning \citep{hylander2013mechanisms}. 
+However, while evidence for extinction debt is growing, the mechanisms that cause populations to tip from positive to negative growth rates are rarely known, and this information may be critical for effective conservation planning \citep{hylander2013mechanisms}. 
 
 Structured population models built from individual-level demographic rates provide a powerful framework for studying drivers of extinction debt \citep{lehtila2016forest} and environment-dependent population dynamics more generally \citep{ehrlen2015predicting}. 
-These methods derive predictions for population growth from a suite of statistical models fitted to individual-level vital rates. 
-By incorporating climatic factors as statistical covariates, previous studies have identified climatic limits of population viability \citep{ilerreproductive} and forecasted population responses to particular types of climate change \citep{Adler2013}. 
+These methods derive predictions for population growth and viability from a suite of statistical models fitted to individual-level vital rates. 
+By incorporating climatic factors as statistical covariates, previous studies have identified climatic limits of population viability \citep{ilerreproductive} and forecasted responses to particular types of climate change \citep{Adler2013}. 
 Additionally, articulating the connections between environment and demography can allow for `back-casting' population dynamics into historical environmental regimes \citep{Smith2005}, which may provide insight regarding when and why populations fell into extinction debt. 
 
 Despite the potential of demographic methods to reveal climate drivers of population dynamics, there are several challenges in scaling up from individual-level data to population responses to environmental change. 
 Climate change is a multi-dimensional process that may involve shifts in the means, variances, and seasonal distributions of multiple variables related to temperature and precipitation, and, for a given region, some aspects of climate change are greater in magnitude than others (cite IPCC?). 
 Yet, it is not always apparent which dimensions of climate are most important for a given species, and it is possible that subtle environmental changes can elicit strong ecological responses (cite some tipping point papers). 
-Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting}, and single life stages or vital rates may be affected by multiple drivers, including interactions \citep{dalgleish2011climate,williams2015life}. 
-Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates \citep{mclean2016predicting}. 
+Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
+Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates, integrated across the life cycle \citep{mclean2016predicting}. 
 These complications, common to environmentally explicit demographic studies \citep{ehrlen2016advancing}, highlight the value of leveraging long-term data to gain resolution of climate drivers and the importance of accounting for demographic complexity across the life cycle. 
 
 We used long-term demographic data to study climate-dependent population dynamics of a long-lived Chihuahuan desert cactus persisting under extinction debt. 
-Our previous work with the tree cholla cactus (\textit{Cylindriopuntia imbricata} Haw. D.C.) indicated, with >$95\%$ certainty, that our focal population is in decline (stochastic population growth rate $\lambda_S < 1$) despite current densities that are reasonably high \citep{ohm2014balancing,miller2009impacts,elderd2016quantifying}.
-Our study region in the northern Chihuahuan Desert (New Mexico, USA) has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
+Our previous work with the tree cholla cactus (\textit{Cylindriopuntia imbricata} Haw. D.C.) indicated, with >$95\%$ certainty, that our focal population in the northern Chihuahuan Desert (New Mexico, USA) is in decline (stochastic population growth rate $\lambda_S < 1$) despite current densities that are reasonably high \citep{ohm2014balancing,miller2009impacts,elderd2016quantifying}.
+Our study region has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
 Recent and projected climate change in our study region includes increases in temperature and shifts in the seasonal timing of precipitation; the combined effects of these changes may further elevate drought risk \citep{petrie2014regional,cook2013response,cook2015unprecedented}. 
-We sought to understand how historical climate patterns affected cactus population viability and to test the hypothesis that recent climate change has driven this population into extinction debt; this hypothesis predicts at least occasional periods of positive population growth over the past century. 
-Our specific objectives were to: (1) Characterize climatic drivers of inter-annual variability in demographic rates, (2) Back-cast climate-dependent population growth to determine whether the past century included periods that were favorable for population growth, and (3) Identify which aspects of climate change and which demographic responses to climate most strongly determine temporal trends in population growth.
+We sought to understand how historical climate patterns affected cactus population viability and to test the hypothesis that recent climate change has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
+
+Our specific objectives were to: 
+(1) Characterize climate variation and change in our northern Chihuahuan desert study region over the past century, 
+(2) Quantify cactus vital rate responses to inter-annual climate variation during the demographic study period (2004--2017), 
+(2) Back-cast climate-dependent population growth to determine whether the past century included periods that were favorable for population growth, and (3) Identify which aspects of climate change and which demographic responses to climate most strongly determine temporal trends in population growth.
 
 %--------------------------------------------------------------------
 \section*{Materials and methods}
@@ -174,7 +180,13 @@ PC3modA_anova<-anova(lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_
 PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
 @
 %\newpage
-\begin{figure}[h!]
+
+Three principal components cumulatively explained \Sexpr{var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}A). 
+PC1, which explained \Sexpr{PC1_var_explained}\% of variation, was dominanted by inter-annual differences in temperature and precipitation, regardless of season, and the three components of temperature (mean, min, max) loaded similarly onto this component (Figure \ref{figure:PCA}B). 
+Over the last century, PC1 trends have fluctuated, with prolonged stretches of warm and dry years (the 1950s and early 2000s) and other periods of cool and wet years (early 1900s and 1970s-80s), though the overall temporal trend for PC1 is negative ($F_{\Sexpr{PC1modA_anova$Df}}=\Sexpr{round(PC1modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC1modA_anova$`Pr(>F)`[1],5)}$).
+The decline per-year is nearly five times stronger since 1970 compared to the long-term average (Figure \ref{figure:PCA}C), suggesting an accelerating trajectory of warmer and drier years. 
+
+\begin{figure}[H]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/climate_trends.pdf}
   \caption{Principal component analysis (PCA) of inter-annual climate variability at Sevilleta National Wildlife Refuge, 1901--2017. \textbf{A}, Proportion and cumulative proportion of variation in seasonal temperatures (minimum, mean, maximum) and precipitation explained by the first three PCs. \textbf{B}, Loadings of seasonal climate variables onto PC1-3. Because climate data were standardized to mean zero and unit variance, loadings can be interpreted as the correlation between the climate variable and the PC. \textbf{C--E}, Time series of PC values, with regression lines showing long-term trends since 1901 (solid lines) or 1970 (dashed lines).}
@@ -182,23 +194,19 @@ PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
    \end{center}
 \end{figure}
 
-Three principal components cumulatively explained \Sexpr{var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}A). 
-PC1, which explained \Sexpr{PC1_var_explained}\% of climate variation, was dominanted by inter-annual differences in temperature and precipitation, regardless of season, and the three components of temperature (mean, min, max) loaded similarly onto this component (Figure \ref{figure:PCA}B). 
-Over the last century, PC1 trends have fluctuated, with prolonged stretches of warm and dry years (the 1950s and early 2000s) and other periods of cool and wet years (early 1900s and 1970s-80s), though the overall temporal trend for PC1 is negative ($F_{\Sexpr{PC1modA_anova$Df}}=\Sexpr{round(PC1modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC1modA_anova$`Pr(>F)`[1],5)}$).
-The decline per-year is nearly five times stronger since 1970 compared to the long-term average (Figure \ref{figure:PCA}C), indicating an accelerating trajectory of warmer and drier years. 
-
-The second principal component explained \Sexpr{PC2_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was strongly correlated with cool-season climate, especially precipitation, such that greater values corresponded to wetter winters with low temperature maxima and high temperature minima (Figure \ref{figure:PCA}B). 
+The second principal component explained \Sexpr{PC2_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was strongly driven by cool-season climate, especially precipitation, such that greater values corresponded to wetter winters with low temperature maxima and high temperature minima (Figure \ref{figure:PCA}B). 
 Warm-season temperatures also loaded positively onto this axis to a lesser degree (Figure \ref{figure:PCA}B). 
-PC2 has increased significantly significantly since 1900 ($F_{\Sexpr{PC2modA_anova$Df}}=\Sexpr{round(PC2modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC2modA_anova$`Pr(>F)`[1],5)}$) and the change per-year is nearly four times stronger since 1970 (Figure \ref{figure:PCA}D), indicating an accelerating trend of wetter and more moderate cool seasons. 
+PC2 has increased significantly significantly since 1900 ($F_{\Sexpr{PC2modA_anova$Df}}=\Sexpr{round(PC2modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC2modA_anova$`Pr(>F)`[1],5)}$) and the change per-year is nearly four times stronger since 1970 (Figure \ref{figure:PCA}D), indicating an accelerating trend of wetter cool seasons with moderate winter temperatures. 
 
 Lastly, PC3 explained \Sexpr{PC3_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was correlated with a combination of warm- and cool-season climate variables. 
 The strongest variable loadings on this principal component were minimum and mean temperatures in the cool season and warm-season precipitation. 
 Temporal trends for PC3 show significant declines since 1900 ($F_{\Sexpr{PC3modA_anova$Df}}=\Sexpr{round(PC3modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC3modA_anova$`Pr(>F)`[1],5)}$), correspdoning to milder winters with higher minimum and mean temperatures and wetter warm seasons; this trend has been slightly stronger since 1970 (Figure \ref{figure:PCA}E). 
 
-\subsection*{Vital rate responses to climate}
-All of the vital rates estimated from long-term data (survival, growth, reproductive status, and fertility of flowering plants) were strongly, positively size-dependent but there was heterogeneity in the magnitude and sign of responses to different dimensions of climate variability. 
-Demographic vital rates were least responsive to PC1, the dominant axis of climate variability and change, and most responsive to less variable climate dimensions. 
-There was also evidence for divergent responses of different vital rates to the same climate variable. 
+\subsection*{Demographic responses to climate}
+
+Demographic vital rates estimated from long-term data (survival, growth, reproductive status, and fertility of flowering plants) were least responsive to PC1, the dominant axis of climate variability and change, and more responsive to less variable climate dimensions. 
+All of the vital rates  were strongly, positively size-dependent but there was heterogeneity in the magnitude and sign of responses to different dimensions of climate variability. 
+%There was also evidence for divergent responses of different vital rates to the same climate variable. 
 Figure \label{figure:vital_rates} shows vital rate data and fitted statistical models (including size- and climate-dependence) following variable selection procedures that elimated coefficients that were weakly supported (Table \ref{tab:SVS}). 
 %This figure also shows the range of climate variation over which vital rate responses were extrapolated to predict dynamics under historical conditions.
 
@@ -207,7 +215,7 @@ Fertility of flowering plants was not responsive to PC1 variation (Fig. \label{f
 There were positive responses to PC2 in survival(Fig. \label{figure:vital_rates}B), flowering probability (Fig. \label{figure:vital_rates}H), and fertility of flowering plants (Fig. \label{figure:vital_rates}K), indicating that these vital rates were greater in years with wetter cool seasons. 
 Responses to PC3 varied in sign, with survival declining at high values (cold winters and dry summers) and reproductive rates declining at low values (warm winters and wet summers) (Fig. \label{figure:vital_rates}C,I,L). 
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/vital_rates.pdf}
   \caption{Climate- and size-dependent varation in survival (A-C), growth (D-F), flowering (G-I), and fertility of flowering plants (J-L) in relation to three principal components of seasonal climate variation (columns). For visualization only, the plant size distribution was discretized into three groups (small, medium, and large, corresponding to darker shades of blue). Points show means for each size group in each year, where different years have unique PC values and point size is proportional to sample size for each size group in each year (min, max). Lines show fitted statistical models using posterior mean parameter values, with colors corresponding to size group colors. Panels with no lines indicate that the climate predictor was not statistically supported through stochastic variable selection.}
@@ -215,15 +223,26 @@ Responses to PC3 varied in sign, with survival declining at high values (cold wi
   \end{center}
 \end{figure}
 
-\subsection*{Back-casting population growth}
+The population growth rate $\lambda$ was predicted to increase with decreasing values of PC1 (hotter, drier years), holding other PCs fixed at the long-term average (Fig. \ref{figure:lambda_PC}A). 
+However, $\lambda$ was weakly sensitive to this PC. 
+Population growth was also predicted to increase with increasing values of PC2 (wetter cool seasons; Fig. \ref{figure:lambda_PC}B). 
+Population growth was more senitive to PC2 than PC1, such that the changes in $\lambda$ predicted over 1970-2017 were similar in magnitude for PC1 (value) and PC2 (value) even though PC1 exhibited much greater change over this period. 
+Finally, greater values of PC3 (colder winters and drier summers) were predicted to cause declines in population growth, indicating that negative effects on cactus survival outweighed positive effects of PC3 on reproduction (Fig. \label{figure:vital_rates}). 
+PC3 has changed the least since 1970 but this was associated with a [percentage] change in $\lambda$, similar in magnitude to the response to climate change in PC1.
+Overall, recent climate change in each of the principal components, in isolation, has had consistently positive effects on population growth (Fig. \ref{figure:lambda_PC}). 
+However, mean estimates for population growth rates were consistently below replacement level for all climate PC values, and the posterior probability densities rarely met or exceeded $\lambda=1$, consistent with previous findings of declining population growth rates.
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \label{figure:lambda_PC}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_PC.pdf}
   \caption{Predicted asymptotic population growth rate ($\lambda$) in response to three principal components of inter-annual climatic variation (A-C). For each panel, the indicated principal component is varying while the others are held at zero (the average value). Lines show the expected relationships based on posterior mean parameter values and shaded regions indicate the 95\% credible interval, representing uncertainty in demographic parameters. Points highlight the change the PC value (on the $x$-axis) between 1970 and 2017, based on the regression lines shown in Fig. \ref{figure:PCA}, and the predicted corresponding change in $\lambda$ ($y$-axis).}
   \end{center}
 \end{figure}
+
+\subsection*{Back-casting population growth}
+
+Contrary to our hypothesis, 
 
 \begin{figure}[h!]
   \label{figure:lambda_year}
