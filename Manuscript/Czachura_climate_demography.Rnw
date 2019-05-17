@@ -119,7 +119,7 @@ Months were aligned to correspond to demographic transition years rather than ca
 
 To reduce the dimensionality of the climate data, we conducted Principal Component Analysis (PCA) on the eight climate variables (two seasons x four variables) for the years 1900-2017, with climate values scaled to unit variance. 
 We estimated the variance in the climate data explained by each PC and the variable loadings, which give the correlations between original variables and PC values.
-We assessed the importance of seasonal differences by examining how warm- and cool-season variables loaded onto the PCs.
+PCA allowed us to rank the magnitudes of multiple aspects of climate variation and change by examining how warm- and cool-season variables loaded onto the PC.
 
 \subsection*{Statistical estimation of climate-dependence}
 <<PCA data, echo=F, message=F, warning=F>>=
@@ -207,13 +207,13 @@ Temporal trends for PC3 show significant declines since 1900 ($F_{\Sexpr{PC3modA
 Demographic vital rates estimated from long-term data (survival, growth, reproductive status, and fertility of flowering plants) were least responsive to PC1, the dominant axis of climate variability and change, and more responsive to less variable climate dimensions. 
 All of the vital rates  were strongly, positively size-dependent but there was heterogeneity in the magnitude and sign of responses to different dimensions of climate variability. 
 %There was also evidence for divergent responses of different vital rates to the same climate variable. 
-Figure \label{figure:vital_rates} shows vital rate data and fitted statistical models (including size- and climate-dependence) following variable selection procedures that elimated coefficients that were weakly supported (Table \ref{tab:SVS}). 
+Figure \ref{figure:vital_rates} shows vital rate data and fitted statistical models (including size- and climate-dependence) following variable selection procedures that elimated coefficients that were weakly supported (Table \ref{tab:SVS}). 
 %This figure also shows the range of climate variation over which vital rate responses were extrapolated to predict dynamics under historical conditions.
 
 For PC1, there was a weak reduction in survival probability (especially for smaller plants; Fig. \label{figure:vital_rates}A) and a moderate reduction in flowering probability (especially for larger plants; Fig. \label{figure:vital_rates}G) at higher PC values, i.e., in cooler and wetter years.
-Fertility of flowering plants was not responsive to PC1 variation (Fig. \label{figure:vital_rates}J) and growth was not responsize to any of the climate PCs (Fig. \label{figure:vital_rates}D,E,F). 
-There were positive responses to PC2 in survival(Fig. \label{figure:vital_rates}B), flowering probability (Fig. \label{figure:vital_rates}H), and fertility of flowering plants (Fig. \label{figure:vital_rates}K), indicating that these vital rates were greater in years with wetter cool seasons. 
-Responses to PC3 varied in sign, with survival declining at high values (cold winters and dry summers) and reproductive rates declining at low values (warm winters and wet summers) (Fig. \label{figure:vital_rates}C,I,L). 
+Fertility of flowering plants was not responsive to PC1 variation (Fig. \ref{figure:vital_rates}J) and growth was not responsize to any of the climate PCs (Fig. \ref{figure:vital_rates}D,E,F). 
+There were positive responses to PC2 in survival(Fig. \ref{figure:vital_rates}B), flowering probability (Fig. \ref{figure:vital_rates}H), and fertility of flowering plants (Fig. \ref{figure:vital_rates}K), indicating that these vital rates benefitted from years with wetter cool seasons. 
+Responses to PC3 varied in sign, with survival increasing with decreasing PC values (years with moderate winter temperature minima and wet summer) and reproductive rates increasing with increasing PC values (years with low winter minima and dry summers) (Fig. \ref{figure:vital_rates}C,I,L). 
 
 \begin{figure}[H]
   \begin{center}
@@ -223,36 +223,54 @@ Responses to PC3 varied in sign, with survival declining at high values (cold wi
   \end{center}
 \end{figure}
 
-The population growth rate $\lambda$ was predicted to increase with decreasing values of PC1 (hotter, drier years), holding other PCs fixed at the long-term average (Fig. \ref{figure:lambda_PC}A). 
-However, $\lambda$ was weakly sensitive to this PC. 
+Integrating across vital rate responses, the population growth rate $\lambda$ was predicted to increase with decreasing values of PC1 (hotter, drier years), holding other PCs fixed at their long-term average (Fig. \ref{figure:lambda_PC}A). 
 Population growth was also predicted to increase with increasing values of PC2 (wetter cool seasons; Fig. \ref{figure:lambda_PC}B). 
-Population growth was more senitive to PC2 than PC1, such that the changes in $\lambda$ predicted over 1970-2017 were similar in magnitude for PC1 (value) and PC2 (value) even though PC1 exhibited much greater change over this period. 
-Finally, greater values of PC3 (colder winters and drier summers) were predicted to cause declines in population growth, indicating that negative effects on cactus survival outweighed positive effects of PC3 on reproduction (Fig. \label{figure:vital_rates}). 
-PC3 has changed the least since 1970 but this was associated with a [percentage] change in $\lambda$, similar in magnitude to the response to climate change in PC1.
+Population growth was more senitive to PC2 than PC1, such that the change in $\lambda$ from 1970 to 2017 was similar in magnitude for PC1 (value) and PC2 (value) even though PC1 exhibited much greater change than PC2 over this period. 
+Finally, greater values of PC3 (colder winters and drier summers) were predicted to cause declines in population growth, indicating that negative effects on cactus survival outweighed positive effects of PC3 on reproduction (Fig. \ref{figure:vital_rates}). 
+PC3 has changed the least since 1970 but this was associated with a [percentage] change in $\lambda$, similar in magnitude to the response to relatively large change in PC1.
 Overall, recent climate change in each of the principal components, in isolation, has had consistently positive effects on population growth (Fig. \ref{figure:lambda_PC}). 
-However, mean estimates for population growth rates were consistently below replacement level for all climate PC values, and the posterior probability densities rarely met or exceeded $\lambda=1$, consistent with previous findings of declining population growth rates.
+However, mean estimates for population growth rates were consistently below replacement level for all climate PC values, and the posterior probability densities rarely met or exceeded $\lambda=1$.
 
 \begin{figure}[H]
-  \label{figure:lambda_PC}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_PC.pdf}
   \caption{Predicted asymptotic population growth rate ($\lambda$) in response to three principal components of inter-annual climatic variation (A-C). For each panel, the indicated principal component is varying while the others are held at zero (the average value). Lines show the expected relationships based on posterior mean parameter values and shaded regions indicate the 95\% credible interval, representing uncertainty in demographic parameters. Points highlight the change the PC value (on the $x$-axis) between 1970 and 2017, based on the regression lines shown in Fig. \ref{figure:PCA}, and the predicted corresponding change in $\lambda$ ($y$-axis).}
+  \label{figure:lambda_PC}
   \end{center}
 \end{figure}
 
 \subsection*{Back-casting population growth}
 
-Contrary to our hypothesis, 
+Figure \ref{figure:lambda_year}A shows the back-casted time series of $\lambda$ accounting for inter-annual variation in all three PC components.
+Back-casted predictions indicate that population growth rates likely remained below replacement levels over the entire record of based on historical climate data. 
+However, contrary to our hypothesis, we found that recent climate change has positively affected cactus population growth. 
+There was a positive temporal trend in $\lambda$ since 1900, and the rate of increase was nearly [number] times greater since 1970 compared to the overall trend since 1900 (solid vs. dashed lines in Fig. \ref{figure:lambda_year}A). 
+Under this more recent trajectory, population growth is expected to reach the threshold of positive population growth ($\lambda$ = 1) in [year]; further climate change would advance this transition to increasing growth rates. 
+[Describe results for stochastic growth rate here and reference appendix figure?]
+
+The predicted time series of $\lambda$ is based solely on the three climate principal components.
+For the years of direct demographic observations (black line in Fig. \ref{figure:lambda_year}A) we were able to incorporate additional sources of variability, estimated as statistical random effects, in year-specific estimated of $\lambda$ (points in Fig. \ref{figure:lambda_year}A).
+For the observation years (2004-2017), we found that the three climate PCs explained [percentage] of the inter-annual variation in $\lambda$.
+Thus, while there was a clear climate signal to historical trends of population growth, there was also uncertainty in these trends due to process error, i.e., non-attributed heterogeneity in the vital rates. 
+
+Life Table Response Experiments (LTRE) provided a decomposition of temporal variance in $\lambda$, allowing us to understand the relative importance of different dimensions of climate variability and vital rate responses to them. 
+LTRE results indicated that survival responses to climate were the overwhelming driver of temporal trends in $\lambda$ (Fig. \ref{figure:lambda_year}B). 
+Individual growth made no contribution to these trends because it was unresponsive to climate (Fig. \label{figure:vital_rates}D,E,F), whereas flowering and fertility were responsive to climate but their role was relatively small and imperceptible in Fig. \ref{figure:lambda_year}B.
+Furthermore, survival responses to climate PC2 were the dominant driver of temporal trends, followed by PC3 and then PC1.
+Collectively, responses to PC2 and PC3 -- that is, the tendency for greater cactus survival in years with wet and mild cool-seasons -- accounted for [percentage] of temporal variation in $\lambda$. 
 
 \begin{figure}[h!]
-  \label{figure:lambda_year}
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_year_LTRE.pdf}
   \caption{\textbf{A}, Time series of asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in climate. Black lines show linear regressions for temporal trends in $\lambda$ since 1901 (solid) or 1970 (dashed). Vertical line separates years that were back-casted versus years that were directly observed. The observation years (2004 and later) include growth rates expected based on climate alone (line) and those that incorporate additional, non-designated sources of inter-annual demographic variation (points), captured statistically as year-specific random effects. \textbf{B}, LTRE decomposition of inter-annual variability in population growth rates (based on climate alone). Bars show how each vital rate, responding to each climate PC, accounted for the overall pattern of inter-annual variation in $\lambda$. Survival dominated all vital rate responses to all climate PCs.}
+  \label{figure:lambda_year}
   \end{center}
 \end{figure}
 %--------------------------------------------------------------------
 \section*{Discussion}
+The key finding of this study is that the strongest features of climate change are not the main drivers of population responses. 
+Specifically, the dominant feature of climate change in our study region is the accelerating trend toward years that are warmer and drier in both cool- and warm-seasons, but this accounts for only [percentage] of the back-casted increase in $\lambda$ over the past century. 
+Instead, we find that temporal trends in the viability of our focal population were dominated by more subtle climatic factors with relatively weak signals of recent change.
 
 %--------------------------------------------------------------------
 \section*{Acknowledgements}
