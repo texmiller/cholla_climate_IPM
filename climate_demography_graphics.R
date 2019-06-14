@@ -1,7 +1,8 @@
 ## Will need to run the nofuture_SVS.Rmd file for the objects needed for these figures
 
 # Climate data figures ----------------------------------------------------
-PC_cols <- c("#deebf7", "#9ecae1", "#3182bd", "#de2d26")
+PC_cols <- c("#8c96c6","#8951a4","#760b72","#4d004b")#c("#deebf7", "#9ecae1", "#3182bd", "#de2d26")
+alpha_scale<-0.6
 regressionA_start_yr <- 1900
 regressionB_start_yr <- 1970
 PC1modA<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
@@ -26,15 +27,15 @@ par(lwd = 2)
 barplot(as.matrix(PCclim_rotation[,c("PC1","PC2","PC3")]),
         horiz=F,beside=T,ylim=c(-1,1),
         ylab="Variable loading",cex.lab=1.4,cex.names=1.4,
-        border=rep(PC_cols,each=2),
-        col=c(PC_cols[1],"white",
-              PC_cols[2],"white",
-              PC_cols[3],"white",
-              PC_cols[4],"white"))
+        border=rep(alpha(PC_cols,alpha_scale),each=2),
+        col=c(alpha(PC_cols[1],alpha_scale),PC_cols[1],
+              alpha(PC_cols[2],alpha_scale),PC_cols[2],
+              alpha(PC_cols[3],alpha_scale),PC_cols[3],
+              alpha(PC_cols[4],alpha_scale),PC_cols[4]))
 box(lwd=1)
-legend("topright",fil=c("black","white"),bty="n",cex=1.2,
+legend("topright",fill=c("black","white"),bty="n",cex=1.2,
        legend=c("Cool season","Warm season"))
-legend("topleft",fil=PC_cols,border=PC_cols,bty="n",cex=1.2,
+legend("topleft",fill=alpha(PC_cols,alpha_scale),border=alpha(alpha_scale),bty="n",cex=1.2,
        legend=c("Min temp","Mean temp", "Max temp", "Precip"))
 title("B",adj=0,font=3,cex.main=2)
 

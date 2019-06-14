@@ -63,8 +63,9 @@ By incorporating climatic factors as statistical covariates, previous studies ha
 Additionally, articulating the connections between environment and demography can allow for `back-casting' population dynamics into historical environmental regimes \citep{Smith2005}, which may provide insight regarding when and why populations fell into extinction debt. 
 
 Despite the potential of demographic methods to reveal climate drivers of population dynamics, there are several challenges in scaling up from individual-level data to population responses to environmental change. 
-Climate change is a multi-dimensional process that may involve shifts in the means, variances, and seasonal distributions of multiple variables related to temperature and precipitation, and, for a given region, some aspects of climate change are greater in magnitude than others (cite IPCC?). 
-Yet, it is not always apparent which dimensions of climate are most important for a given species, and it is possible that subtle environmental changes can elicit strong ecological responses (cite some tipping point papers). 
+Climate change is a multi-dimensional process that may involve shifts in the means, variances, extreme events, and seasonal distributions of multiple variables related to temperature and precipitation (cite IPCC?). 
+Yet, it is not always apparent which dimensions of climate are most important for a given species, and even subtle environmental changes can elicit strong ecological responses (cite some tipping point papers). .
+Previous studies have shown that different components of climate change may have independent effects on different aspects of demography or physiology, such as distinct effects of temperature means and extremes in alpine butterflies \citep{buckley2012demographic}.
 Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
 Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates, integrated across the life cycle \citep{mclean2016predicting}. 
 These complications, common to environmentally explicit demographic studies \citep{ehrlen2016advancing}, highlight the value of leveraging long-term data to gain resolution of climate drivers and the importance of accounting for demographic complexity across the life cycle. 
@@ -73,12 +74,14 @@ We used long-term demographic data to study climate-dependent population dynamic
 Our previous work with the tree cholla cactus (\textit{Cylindriopuntia imbricata} Haw. D.C.) indicated, with >$95\%$ certainty, that our focal population in the northern Chihuahuan Desert (New Mexico, USA) is in decline (stochastic population growth rate $\lambda_S < 1$) despite current densities that are reasonably high \citep{ohm2014balancing,miller2009impacts,elderd2016quantifying}.
 Our study region has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
 Recent and projected climate change in our study region includes increases in temperature and shifts in the seasonal timing of precipitation; the combined effects of these changes may further elevate drought risk \citep{petrie2014regional,cook2013response,cook2015unprecedented}. 
-We sought to understand how historical climate patterns affected cactus population viability and to test the hypothesis that recent climate change has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
+Previous studies provide heterogeneous results regarding cactus responses to climate drivers, with evidence for both positive \citep{} and negative \citep{} effects of drought conditions on various aspects of cactus ecology. 
+Given the important role cacti and other CAM plants in drylands worldwide \citep{}, there is a need to better understand their responses to past and future climate change. 
+We sought to understand how historical climate patterns affected population viability in \textit{C. imbricata} and to test the hypothesis that recent climate change has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
 
 Our specific objectives were to: 
 (1) Characterize climate variation and change in our northern Chihuahuan desert study region over the past century, 
 (2) Quantify cactus vital rate responses to inter-annual climate variation during the demographic study period (2004--2017), 
-(2) Back-cast climate-dependent population growth to determine whether the past century included periods that were favorable for population growth, and (3) Identify which aspects of climate change and which demographic responses to climate most strongly determine temporal trends in population growth.
+(3) Back-cast climate-dependent population growth to determine whether the past century included periods that were favorable for population growth, and (4) Identify which aspects of climate change and which demographic responses to climate most strongly determine temporal trends in population growth.
 
 %--------------------------------------------------------------------
 \section*{Materials and methods}
@@ -142,9 +145,8 @@ Full details for the statistical models are provided in Appendix B.
 
 Survival and growth from year $t-1$ to $t$ were dependent on size in year $t-1$, and the climate covariate for each observation corresponded to the climate year $t-1$ to $t$. 
 Reproductive status and fertility in year $t$ were dependent on size in year $t$ and on climate from $t-1$ to $t$. 
-This timing of size and climate effects was intended to match processes in the demographic model (below).
-Beyond these four vital rates, parameters for other processes in the life cycle were estimated from field data but were not replicated across years so we could not assess climate dependence. 
-The details are provided in Appendix C.
+This timing of size and climate effects was intended to match processes in the demographic model (below). 
+We did not quantify climate-dependence in seedling recruitment because, while plots were searched in each year, we could not assign a birth year to new recruits (which require several years of growth before they are consistently detectable in our census). 
 
 \subsection*{Demographic modeling}
 We used the statistical models for vital rate responses to build a stochastic, size-structured integral projection model that incorporated climate dependence. 
@@ -456,5 +458,16 @@ print(xtable(all_z, caption = "Stochastic variable selection results. Bolded val
 \section*{Appendix C: Assembling life cycle components into an IPM}
 \renewcommand{\thefigure}{C\arabic{figure}}\setcounter{figure}{0}
 \renewcommand{\thetable}{C\arabic{table}}\setcounter{table}{0}
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/lifecycle}
+  \caption{Life cycle.}
+  \label{figure:lifecycle}
+  \end{center}
+\end{figure}
+
+The statistical models described in Appendix B formed the backbone of the intergral projection model (IPM) that we used to estimate population growth in variable climate environments.
+Figure \ref{figure:lifecycle} illustrates the timing of our demographic census (a pre-breeding census) and climate events as they relate to the tree cholla life cycle. 
 
 \end{document}
