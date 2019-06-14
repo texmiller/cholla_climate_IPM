@@ -138,14 +138,14 @@ We built generalized linear mixed models (GLMM) in a hierarchical Bayesian frame
 Climate-dependence was limited to the four demographic vital rates for which we had long-term data: survival, growth (change in size), reproductive status (vegetative or flowering), and fertility of flowering plants (number of flower buds produced). 
 For each of these vital rates, we fit a statical model that included fixed effects of size, climate, size*climate interaction, and a quadratic term for climate to account for possible non-monotonic effects. 
 ``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model (Appendix B). 
-We used stochastic variable selection in a Bayesian framework to reduce model complexity, dropping coefficients that were effectively zero with $\>90\%$ certainty.
+We used stochastic variable selection in a Bayesian framework to reduce model complexity, dropping coefficients that were effectively zero with $\geq 90\%$ certainty.
 All models additionally included random intercepts for spatial (plot or spatial block) and temporal (year) heterogeneity.
 The year random-effect can be interpreted as inter-annual variability in demography that cannot be explained by the climate PCs.
 Full details for the statistical models are provided in Appendix B. 
 
 Survival and growth from year $t-1$ to $t$ were dependent on size in year $t-1$, and the climate covariate for each observation corresponded to the climate year $t-1$ to $t$. 
 Reproductive status and fertility in year $t$ were dependent on size in year $t$ and on climate from $t-1$ to $t$. 
-This timing of size and climate effects was intended to match processes in the demographic model (below). 
+This timing of size and climate effects was intended to match processes in the population model (see life cycle diagram in Fig. \ref{figure:lifecycle}). 
 We did not quantify climate-dependence in seedling recruitment because, while plots were searched in each year, we could not assign a birth year to new recruits (which require several years of growth before they are consistently detectable in our census). 
 
 \subsection*{Demographic modeling}
@@ -288,6 +288,7 @@ Instead, we find that temporal trends in the viability of our focal population w
 \section*{Appendix A: Correspondence between downscaled and locally measured climate variables}
 \renewcommand{\thefigure}{A\arabic{figure}}\setcounter{figure}{0}
 \renewcommand{\thetable}{A\arabic{table}}\setcounter{table}{0}
+\renewcommand{\theequation}{A\arabic{equation}}\setcounter{equation}{0}
 
 <<climate correlation,echo=F, message=F, warning=F>>=
 setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
@@ -369,6 +370,7 @@ abline(0,1,col="darkgrey")
 \section*{Appendix B: Vital rate modeling and stochastic variable selection}
 \renewcommand{\thefigure}{B\arabic{figure}}\setcounter{figure}{0}
 \renewcommand{\thetable}{B\arabic{table}}\setcounter{table}{0}
+\renewcommand{\theequation}{B\arabic{equation}}\setcounter{equation}{0}
 
 We fit generalized linear mixed effects models in a hierarchical Bayesian statistical framework to quantify climate dependence in demographic vital rates. 
 There were four size-dependent vital rates, measured in the long-term study, for which we could additionally estimate climate dependence: survival from year \textit{t} to year \textit{t+1}, individual growth (change in size from year \textit{t} to year \textit{t+1}), probability of flowering, and the number of flowerbuds produced, given that a plant flowered. 
@@ -388,7 +390,15 @@ The linear predictor includes a grand mean intercept ($\beta_{0}$) and size-depe
 The size variable $x$ is the natural logarithm of plant volume ($log_{e}(cm^{3})$), which was standardized to mean zero and unit variance for analysis. Other fixed-effect coefficient ($\rho$) correspond to climate variables and climate $\times$ size interactions. 
 The climate variables are the three principal components ($PC1$, $PC2$, $PC3$) of inter-annual variation in temperature and precipitation. We include quadratic terms for climate to account for the possibility of non-monotonic climate responses. 
 Climate coeffificient ($\rho$) superscripts correspond to each PC, and subscripts correspond to linear, quadratic, and size-interaction effects. 
-Finally, the linear predictor includes normally distributed random effects for plot-to-plot variation ($\gamma \sim N(0,\sigma_{plot})$) and year-to-year variation that is unrelated to climate effects captured by PCs 1-3 ($\tau \sim N(0,\sigma_{year})$).
+Finally, the linear predictor includes normally distributed random effects for plot-to-plot variation ($\gamma \sim N(0,\sigma_{plot})$) and year-to-year variation that is unrelated to climate effects captured by PCs 1-3 ($\alpha \sim N(0,\sigma_{year})$).
+
+The growth data were normally distributed; this model applied the identity link and included an additional parameter for residual variance. 
+The survival and flowering data were Bernoulli distributed, and these models applied the logit link function.
+The fertility data (flowerbud counts) were modeled as Poisson-distributed, including an individual-level random effect to account for overdispersion. 
+We evaluated model fits using posterior predictive checks \citep{elderd2016quantifying}. 
+All models were fit  using JAGS \citep{plummer2003jags} and R2JAGS \citep{su2012r2jags}.
+Analysis code is available at \url{https://github.com/texmiller/cholla_climate_IPM}.
+
 
 \subsection*{Stochastic variable selection}
 
@@ -455,19 +465,63 @@ print(xtable(all_z, caption = "Stochastic variable selection results. Bolded val
 
 %--------------------------------------------------------------------
 \newpage
-\section*{Appendix C: Assembling life cycle components into an IPM}
+\section*{Appendix C: Methods for IPM construction and analysis}
 \renewcommand{\thefigure}{C\arabic{figure}}\setcounter{figure}{0}
 \renewcommand{\thetable}{C\arabic{table}}\setcounter{table}{0}
+\renewcommand{\theequation}{C\arabic{equation}}\setcounter{equation}{0}
+
+\subsection*{Model overview}
+The statistical models described in Appendix B formed the backbone of the intergral projection model (IPM) that we used to estimate population growth in variable climate environments.
+Figure \ref{figure:lifecycle} illustrates the timing of our demographic census (a pre-breeding census) and climate events as they relate to the tree cholla life cycle. 
+
+Following previous studies \citep{compagnoni2016effect,ohm2014balancing,elderd2016quantifying}, we modeled the life cycle of \textit{C. imbricata} using continuously size-structured plants, $n(x)$, and two discrete seed banks ($B_{1,t}$ and $B_{2,t}$) corresponding to $1$ and $2$-year old seeds: 
+
+\begin{align}\label{eq:seed_banks}
+B_{1,t+1} = \kappa \delta \int_{L}^{U} P(x,\mathbf{c}_{t-1};\alpha^{P}_{t}) F(x,\mathbf{c}_{t-1};\alpha^{F}_{t}) n(x)_{t} dx \\
+B_{2,t+1} = (1 - \gamma_{1}B_{1,t})
+\end{align}
+
+Functions $P$ and $F$ give the probability of flowering and the number of flowerbuds produced, respectively, for an $x$-sized plant. 
+The vector $\mathbf{c}_{t-1}$ contains the climate PC values for climate-year $t-1$, which affects flowering and fertility in year $t$, and hence the $1$-year old seed bank in year $t+1$.
+Parameters $\alpha^{P}_{t}$ and $\alpha^{F}_{t}$ are random year effects estimated from the statistical models. 
+The integral is multiplied by the number of seeds per fruit ($\kappa$) and probability of seed dispersal/survival ($\delta$) to give the number of seeds that enter the $1$-year old seed bank. 
+The integral is evaluated from the lower ($L$) to upper ($U$) bound of the plant size distribution.
+Plants can recruit out of the one-year old seed bank with probability $\gamma_{1}$ or transition to the $2$-year old seed bank with probability ($1-\gamma_{1}$). 
+Seeds in the $2$-year old seed bank are assumed to either germinate (probability $\gamma_{1}$) or die. 
+
+Continuous-size dynamics are given by:
+\begin{align}\label{eq:cts_plants}
+n(y)_{t+1} = (\gamma_{1}B_{1,t} + \gamma_{2}B_{2,t})\eta(y)\omega + \int_{L}^{U} S(x,\mathbf{c}_{t};\alpha^{S}_{t}) G(y,x,\mathbf{c}_{t};\alpha^{G}_{t}) n(x)_{t} dx
+\end{align}
+
+The first term indicates recruitment from the seed banks to size $y$, where $\eta(y)$ gives the seedling size distribution. 
+Mortality between germination and the yearly demographic census is accounted for with survival probability $\omega$. 
+In the second term, functions $S$ and $G$ give the probabilities of surviving to year $t+1$ and growing to size $y$, respectively, for an $x$-sized plant in year $t$. 
+Climate-dependence and random year effects are included as in Eq. \ref{eq:seed_banks}, except the timing of climate effects is shifted such that growth and survival from $t$ to $t+1$ are affected by climate over the same interval. 
+As above, survival and growth functions also take time-varying random intercepts. 
+
+Equations \ref{eq:seed_banks} -- \ref{eq:cts_plants} clearly show where in the life cycle we include climate effects and where we do not. 
+All climate-independent processes (primarily related to seed banks and seedling recruitment) were parameterized from field data.
+These methods are described elsewhere \citep{compagnoni2016effect,elderd2016quantifying}.
 
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lifecycle}
-  \caption{Life cycle.}
+  \caption{\textit{C. imbricata} life cycle and census timing. }
   \label{figure:lifecycle}
   \end{center}
 \end{figure}
 
-The statistical models described in Appendix B formed the backbone of the intergral projection model (IPM) that we used to estimate population growth in variable climate environments.
-Figure \ref{figure:lifecycle} illustrates the timing of our demographic census (a pre-breeding census) and climate events as they relate to the tree cholla life cycle. 
+\subsection*{Model analysis}
+Following our statistical models, the size variable $x$ was the natural logarithm of plant volume ($log_{e}(cm^{3})$).
+For analysis, discretize $x$ into $n$ bins, replacing the continuous kernel with an $n$-by-$n$ matrix (because our model also included two additional discrete states, the final projection matrix had dimensions $n+2$-by-$n+2$).
+We used $n=200$ bins. 
+We extended integratino limits $L$ and $U$ to avoid unintentional ``eviction'' \citep{williams2012avoiding}.
+
+We estimated the asmptotic population growth rate $\lambda$ as the dominant eigenvalue of the discretized IPM kernel. 
+We evaluated how $\lambda$ responded to climate variation by first varying each climate PC independently, holding the other two fixed at their long-term mean.
+Second, we back-casted $\lambda$ over the $20^{th}$ century using time series of PC values. 
+We used Life Table Response Experiments (LTREs) to decompose which combinations of climate PCs and vital rate responses were most strongly responsible for temporal fluctuations in the back-casted time series of $\lambda$.
+While we are interested in temporal fluctuations in $\lambda$, we assume that these fluctuations are due entirely 
 
 \end{document}
