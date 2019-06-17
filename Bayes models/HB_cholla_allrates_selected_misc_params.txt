@@ -1,0 +1,187 @@
+
+    model{
+
+    ## Priors
+    ##hyperprior for intercept alpha
+    flow.mu~dnorm(0,0.001)   
+    fert.mu~dnorm(0,0.001)   
+    grow.mu~dnorm(0,0.001)   
+    surv.mu~dnorm(0,0.001) 
+    
+    ## plot variances
+    flow.sigma.plot~dunif(0,1000)
+    flow.tau.plot<-1/(flow.sigma.plot*flow.sigma.plot)
+    fert.sigma.plot~dunif(0,1000)
+    fert.tau.plot<-1/(fert.sigma.plot*fert.sigma.plot)
+    grow.sigma.plot~dunif(0,1000)
+    grow.tau.plot<-1/(grow.sigma.plot*grow.sigma.plot)
+    surv.sigma.plot~dunif(0,1000)
+    surv.tau.plot<-1/(surv.sigma.plot*surv.sigma.plot)
+    
+    ## year variances
+    flow.sigma.year~dunif(0,1000)
+    flow.tau.year<-1/(flow.sigma.year*flow.sigma.year)
+    fert.sigma.year~dunif(0,1000)
+    fert.tau.year<-1/(fert.sigma.year*fert.sigma.year)
+    grow.sigma.year~dunif(0,1000)
+    grow.tau.year<-1/(grow.sigma.year*grow.sigma.year)
+    surv.sigma.year~dunif(0,1000)
+    surv.tau.year<-1/(surv.sigma.year*surv.sigma.year)
+    
+    ## overdispersion variance for fertility (NB approximation)
+    fert.sigma.overdisp~dunif(0,1000)
+    fert.tau.overdisp<-1/(fert.sigma.overdisp*fert.sigma.overdisp)
+    
+    ## residual variance for growth
+    grow.sigma.eps~dunif(0,1000)
+    grow.tau.eps<-1/(grow.sigma.eps*grow.sigma.eps)
+
+    ## no more variable selection...just give each coefficient a prior
+    for(i in 1:3){
+    for(j in 1:3){
+    flow.bclim[i,j] ~ dnorm(0,0.001)
+    fert.bclim[i,j] ~ dnorm(0,0.001)
+    grow.bclim[i,j] ~ dnorm(0,0.001)
+    surv.bclim[i,j] ~ dnorm(0,0.001)
+    }
+    }
+    ## prior for size slope - also do SVS
+    flow.bsize~dnorm(0,0.001)
+    fert.bsize~dnorm(0,0.001) 
+    grow.bsize~dnorm(0,0.001) 
+    surv.bsize~dnorm(0,0.001) 
+
+    ##plot and year deviates on the intercept
+    for(i in 1:N.plots){      
+    flow.eps.plot[i]~dnorm(0,flow.tau.plot)
+    fert.eps.plot[i]~dnorm(0,fert.tau.plot)
+    grow.eps.plot[i]~dnorm(0,grow.tau.plot)
+    surv.eps.plot[i]~dnorm(0,surv.tau.plot)
+    }
+    for(i in 1:N.years){      
+    flow.eps.year[i]~dnorm(0,flow.tau.year)
+    fert.eps.year[i]~dnorm(0,fert.tau.year)
+    grow.eps.year[i]~dnorm(0,grow.tau.year)
+    surv.eps.year[i]~dnorm(0,surv.tau.year)
+    }
+    
+    ## priors for misc params
+    #Seeds Per Fruit
+    mu_spf~dnorm(0,0.001)
+    sigma_spf~dunif(0,1000)
+    tau_spf<-1/(sigma_spf*sigma_spf)
+    
+    #0-yo seed survival to May census
+    seedsurv~dbeta(0.5,0.5)
+    
+    #Germination rates
+    germ1~dbeta(0.5,0.5)
+    germ2~dbeta(0.5,0.5)
+    
+    #Pre-census seedling survival
+    precenus_surv~dbeta(0.5,0.5)
+    
+    #Seedling size distribution
+    mu_sdlgsize~dnorm(0,0.001)
+    sigma_sdlgsize~dunif(0,1000)
+    tau_sdlgsize<-1/(sigma_sdlgsize*sigma_sdlgsize)
+
+    ## Likelihoods
+    
+    ## Flowering
+    for(i in 1:flow.N.obs){
+    logit(flow.p[i]) <- flow.mu + flow.eps.plot[flow.plot[i]] + flow.eps.year[flow.year[i]] + flow.bsize*flow.size[i]+ 
+    flow.bclim[1,1]*flow.PC1[i] + 
+    flow.bclim[1,2]*flow.PC2[i] + 
+    flow.bclim[3,2]*flow.PC2[i]*flow.size[i] + 
+    flow.bclim[1,3]*flow.PC3[i] + 
+    flow.bclim[3,3]*flow.PC3[i]*flow.size[i]
+
+    flow.y[i]~dbern(flow.p[i])
+    
+    flow.Presi[i] <- abs(flow.y[i]-flow.p[i])
+    flow.y.new[i] ~ dbern(flow.p[i])
+    flow.Presi.new[i] <- abs(flow.y.new[i] - flow.p[i])
+    }
+
+    ## Survival (same model as flowering)
+    for(i in 1:surv.N.obs){
+    logit(surv.p[i]) <- surv.mu + surv.eps.plot[surv.plot[i]] + surv.eps.year[surv.year[i]] + surv.bsize*surv.size[i]+ 
+    surv.bclim[1,1]*surv.PC1[i] + 
+    surv.bclim[1,2]*surv.PC2[i] + 
+    surv.bclim[1,3]*surv.PC3[i]
+    
+    surv.y[i]~dbern(surv.p[i])
+    
+    surv.Presi[i] <- abs(surv.y[i]-surv.p[i])
+    surv.y.new[i] ~ dbern(surv.p[i])
+    surv.Presi.new[i] <- abs(surv.y.new[i] - surv.p[i])
+    }
+    
+    ## Fertility
+    for(i in 1:fert.N.obs){
+    fert.eps.overdisp[i] ~ dnorm(0,fert.tau.overdisp)
+    
+    log(fert.lambda[i]) <- fert.mu + fert.eps.plot[fert.plot[i]] + fert.eps.year[fert.year[i]] + fert.eps.overdisp[i] + 
+    fert.bsize*fert.size[i]+ 
+    fert.bclim[1,2]*fert.PC2[i] +
+    fert.bclim[3,2]*fert.PC2[i]*fert.size[i] +
+    fert.bclim[1,3]*fert.PC3[i]
+
+    fert.y[i]~dpois(fert.lambda[i])
+    
+    fert.Presi[i] <- (fert.y[i]-fert.lambda[i])/sqrt(fert.lambda[i])
+    fert.y.new[i] ~ dpois(fert.lambda[i])
+    fert.Presi.new[i] <- (fert.y.new[i]-fert.lambda[i])/sqrt(fert.lambda[i])
+    fert.D[i] <- pow(fert.Presi[i],2)
+    fert.D.new[i] <- pow(fert.Presi.new[i],2)
+
+    }    
+    
+    ## Growth 
+    for(i in 1:grow.N.obs){
+    grow.mean[i] <- grow.mu + grow.eps.plot[grow.plot[i]] + grow.eps.year[grow.year[i]] + grow.bsize*grow.size[i]
+    
+    grow.y[i]~dnorm(grow.mean[i],grow.tau.eps)
+    
+    grow.sq.res[i] <- pow(grow.y[i] - grow.mean[i],2)
+    grow.y.new[i] ~ dnorm(grow.mean[i], grow.tau.eps)
+    grow.sq.res.new[i] <- pow(grow.y.new[i] - grow.mean[i], 2)
+    }    
+    
+    ## Misc parameters
+    # Seeds for fruit
+    for(i in 1:N_spf){
+    y_spf[i]~dnorm(mu_spf,tau_spf)
+    }
+    # Seed survival to 1-yo bank
+    for(i in 1:N_seedsurv){
+    y_seedsurv[i]~dbinom(seedsurv,trials_seedsurv[i])
+    }
+    # Germination
+    for(i in 1:N_germ){
+    y_germ1[i] ~ dbinom(germ1,trials_germ1[i])
+    y_germ2[i] ~ dbinom(germ2,trials_germ2[i])
+    }
+
+    # Pre-census survival
+    for(i in 1:N_precenus_surv){
+    y_precensus_surv[i] ~ dbern(precenus_surv)
+    }
+    # seedling size
+    for(i in 1:N_sdlgsize){
+    y_sdlgsize[i]~dnorm(mu_sdlgsize,tau_sdlgsize)
+    }
+    
+    ## sum up posterior predictive checks
+    flow.fit <- sum(flow.Presi[]) 
+    flow.fit.new <- sum(flow.Presi.new[]) 
+    surv.fit <- sum(surv.Presi[]) 
+    surv.fit.new <- sum(surv.Presi.new[]) 
+    fert.fit <- sum(fert.D[]) 
+    fert.fit.new <- sum(fert.D.new[])
+    grow.fit <- sum(grow.sq.res[]) 
+    grow.fit.new <- sum(grow.sq.res.new[])
+    
+    }##end model
+    
