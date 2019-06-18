@@ -419,6 +419,25 @@ box()
 
 sum(abs(LTRE_PC2)) > sum(abs(LTRE_PC1)) + sum(abs(LTRE_PC3))
 
+
+# Stochastic population growth --------------------------------------------
+## size of the sliding window
+window_size <- 9
+lambdaS <- c()
+
+for(t in 1:(nrow(PCclim)-window_size)){
+  climate_window <- PCclim[t:(t+window_size),]
+  lambdaS[t] <- lambdaSim(params=mean_params,
+            climate_window=climate_window,
+            max_yrs=1000,
+            mat_size=200,
+            lower.extension=-.1,
+            upper.extension=.5)
+  print(climate_window$Year_t[1])
+}
+
+plot(PCclim$Year_t[1:(nrow(PCclim)-window_size)],lambdaS,type="l")
+
 ## calculate a simple geometric mean over 10-year windows
 PCclim$lambdaS_year<-NA
 for(i in 11:(length(PCclim$lambda_year))){
@@ -434,6 +453,10 @@ points(PCclim$Year_t,PCclim$lambda_year_RFX,type="b",pch=16)
 plot(PCclim$Year_t,PCclim$lambdaS_year,type="b",
      pch=21,bg="tomato",cex=1.2,#ylim=c(0.94,0.98),
      xlab="Year",ylab=expression(lambda[S]),cex.lab=1.4)
+
+
+
+
 
 
 

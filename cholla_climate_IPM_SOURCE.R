@@ -28,6 +28,11 @@ mean_params <- readRDS("allrates.selected.mean.rds")
 ## Lastly, I need the size bounds.
 ## I will need to add demographic parameters to this list that were not
 ## generated in the Bayesian fitting
+seedlings <- cholla %>% 
+  mutate(vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)=="H",
+         Recruit==1) 
 min(cholla.clim$standvol_t,na.rm=T) 
 min(seedlings$standvol_t,na.rm=T) 
 ## the seedling data set minimum is a little smaller than the rest of the data set, so
@@ -149,5 +154,45 @@ bigmatrix<-function(params,
   IPMmat<-Fmat+Tmat     #Full Kernel is simply a summation ot fertility
   #and transition matrix
   return(list(IPMmat=IPMmat,Fmat=Fmat,Tmat=Tmat,meshpts=y))
+}
+
+
+#####################################################################
+lambdaSim=function(params,climate_window,##climate_window is a subset of the PCclim data frame
+                   max_yrs,mat_size,lower.extension,upper.extension){
+
+  matdim<-mat_size+2
+  K_t <- matrix(0,matdim,matdim)
+  
+  rtracker      <- rep(0,max_yrs)
+  n0            <- rep(1/matdim,matdim)
+
+  for(t in 1:max_yrs){ #Start loop
+    ## sample a climate year from the window provided (actually an adjacent pair of climate years)
+    clim_yr <- sample(2:nrow(climate_window),size=1)## sample one of the climate years in the window
+    
+    #Store matrix
+    K_t[,]<-bigmatrix(params=params,
+                      PC1=c(climate_window$PC1[clim_yr-1],climate_window$PC1[clim_yr]), ## mean-zero PC values
+                      PC2=c(climate_window$PC2[clim_yr-1],climate_window$PC2[clim_yr]),
+                      PC3=c(climate_window$PC3[clim_yr-1],climate_window$PC3[clim_yr]),
+                      lower.extension = lower.extension, ## I'll need to extend lower and upper beyond true size limits
+                      upper.extension = upper.extension,
+                      mat.size=mat_size)$IPMmat
+    
+    n0 <- K_t[,] %*% n0
+    N  <- sum(n0)
+    rtracker[t]<-log(N)
+    n0 <-n0/N
+  }
+  
+  #discard initial values (to get rid of transient)
+  burnin    <- round(max_yrs*0.1)
+  rtracker  <- rtracker[-c(1:burnin)]
+  
+  #Finish and return
+  #print(proc.time() - ptm)
+  lambdaS<-exp(mean(rtracker))
+  return(lambdaS)
 }
 
