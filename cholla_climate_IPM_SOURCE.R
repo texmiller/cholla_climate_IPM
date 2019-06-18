@@ -25,48 +25,6 @@ cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>%
 ## Read in the mean parameter vector from the Bayesian estimation
 mean_params <- readRDS("allrates.selected.mean.rds")
 
-## Miscellaneous data for seed and seedling parameters
-
-## 1. seeds per fruit
-fruit.dat<-read.csv("JO_fruit_data_final_dropplant0.csv",T)
-## taking the subset of pollinator+ant access, not vacant
-## this is the subset used in Elderd&Miller
-seed_counts <- fruit.dat %>% 
-  filter(poll.access=="y" & treatment!="tc" & vacant=="n" & ant.access=="y") %>% 
-  summarise(mean_seeds = mean(seed_count),
-            n())
-mean_params$seedsperfruit <- seed_counts$mean_seeds
-
-## 2. 0-yo seed survival to May census (escaping seed predation)
-fruit.surv<-read.csv("FruitSurvival.csv",T)
-fruitsurv<-glm((Fr.on.grnd.not.chewed/Fr.on.plant~1),weights=Fr.on.plant,family="binomial",data=fruit.surv)
-## this model fits the ca.-6mo seed survival rate. Squaring this estimates gives the ca. 1-year rate.
-## But this may over-estimate mortality. Maybe most of it does happen in that 6-mo window...experiment with this
-mean_params$seedsurv0yr <- invlogit(coef(fruitsurv)[1])
-
-## 3. seed bank germination rates
-germ.dat<-read.csv("Germination.csv")
-## germination of 1-yo seeds
-germ1yo<-glm(Seedlings04/Input~1,weights=Input,family="binomial",data=germ.dat)
-mean_params$germ1yo <- invlogit(coef(germ1yo)[1])
-## germination of 2-yo seeds
-germ2yo<-glm(Seedlings05/(Input-Seedlings04)~1,weights=(Input-Seedlings04),family="binomial",data=germ.dat)
-mean_params$germ2yo <- invlogit(coef(germ2yo)[1])
-
-## 4. seedling survival until the May census
-precensus.dat<-read.csv("PrecensusSurvival.csv")
-precensus.surv<-glm(survive0405~1,family="binomial",data=precensus.dat)
-mean_params$precensus.surv <- invlogit(coef(precensus.surv)[1])
-
-## 5. seedling size distribution...grab the seed addition plots embedded in the demographic data
-seedlings <- cholla %>% 
-  mutate(vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
-         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T)) %>% 
-  filter(str_sub(Plot,1,1)=="H",
-         Recruit==1) 
-mean_params$sdling.size.mean <- mean(seedlings$standvol_t)
-mean_params$sdling.size.sd <- sd(seedlings$standvol_t)
-
 ## Lastly, I need the size bounds.
 ## I will need to add demographic parameters to this list that were not
 ## generated in the Bayesian fitting
@@ -126,12 +84,12 @@ fert.x <- function(x,params,rfx,PC1,PC2,PC3){
 }
 
 fx<-function(x,params,rfx,PC1,PC2,PC3){
-  return(flow.x(x,params,rfx,PC1,PC2,PC3)*fert.x(x,params,rfx,PC1,PC2,PC3)*params$seedsperfruit*params$seedsurv0yr)  
+  return(flow.x(x,params,rfx,PC1,PC2,PC3)*fert.x(x,params,rfx,PC1,PC2,PC3)*params$mu_spf*params$seedsurv)  
 }
 
 #SIZE DISTRIBUTION OF RECRUITS
 recruit.size<-function(y,params){
-  dnorm(x=y,mean=params$sdling.size.mean,sd=params$sdling.size.sd)
+  dnorm(x=y,mean=params$mu_sdlgsize,sd=params$sigma_sdlgsize)
 }
 
 # BIGMATRIX ---------------------------------------------------------------
@@ -176,13 +134,13 @@ bigmatrix<-function(params,
   Tmat<-matrix(0,(n+2),(n+2))
   
   # Graduation to 2-yo seed bank = pr(not germinating as 1-yo)
-  Tmat[2,1]<-1-invlogit(params$germ1yo)
+  Tmat[2,1]<-(1-params$germ1)
   
   # Graduation from 1-yo bank to cts size = germination * size distn * pre-census survival
-  Tmat[3:(n+2),1]<- params$germ1yo * params$precensus.surv * recruit.size(y,params) * h   
+  Tmat[3:(n+2),1]<- params$germ1 * params$precenus_surv * recruit.size(y,params) * h   
   
   # Graduation from 2-yo bank to cts size = germination * size distn * pre-census survival
-  Tmat[3:(n+2),2]<- params$germ2yo * params$precensus.surv * recruit.size(y,params) * h  
+  Tmat[3:(n+2),2]<- params$germ2 * params$precenus_surv * recruit.size(y,params) * h  
   
   # Growth/survival transitions among cts sizes
   Tmat[3:(n+2),3:(n+2)]<-t(outer(y,y,pxy,params=params,rfx=rfx,PC1=PC1,PC2=PC2,PC3=PC3)) * h 
