@@ -10,6 +10,8 @@
 \usepackage{setspace}
 \usepackage{amsfonts,amssymb,amsmath,graphicx,hyperref}
 \usepackage{float}
+\usepackage{setspace}
+\usepackage{caption}
 \doublespacing
 
 <<setup,echo=F, message=F, warning=F>>=
@@ -487,7 +489,7 @@ Parameters $\alpha^{P}_{t}$ and $\alpha^{F}_{t}$ are random year effects estimat
 The integral is multiplied by the number of seeds per fruit ($\kappa$) and probability of seed dispersal/survival ($\delta$) to give the number of seeds that enter the $1$-year old seed bank. 
 The integral is evaluated from the lower ($L$) to upper ($U$) bound of the plant size distribution.
 Plants can recruit out of the one-year old seed bank with probability $\gamma_{1}$ or transition to the $2$-year old seed bank with probability ($1-\gamma_{1}$). 
-Seeds in the $2$-year old seed bank are assumed to either germinate (probability $\gamma_{1}$) or die. 
+Seeds in the $2$-year old seed bank are assumed to either germinate (probability $\gamma_{2}$) or die. 
 
 Continuous-size dynamics are given by:
 \begin{align}\label{eq:cts_plants}
@@ -520,8 +522,23 @@ We extended integratino limits $L$ and $U$ to avoid unintentional ``eviction'' \
 
 We estimated the asmptotic population growth rate $\lambda$ as the dominant eigenvalue of the discretized IPM kernel. 
 We evaluated how $\lambda$ responded to climate variation by first varying each climate PC independently, holding the other two fixed at their long-term mean.
-Second, we back-casted $\lambda$ over the $20^{th}$ century using time series of PC values. 
-We used Life Table Response Experiments (LTREs) to decompose which combinations of climate PCs and vital rate responses were most strongly responsible for temporal fluctuations in the back-casted time series of $\lambda$.
-While we are interested in temporal fluctuations in $\lambda$, we assume that these fluctuations are due entirely 
+Second, we back-casted $\lambda$ over the $20^{th}$ century using time series of PC values, which generated a time series of $\lambda_{t}$. 
+
+\subsection*{Life Table Response Experiment}
+We used Life Table Response Experiments (LTREs) to decompose which combinations of climate PCs and vital rate responses were most strongly responsible for temporal fluctuations in the back-casted time series $\lambda_{t}$.
+We used a fixed-design LTRE (cite Caswell) where $\lambda_{t}$ was defined as a linear function of climate predictors:
+\begin{align}\label{eq:LTRE_linmod}
+\lambda_{t} = \bar{\lambda} + \sum_{i=1}^{3} \beta_{i}PC_{i}
+\end{align}
+There is no error term because climate PCs are the sole drivers of fluctuations in $\lambda_{t}$.
+The coefficient for each climate PC was approximated as:
+\begin{align}\label{eq:LTRE_approx}
+\beta_{i} \approx \sum_{j=1}^{n} \frac{\partial \bar{\lambda}}{\partial \theta_{j}} \frac{\partial \theta_{j}}{\partial PC_{i}} 
+\end{align}
+The LTRE approximation is based on the product of the sensitivity of $\lambda$ to the vital rates ($\theta$), evaluated at the long-term mean climate ($PC_{1}=PC_{2}=PC_{3}=0$), and the sensitivity of the vital rates to climate, summed over all vital rates $n$. 
+Because LTRE components are additive, we summed LTRE estimates over the intercept and slope of each vital rate function so that we could interpret the results in terms of vital rate contributions. 
+We verified that the LTRE approximations matched the Maximum Likelihood estimates for Eq. \ref{eq:LTRE_linmod}.
+
+\subsection*{Stochastic population growth}
 
 \end{document}
