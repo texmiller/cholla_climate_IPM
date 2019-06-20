@@ -160,7 +160,7 @@ inits<-function(){list(flow.mu=rnorm(1),
                        grow.sigma.year=rlnorm(1),
                        
                        fert.sigma.overdisp=rlnorm(1),
-                       grow.sigma.eps=rlnorm(1),
+                       #grow.sigma.eps=rlnorm(1),
                        
                        flow.z=matrix(rbinom(9,1,0.5),nrow=3,ncol=3),
                        fert.z=matrix(rbinom(9,1,0.5),nrow=3,ncol=3),
@@ -170,7 +170,10 @@ inits<-function(){list(flow.mu=rnorm(1),
                        flow.zsize=rbinom(1,1,0.5),
                        fert.zsize=rbinom(1,1,0.5),
                        grow.zsize=rbinom(1,1,0.5),
-                       surv.zsize=rbinom(1,1,0.5)
+                       surv.zsize=rbinom(1,1,0.5),
+                       
+                       grow.sigma.eps_b0=rnorm(1),
+                       grow.sigma.eps_b1=rnorm(1)
                        )}
 
 ## Params to estimate
@@ -182,9 +185,10 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "flow.sigma.plot","fert.sigma.plot","surv.sigma.plot","grow.sigma.plot",
               "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
               "fert.sigma.overdisp",
-              "grow.sigma.eps",
+              #"grow.sigma.eps",
               "flow.fit","fert.fit","surv.fit","grow.fit",
-              "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new")
+              "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new",
+              "grow.sigma.eps_b0","grow.sigma.eps_b1")
 
 ## MCMC settings
 ni<-40000
@@ -312,7 +316,7 @@ inits<-function(){list(flow.mu=rnorm(1,mean=-10),
                        grow.sigma.year=rlnorm(1),
                        
                        fert.sigma.overdisp=rlnorm(1),
-                       grow.sigma.eps=rlnorm(1),
+                       #grow.sigma.eps=rlnorm(1),
                        
                        flow.bclim=matrix(rnorm(9),nrow=3,ncol=3),
                        fert.bclim=matrix(rnorm(9),nrow=3,ncol=3),
@@ -323,6 +327,9 @@ inits<-function(){list(flow.mu=rnorm(1,mean=-10),
                        fert.bsize=rnorm(1),
                        grow.bsize=rnorm(1),
                        surv.bsize=rnorm(1),
+                       
+                       grow.sigma.eps_b0=rnorm(1),
+                       grow.sigma.eps_b1=rnorm(1),
                        
                        mu_spf=rnorm(1),
                        sigma_spf=rlnorm(1),
@@ -341,13 +348,15 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "flow.sigma.plot","fert.sigma.plot","surv.sigma.plot","grow.sigma.plot",
               "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
               "fert.sigma.overdisp",
-              "grow.sigma.eps",
+              #"grow.sigma.eps",
               "flow.eps.year","fert.eps.year","surv.eps.year","grow.eps.year",
               "flow.fit","fert.fit","surv.fit","grow.fit",
               "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new",
               
               "mu_spf","sigma_spf","seedsurv","germ1","germ2",
-              "precenus_surv","mu_sdlgsize","sigma_sdlgsize")
+              "precenus_surv","mu_sdlgsize","sigma_sdlgsize",
+              "grow.sigma.eps_b0","grow.sigma.eps_b1",
+              "grow.sq.res")
 
 ## MCMC settings
 ni<-30000
@@ -382,6 +391,15 @@ plot(allrates.selected.out$BUGSoutput$sims.list$surv.fit,
      xlab="SSQ for actual data",
      ylab="SSQ for perfect (new) data")
 abline(0,1, col='darkgray',lwd=3)
+
+resid_fit<-(lm(allrates.selected.out$BUGSoutput$mean$grow.sq.res ~ cholla.dat$grow.size))
+coef(resid_fit)[1] + coef(resid_fit)[2]
+resid_fit_log<-(lm(log(allrates.selected.out$BUGSoutput$mean$grow.sq.res) ~ cholla.dat$grow.size))
+exp(coef(resid_fit_log)[1] + coef(resid_fit_log)[2])
+
+plot(cholla.dat$grow.size,
+     (allrates.selected.out$BUGSoutput$mean$grow.sq.res))
+lines(coef(resid_fit)[1] + coef(resid_fit)[2]*cholla.dat$grow.size)
 ```
 
 This all looks good. Write the mean parameter estimates, the summary, and a bunch of the posterior draws to file. 
@@ -398,6 +416,13 @@ write.csv(allrates.selected.posterior,
 ```
 
 Now I will pick up building graphics from these parameter estimates. If I want to run or revise these figures, I can just load the csv files rather than rerunning the full bayesian model (which takes several hours).
+
+##was there size-dependence in the growth residuals?
+```{r size growth resids}
+jags_out <- readRDS("allrates.selected.mean.rds")
+str(jags_out)
+```
+
 
 ## Graphics
 ```{r read params}

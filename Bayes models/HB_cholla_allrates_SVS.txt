@@ -32,9 +32,9 @@
     fert.sigma.overdisp~dunif(0,1000)
     fert.tau.overdisp<-1/(fert.sigma.overdisp*fert.sigma.overdisp)
     
-    ## residual variance for growth
-    grow.sigma.eps~dunif(0,1000)
-    grow.tau.eps<-1/(grow.sigma.eps*grow.sigma.eps)
+    ## residual sigma as a linear function of size (these are the size regression coefs)
+    grow.sigma.eps_b0 ~ dnorm(0,0.001)
+    grow.sigma.eps_b1 ~ dnorm(0,0.001)
 
     ## variable selection priors for climate effects
     ## looping over coefficients (i) and PC variables (j)
@@ -191,10 +191,13 @@
     grow.bclim[3,3]*grow.PC3[i]*grow.size[i]
     ## + grow.bclim[4,3]*pow(grow.PC3[i],2)*grow.size[i]
     
-    grow.y[i]~dnorm(grow.mean[i],grow.tau.eps)
+    grow.var[i] <- grow.sigma.eps_b0 + grow.sigma.eps_b1 * grow.size[i]
+    grow.var.floor[i] <- ifelse(grow.var[i]<=0, 0.001, grow.var[i])
+    
+    grow.y[i]~dnorm(grow.mean[i],(1/grow.var.floor[i]))
     
     grow.sq.res[i] <- pow(grow.y[i] - grow.mean[i],2)
-    grow.y.new[i] ~ dnorm(grow.mean[i], grow.tau.eps)
+    grow.y.new[i] ~ dnorm(grow.mean[i], (1/grow.var.floor[i]))
     grow.sq.res.new[i] <- pow(grow.y.new[i] - grow.mean[i], 2)
     }    
     
