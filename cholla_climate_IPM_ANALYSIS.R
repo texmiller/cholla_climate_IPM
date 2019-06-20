@@ -320,6 +320,10 @@ summary(lambda_trend)
 lambda_trend1970 <- lm(lambda_year ~ Year_t, data = subset(PCclim,Year_t >= 1970))
 summary(lambda_trend1970)
 
+## what is the projected year of lambda=1?
+(1-coef(lambda_trend)[1])/coef(lambda_trend)[2]
+(1-coef(lambda_trend1970)[1])/coef(lambda_trend1970)[2]
+
 ## ANOVA of lambda_clim
 PC1_only <- lm(lambda_year ~ PC1 + PC1_lastyr, data = PCclim)
 PC2_only <- lm(lambda_year ~ PC2 + PC2_lastyr, data = PCclim)
