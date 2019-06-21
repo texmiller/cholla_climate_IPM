@@ -191,13 +191,12 @@
     grow.bclim[3,3]*grow.PC3[i]*grow.size[i]
     ## + grow.bclim[4,3]*pow(grow.PC3[i],2)*grow.size[i]
     
-    grow.var[i] <- grow.sigma.eps_b0 + grow.sigma.eps_b1 * grow.size[i]
-    grow.var.floor[i] <- ifelse(grow.var[i]<=0, 0.001, grow.var[i])
-    
-    grow.y[i]~dnorm(grow.mean[i],(1/grow.var.floor[i]))
+    log(grow.sig2[i]) <- grow.sigma.eps_b0 + grow.sigma.eps_b1 * grow.size[i]
+
+    grow.y[i]~dnorm(grow.mean[i],(1/grow.sig2[i]))
     
     grow.sq.res[i] <- pow(grow.y[i] - grow.mean[i],2)
-    grow.y.new[i] ~ dnorm(grow.mean[i], (1/grow.var.floor[i]))
+    grow.y.new[i] ~ dnorm(grow.mean[i], (1/grow.sig2[i]))
     grow.sq.res.new[i] <- pow(grow.y.new[i] - grow.mean[i], 2)
     }    
     

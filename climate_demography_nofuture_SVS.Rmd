@@ -172,7 +172,7 @@ inits<-function(){list(flow.mu=rnorm(1),
                        grow.zsize=rbinom(1,1,0.5),
                        surv.zsize=rbinom(1,1,0.5),
                        
-                       grow.sigma.eps_b0=rnorm(1),
+                       grow.sigma.eps_b0=rnorm(1,1,0.1),
                        grow.sigma.eps_b1=rnorm(1)
                        )}
 
@@ -191,8 +191,8 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "grow.sigma.eps_b0","grow.sigma.eps_b1")
 
 ## MCMC settings
-ni<-40000
-nb<-10000
+ni<-5000
+nb<-2000
 nt<-10
 nc<-3
 
@@ -228,6 +228,12 @@ plot(allrates.out$BUGSoutput$sims.list$surv.fit,
      xlab="SSQ for actual data",
      ylab="SSQ for perfect (new) data")
 abline(0,1, col='darkgray',lwd=3)
+
+hist(allrates.out$BUGSoutput$sims.list$grow.sigma.eps_b0)
+hist(allrates.out$BUGSoutput$sims.list$grow.sigma.eps_b1)
+
+exp(allrates.out$BUGSoutput$mean$grow.sigma.eps_b0)
+
 ```
 
 ```{r z scores}
