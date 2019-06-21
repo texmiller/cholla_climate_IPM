@@ -66,10 +66,10 @@ Additionally, articulating the connections between environment and demography ca
 
 Despite the potential of demographic methods to reveal climate drivers of population dynamics, there are several challenges in scaling up from individual-level data to population responses to environmental change. 
 Climate change is a multi-dimensional process that may involve shifts in the means, variances, extreme events, and seasonal distributions of multiple variables related to temperature and precipitation (cite IPCC?). 
-Yet, it is not always apparent which dimensions of climate are most important for a given species, and even subtle environmental changes can elicit strong ecological responses (cite some tipping point papers).
-Previous studies have shown that different components of climate change may have independent effects on different aspects of demography or physiology, such as distinct effects of temperature means versus extremes \citep{buckley2012demographic}.
-Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
-Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates, integrated across the life cycle \citep{mclean2016predicting}. 
+Yet, it is not always apparent which dimensions of climate are most important for a given species, and even subtle environmental changes can elicit strong ecological responses \citep{lynch2014climate}.
+Previous studies have shown that different components of climate change may have independent effects on different aspects of demography or physiology, such as distinct effects of climate means versus extremes \citep{buckley2012demographic,frederiksen2008demographic,van2010effects,lynch2014climate}.
+Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting,morrison2007demographic,tenhumberg2018time}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
+Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates, integrated across the life cycle \citep{mclean2016predicting,aadahl2006climate}. 
 These complications, common to environmentally explicit demographic studies \citep{ehrlen2016advancing}, highlight the value of leveraging long-term data to gain resolution of climate drivers and the importance of accounting for demographic complexity across the life cycle. 
 
 We used long-term demographic data to study climate-dependent population dynamics of a long-lived Chihuahuan desert cactus persisting under extinction debt. 
@@ -78,18 +78,19 @@ Our study region has experienced strong climatic fluctuations over the past cent
 Recent and projected climate change in our study region includes increases in temperature and shifts in the seasonal timing of precipitation, leading to increased risk of prolongued drought conditions \citep{petrie2014regional,cook2013response,cook2015unprecedented}. 
 
 Previous studies provide heterogeneous results regarding cactus responses to climate drivers.
-While cacti are famous for adaptations that promote drought tolerance (e.g., CAM photosynthesis, photosynthetic stems, high water-holding capacity), several studies suggest that cactus growth and reproduction may be limited by rainfall \citep{parker1993climatic,drezner2002climatic,winkler2018interaction}, but with contrasting responses to precipitation during the cool and wet seasons \citep{drezner2003test,bowers2005influence,hultine2018relationships}. 
+While cacti are famous for adaptations that promote drought tolerance (e.g., CAM photosynthesis, photosynthetic stems), several studies suggest that cactus growth and regeneration may be limited by rainfall \citep{parker1993climatic,drezner2002climatic,winkler2018interaction}.
+Furthermore, there may be contrasting responses to precipitation that falls during the cool and wet seasons \citep{drezner2003test,bowers2005influence,hultine2018relationships}. 
 Other studies suggest key roles of temperature, and especially winter temperature minima, as a determinant of cactus mortality \citep{kinraide1978ecological,yeaton2003replacement} and reproduction \citep{bustamante2008effects}.
 No previous studies have attempted to integrate the potentially diverse demographic responses  of cacti to seasonal climatic factors within a demographic modeling framework, which is essential for understanding how these pieces fit together to determine overall population responses to climatic variability.
 Given the important role cacti and other CAM plants in drylands worldwide, there is a need to better understand their responses to past and future climate change \citep{reyes2009crassulacean,yu2019competitive}. 
-We sought to understand how historical climate patterns affected population viability in \textit{C. imbricata} and to test the hypothesis that recent climate change (elevated temperatures and drought risk) has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
+We sought to understand how historical climate patterns affected population viability in \textit{C. imbricata} and to test the hypothesis that recent climate change (elevated temperatures and prolongued drought) has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
 
 Our specific objectives were to: 
 \begin{itemize}
 \item{Characterize climate variation and change in our northern Chihuahuan desert study region over the past century} 
 \item{Quantify cactus vital rate responses to inter-annual climate variation during the demographic study period (2004--2017) }
 \item{Back-cast climate-dependent population growth to determine whether the past century included periods that were favorable for population growth}
-\item{Identify which aspects of climate change and which demographic responses to climate most strongly determine temporal trends in population growth}
+\item{Identify which aspects of climate change (cool and warm season temperature and precipitation) and which demographic responses to climate most strongly determine temporal trends in population growth}
 \end{itemize}
 
 %--------------------------------------------------------------------
@@ -547,5 +548,17 @@ Because LTRE components are additive, we summed LTRE estimates over the intercep
 We verified that the LTRE approximations matched the Maximum Likelihood estimates for Eq. \ref{eq:LTRE_linmod}.
 
 \subsection*{Stochastic population growth}
+We simulated population dynamics according to Equations \ref{eq:cts_plants}--\ref{eq:seed_banks} to estimate the stochastic population growth rate $\lambda_{S}$.
+$\lambda_{S}$ represents the expected long-term growth rate in a variable environment, accounting for vital rate fluctuations and temporal auto-correlation in environmental drivers. 
+We estimated $\lambda_{S}$ for $10$-year windows spanning the time series $1901$--$2017$, such that the value of $\lambda_{S}$ for year $t$ reflects the stochastic growth rate for a climate environment defined by years $t$ through $t+9$. 
+For each $10$-year window, we simulated $1000$ years of population dynamics, each year randomly drawing one of the $10$ climate-years. 
+For each year of the simulation, we calculated total population size as:
+\begin{align}\label{eq:tot_N}
+N_{t} = \int n(x)_{t} dx + B_{1,t} + B_{2,t}
+\end{align}
+and estimated the stochastic growth rate for that window as the expected value of the one-year growth rate:
+\begin{align}\label{eq:lambdaS}
+log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
+\end{align}
 
 \end{document}
