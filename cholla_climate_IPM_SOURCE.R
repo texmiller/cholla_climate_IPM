@@ -41,7 +41,7 @@ mean_params$min.size <- min(seedlings$standvol_t,na.rm=T)
 mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T) 
 
 # VITAL RATE FUNCTIONS ----------------------------------------------------
-## Not I am writing these functions specific to the "selected" vital rate
+## Note: I am writing these functions specific to the "selected" vital rate
 ## models following SVS. If I update the variable selection, or if the results
 ## change once 2017-18 data can be included, then these functions will need
 ## to be revised
@@ -50,7 +50,8 @@ mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T)
 gxy<-function(x,y,params,rfx){
   xb=pmin(pmax(x,params$min.size),params$max.size) #Transforms all values below/above limits in min/max size
   growth_increment <-params$grow.mu + params$grow.bsize*xb + rfx[1]
-  return(dnorm(y,mean=xb+growth_increment,sd=params$grow.sigma.eps))
+  growth_sd <- params$growvar_b0 * exp(params$growvar_b1 * xb)
+  return(dnorm(y,mean=xb+growth_increment,sd=growth_sd))
 }
 ## SURVIVAL
 sx<-function(x,params,rfx,PC1,PC2,PC3){
@@ -157,7 +158,7 @@ bigmatrix<-function(params,
 }
 
 
-#####################################################################
+# lambdaS Simulations##########################################################
 lambdaSim=function(params,climate_window,##climate_window is a subset of the PCclim data frame
                    max_yrs,mat_size,lower.extension,upper.extension){
 
