@@ -1,0 +1,49 @@
+
+    model{
+
+    ## Priors
+    ##hyperprior for intercept alpha
+    grow.mu~dnorm(0,0.001)   
+
+    ## plot variances
+    grow.sigma.plot~dunif(0,1000)
+    grow.tau.plot<-1/(grow.sigma.plot*grow.sigma.plot)
+
+    ## year variances
+    grow.sigma.year~dunif(0,1000)
+    grow.tau.year<-1/(grow.sigma.year*grow.sigma.year)
+
+    ## residual sigma as a linear function of size (these are the size regression coefs)
+    grow.sigma.eps_b0 ~ dunif(0,1000)
+    grow.sigma.eps_b1 ~ dnorm(0,0.001)
+
+    ## prior for size slope - also do SVS
+    grow.bsize~dnorm(0,0.001) 
+
+    ##plot and year deviates on the intercept
+    for(i in 1:N.plots){      
+    grow.eps.plot[i]~dnorm(0,grow.tau.plot)
+    }
+    for(i in 1:N.years){      
+    grow.eps.year[i]~dnorm(0,grow.tau.year)
+    }
+    
+    ## Likelihoods
+    
+    ## Growth 
+    for(i in 1:grow.N.obs){
+    grow.mean[i] <- grow.mu + grow.eps.plot[grow.plot[i]] + grow.eps.year[grow.year[i]] + grow.bsize*grow.size[i]
+    grow.sig[i] <- grow.sigma.eps_b0 + grow.sigma.eps_b1 * grow.size[i]
+    grow.y[i]~dnorm(grow.mean[i], (1/(grow.sig[i]*grow.sig[i])))
+    grow.sq.res[i] <- pow(grow.y[i] - grow.mean[i],2)
+    
+    grow.y.new[i] ~ dnorm(grow.mean[i], (1/(grow.sig[i]*grow.sig[i])))
+    grow.sq.res.new[i] <- pow(grow.y.new[i] - grow.mean[i], 2)
+    }    
+    
+    ## sum up posterior predictive checks
+    grow.fit <- sum(grow.sq.res[]) 
+    grow.fit.new <- sum(grow.sq.res.new[])
+    
+    }##end model
+    
