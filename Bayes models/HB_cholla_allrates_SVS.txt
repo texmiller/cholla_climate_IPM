@@ -33,7 +33,7 @@
     fert.tau.overdisp<-1/(fert.sigma.overdisp*fert.sigma.overdisp)
     
     ## residual sigma as a linear function of size (these are the size regression coefs)
-    grow.sigma.eps_b0 ~ dnorm(0,0.001)
+    grow.sigma.eps_b0 ~ dunif(0,1000)
     grow.sigma.eps_b1 ~ dnorm(0,0.001)
 
     ## variable selection priors for climate effects
@@ -191,7 +191,8 @@
     grow.bclim[3,3]*grow.PC3[i]*grow.size[i]
     ## + grow.bclim[4,3]*pow(grow.PC3[i],2)*grow.size[i]
     
-    log(grow.sig2[i]) <- grow.sigma.eps_b0 + grow.sigma.eps_b1 * grow.size[i]
+    #grow.sig2[i] <- grow.sigma.eps_b0 * exp(grow.sigma.eps_b1 * grow.size[i])
+    grow.sig2[i] <- grow.sigma.eps_b0
 
     grow.y[i]~dnorm(grow.mean[i],(1/grow.sig2[i]))
     
