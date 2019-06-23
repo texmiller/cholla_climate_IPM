@@ -1,0 +1,17 @@
+
+
+    model{
+    b0 ~ dunif(0,100)
+    b1 ~ dnorm(0,0.001)
+    sig ~ dunif(0,100)
+    
+    ## Likelihoods
+    
+    ## Growth 
+    for(i in 1:N){
+    mean[i] <- log(b0) + b1 * size[i]
+    y[i] ~ dnorm(mean[i], 1/(sig*sig))
+    }    
+
+    }##end model
+    
