@@ -172,7 +172,7 @@ inits<-function(){list(flow.mu=rnorm(1),
                        grow.zsize=rbinom(1,1,0.5),
                        surv.zsize=rbinom(1,1,0.5),
                        
-                       grow.sigma.eps_b0=rnorm(1,1,0.1),
+                       grow.sigma.eps_b0=rlnorm(1),
                        grow.sigma.eps_b1=rnorm(1)
                        )}
 
@@ -191,8 +191,8 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "grow.sigma.eps_b0","grow.sigma.eps_b1")
 
 ## MCMC settings
-ni<-5000
-nb<-2000
+ni<-40000
+nb<-5000
 nt<-10
 nc<-3
 
@@ -322,7 +322,7 @@ inits<-function(){list(flow.mu=rnorm(1,mean=-10),
                        grow.sigma.year=rlnorm(1),
                        
                        fert.sigma.overdisp=rlnorm(1),
-                       #grow.sigma.eps=rlnorm(1),
+                       grow.sigma.eps=rlnorm(1),
                        
                        flow.bclim=matrix(rnorm(9),nrow=3,ncol=3),
                        fert.bclim=matrix(rnorm(9),nrow=3,ncol=3),
@@ -334,8 +334,8 @@ inits<-function(){list(flow.mu=rnorm(1,mean=-10),
                        grow.bsize=rnorm(1),
                        surv.bsize=rnorm(1),
                        
-                       grow.sigma.eps_b0=rnorm(1),
-                       grow.sigma.eps_b1=rnorm(1),
+                       #grow.sigma.eps_b0=rnorm(1),
+                       #grow.sigma.eps_b1=rnorm(1),
                        
                        mu_spf=rnorm(1),
                        sigma_spf=rlnorm(1),
@@ -354,14 +354,14 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "flow.sigma.plot","fert.sigma.plot","surv.sigma.plot","grow.sigma.plot",
               "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
               "fert.sigma.overdisp",
-              #"grow.sigma.eps",
+              "grow.sigma.eps",
               "flow.eps.year","fert.eps.year","surv.eps.year","grow.eps.year",
               "flow.fit","fert.fit","surv.fit","grow.fit",
               "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new",
               
               "mu_spf","sigma_spf","seedsurv","germ1","germ2",
               "precenus_surv","mu_sdlgsize","sigma_sdlgsize",
-              "grow.sigma.eps_b0","grow.sigma.eps_b1",
+              #"grow.sigma.eps_b0","grow.sigma.eps_b1",
               "grow.sq.res")
 
 ## MCMC settings
@@ -398,28 +398,150 @@ plot(allrates.selected.out$BUGSoutput$sims.list$surv.fit,
      ylab="SSQ for perfect (new) data")
 abline(0,1, col='darkgray',lwd=3)
 
+```
+Check whether growth residuals varied by size
+```{r growth resid}
 resid_fit<-(lm(allrates.selected.out$BUGSoutput$mean$grow.sq.res ~ cholla.dat$grow.size))
-coef(resid_fit)[1] + coef(resid_fit)[2]
-resid_fit_log<-(lm(log(allrates.selected.out$BUGSoutput$mean$grow.sq.res) ~ cholla.dat$grow.size))
-exp(coef(resid_fit_log)[1] + coef(resid_fit_log)[2])
+summary(resid_fit)
 
 plot(cholla.dat$grow.size,
      (allrates.selected.out$BUGSoutput$mean$grow.sq.res))
-lines(coef(resid_fit)[1] + coef(resid_fit)[2]*cholla.dat$grow.size)
-```
+abline(a=coef(resid_fit)[1], b=coef(resid_fit)[2])
 
-This all looks good. Write the mean parameter estimates, the summary, and a bunch of the posterior draws to file. 
+resid_fit_log<-(lm(log(allrates.selected.out$BUGSoutput$mean$grow.sq.res) ~ cholla.dat$grow.size))
+summary(resid_fit_log)
+plot(cholla.dat$grow.size,
+     log(allrates.selected.out$BUGSoutput$mean$grow.sq.res))
+abline(a=coef(resid_fit_log)[1], b=coef(resid_fit_log)[2])
+
+x.seq<-seq(-4,2,0.1)
+plot(cholla.dat$grow.size,
+     (allrates.selected.out$BUGSoutput$mean$grow.sq.res),ylim=c(0,1))
+lines(x.seq,exp(coef(resid_fit_log)[1])*exp(coef(resid_fit_log)[2]*x.seq))
+
+plot(cholla.dat$grow.size,cholla.dat$grow.y)
+plot(lm(cholla.dat$grow.y~cholla.dat$grow.size))
+
+resid_fit_sqrt<-(lm(sqrt(allrates.selected.out$BUGSoutput$mean$grow.sq.res) ~ cholla.dat$grow.size))
+plot(cholla.dat$grow.size,
+     sqrt(allrates.selected.out$BUGSoutput$mean$grow.sq.res))
+abline(a=coef(resid_fit_sqrt)[1], b=coef(resid_fit_sqrt)[2])
+
+plot(x.seq,(coef(resid_fit_sqrt)[1]+coef(resid_fit_sqrt)[2]*x.seq)^2)
+```
+Fit separate model for growth residuals, using allrates.selected.out as input data.
+```{r growvar bayes fit}
+## print data to csv so that I can access the residuals without running the full model
+#write_csv(data.frame(grow.size = cholla.dat$grow.size,
+#                  grow.sq.res = allrates.selected.out$BUGSoutput$mean$grow.sq.res),"growvar.dat.csv")
+growvar.dat<-read.csv("growvar.dat.csv")
+growvar.dat<-list(size = growvar.dat$grow.size,
+                  y = log(sqrt(growvar.dat$grow.sq.res)),
+                  N = nrow(growvar.dat))
+inits<-function(){list(b0=rlnorm(1),
+                       b1=rnorm(1),
+                       sig=rlnorm(1))}
+parameters<-c("b0","b1","sig")
+ni<-5000
+nb<-1000
+nt<-5
+nc<-3
+growth.var.out<-jags(data=growvar.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_growth_variance.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+```
+```{r plot fit}
+mcmcplot(growth.var.out)
+plot(growvar.dat$size,exp(growvar.dat$y))
+lines(x.seq,
+      growth.var.out$BUGSoutput$mean$b0*exp(growth.var.out$BUGSoutput$mean$b1*x.seq))
+```
+Write the mean parameter estimates, the summary, and a bunch of the posterior draws to file. I will need to combine to separate JAGS objects. 
 ```{r write final params}
 write.csv(allrates.selected.out$BUGSoutput$summary,
           "allrates.selected.summary.csv")
-saveRDS(allrates.selected.out$BUGSoutput$mean,
-        "allrates.selected.mean.rds")
+write.csv(growth.var.out$BUGSoutput$summary,
+          "growth.var.summary.csv")
+## combine two output lists
+filan_selected_list <- allrates.selected.out$BUGSoutput$mean
+filan_selected_list$growvar_b0 <- growth.var.out$BUGSoutput$mean$b0
+filan_selected_list$growvar_b1 <- growth.var.out$BUGSoutput$mean$b1
+saveRDS(filan_selected_list,"allrates.selected.mean.rds")
 
 samples<-sample(1:7500,size=1000,replace=F)
 allrates.selected.posterior<-data.frame(allrates.selected.out$BUGSoutput$sims.matrix[samples,])
-write.csv(allrates.selected.posterior,
-          "allrates.selected.posterior.csv")
+growth.var.posterior<-data.frame(growth.var.out$BUGSoutput$sims.matrix[sample(1:2400,size=1000,replace=F),])
+
+write.csv(allrates.selected.posterior,"allrates.selected.posterior.csv")
+write.csv(growth.var.posterior,"growth.var.posterior.csv")
 ```
+
+
+The chunks below are now junk. I was trying to fit size-dependent variance within the main model. For reasons I don't completely understand, this actually leads to a poorer fit (based on PPC), even though there is a clear trend of size dependence. 
+
+Fit a separate model, just for growth, to dig into this issue:
+```{r growth var model}
+inits<-function(){list(grow.mu=rnorm(1),
+                       grow.sigma.plot=rlnorm(1),
+                       grow.sigma.year=rlnorm(1),
+                       #grow.sigma.eps=rlnorm(1),
+                       grow.bsize=rnorm(1),
+                       grow.sigma.eps_b0=rlnorm(1),
+                       grow.sigma.eps_b1=rnorm(1)
+                       )}
+
+## Params to estimate
+parameters<-c("grow.mu","grow.bsize","grow.sigma.plot","grow.sigma.year",
+              #"grow.sigma.eps",
+              "grow.fit","grow.fit.new",
+              "grow.sigma.eps_b0","grow.sigma.eps_b1",
+              "grow.sq.res","grow.sq.res.new",
+              "grow.mean",
+              "grow.y.new")
+
+## MCMC settings
+ni<-5000
+nb<-1000
+nt<-5
+nc<-3
+
+growth.var.out<-jags(data=cholla.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_growth_variance_troubleshoot.txt",
+          n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+
+```
+```{r}
+plot(growth.var.out$BUGSoutput$sims.list$grow.fit,
+     growth.var.out$BUGSoutput$sims.list$grow.fit.new,
+     xlab="SSQ for actual data",
+     ylab="SSQ for perfect (new) data")
+abline(0,1, col='darkgray',lwd=3)
+
+resid_fit<-(lm(growth.var.out$BUGSoutput$mean$grow.sq.res ~ cholla.dat$grow.size))
+summary(resid_fit)
+
+plot(growth.var.out$BUGSoutput$mean$grow.mean,
+     (growth.var.out$BUGSoutput$mean$grow.sq.res),ylim=c(0,1))
+#abline(a=coef(resid_fit)[1], b=coef(resid_fit)[2])
+
+plot(cholla.dat$grow.size,
+     (growth.var.out$BUGSoutput$mean$grow.sq.res),ylim=c(0,1))
+points(cholla.dat$grow.size,
+     growth.var.out$BUGSoutput$mean$grow.sq.res.new,col="red")
+
+plot(cholla.dat$grow.size,cholla.dat$grow.y)
+points(cholla.dat$grow.size,growth.var.out$BUGSoutput$mean$grow.y.new,col="red")
+abline(growth.var.out$BUGSoutput$mean$grow.mu,
+       growth.var.out$BUGSoutput$mean$grow.bsize)
+
+plot(cholla.dat$grow.y,
+     growth.var.out$BUGSoutput$mean$grow.mean)
+
+#mcmcplot(growth.var.out,"grow.sigma.eps_b0")
+
+sd(cholla.dat$grow.y)
+(growth.var.out$BUGSoutput$mean$grow.sigma.eps_b0)
+```
+
+
 
 Now I will pick up building graphics from these parameter estimates. If I want to run or revise these figures, I can just load the csv files rather than rerunning the full bayesian model (which takes several hours).
 
