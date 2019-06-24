@@ -7,10 +7,16 @@ volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
 }
 invlogit<-function(x){exp(x)/(1+exp(x))}
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
 
 ## Read in raw demographic data and merge with climate (copied from demography script)
 cholla <- read.csv("cholla_demography_20042018.csv")
 PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
+PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
   filter(Year_t >= min(cholla$Year_t,na.rm=T),
          Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
@@ -50,9 +56,14 @@ mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T)
 gxy<-function(x,y,params,rfx){
   xb=pmin(pmax(x,params$min.size),params$max.size) #Transforms all values below/above limits in min/max size
   growth_increment <-params$grow.mu + params$grow.bsize*xb + rfx[1]
-  growth_sd <- params$growvar_b0 * exp(params$growvar_b1 * xb)
+  #growth_sd <- params$growvar_b0 * exp(params$growvar_b1 * xb)
+  growth_sd <- params$grow.sigma.eps
   return(dnorm(y,mean=xb+growth_increment,sd=growth_sd))
 }
+
+#x_size <- seq(mean_params$min.size,mean_params$max.size,0.1)
+#plot(x_size,gxy(x=0,y=x_size,params=mean_params,rfx=0),type="l")
+
 ## SURVIVAL
 sx<-function(x,params,rfx,PC1,PC2,PC3){
   xb=pmin(pmax(x,params$min.size),params$max.size)
