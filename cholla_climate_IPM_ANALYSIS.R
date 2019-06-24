@@ -730,7 +730,7 @@ for(t in 1:(nrow(PCclim)-window_size)){
             lower.extension=lower.extension,
             upper.extension=upper.extension,
             random=F)
-  lambdaS_rfxF[t] <- lambdaSim(params=mean_params,
+  lambdaS_rfxT[t] <- lambdaSim(params=mean_params,
                                climate_window=climate_window,
                                max_yrs=1000,
                                mat_size=200,
