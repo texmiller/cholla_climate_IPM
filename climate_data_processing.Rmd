@@ -71,12 +71,8 @@ I am not sure how well I trust the WNA data, just looking at cool season temp mi
 dat_SEV1 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2001-2005.csv')
 dat_SEV2 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2006-2010.csv')
 dat_SEV3 <- read.csv('C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/sev1_meteorology_2011-2015.csv')
-dat_SEV4 <- read.csv("SEV_hourly_meteorology_2016.csv") %>% 
-  mutate(Max_Temp_C = Max_Temp,
-         Min_Temp_C = Min_Temp)
-dat_SEV5 <- read.csv("SEV_hourly_meteorology_2017.csv")%>% 
-  mutate(Max_Temp_C = Max_Temp,
-         Min_Temp_C = Min_Temp)
+dat_SEV4 <- read.csv("C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/SEV_hourly_meteorology_2016.csv") 
+dat_SEV5 <- read.csv("C:/Users/tm9/Dropbox/Kevin Czachura senior thesis/Original Work/Data/Sev Meteorology/SEV_hourly_meteorology_2017.csv")
 
 ##bind all years ##grab Blue Grama (50) and Deep Well (40) met stations 
 ##convert Julian date to month and day
@@ -216,7 +212,7 @@ out<-data.frame(cbind(PCA_dat$trans_year,SEV_PCA$x))
 names(out)[1]<-"Year_t"
 #do this only once
 #write.csv(out,"climateWNA_PCvalues_out.csv")
-#write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv")
+#write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv",row.names=T)
 #write.csv(data.frame(summary(SEV_PCA)$importance),"climateWNA_variableimportance_out.csv")
 
 ```
