@@ -427,6 +427,7 @@ Climate coeffificient ($\rho$) superscripts correspond to each PC, and subscript
 Finally, the linear predictor includes normally distributed random effects for plot-to-plot variation ($\gamma \sim N(0,\sigma_{plot})$) and year-to-year variation that is unrelated to climate effects captured by PCs 1-3 ($\alpha \sim N(0,\sigma_{year})$).
 
 The growth data were normally distributed; this model applied the identity link and included an additional parameter for residual variance. 
+We explored size-dependence in the residual variance of growth (which determines how individuals are distributed around their expected future size) but found that this led to poorer model fits, so we proceeded to assume a constant value. 
 The survival and flowering data were Bernoulli distributed, and these models applied the logit link function.
 The fertility data (flowerbud counts) were modeled as Poisson-distributed, including an individual-level random effect to account for overdispersion. 
 We evaluated model fits using posterior predictive checks \citep{elderd2016quantifying}. 
@@ -537,6 +538,7 @@ As above, survival and growth functions also take time-varying random intercepts
 Equations \ref{eq:seed_banks} -- \ref{eq:cts_plants} clearly show where in the life cycle we include climate effects and where we do not. 
 All climate-independent processes (primarily related to seed banks and seedling recruitment) were parameterized from field data.
 These methods are described elsewhere \citep{compagnoni2016effect,elderd2016quantifying}.
+All parameter estimates are provided in Table \ref{}.
 
 \begin{figure}[h!]
   \begin{center}
