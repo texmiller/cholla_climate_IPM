@@ -27,6 +27,18 @@ cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>%
          vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
          standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
          standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
+PC_gather <- PCclim %>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
 
 ## Read in the mean parameter vector from the Bayesian estimation
 mean_params <- readRDS("allrates.selected.mean.rds")
@@ -170,7 +182,7 @@ bigmatrix<-function(params,
 
 
 # lambdaS Simulations##########################################################
-lambdaSim=function(params,climate_window,##climate_window is a subset of the PCclim data frame
+lambdaSim=function(params,climate_window,random=F,##climate_window is a subset of the PCclim data frame
                    max_yrs,mat_size,lower.extension,upper.extension){
 
   matdim<-mat_size+2
@@ -190,7 +202,8 @@ lambdaSim=function(params,climate_window,##climate_window is a subset of the PCc
                       PC3=c(climate_window$PC3[clim_yr-1],climate_window$PC3[clim_yr]),
                       lower.extension = lower.extension, ## I'll need to extend lower and upper beyond true size limits
                       upper.extension = upper.extension,
-                      mat.size=mat_size)$IPMmat
+                      mat.size=mat_size,
+                      random=random)$IPMmat
     
     n0 <- K_t[,] %*% n0
     N  <- sum(n0)

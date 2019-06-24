@@ -7,7 +7,7 @@ source("cholla_climate_IPM_SOURCE.R")
 
 
 # Climate trends (Figure 1) --------------------------------------------------------
-PC_cols <- c("#9ecae1", "#4292c6", "#084594", "#de2d26")
+PC_cols <- c("#feb24c","#fc4e2a","#b10026","#0570b0")#c("#9ecae1", "#4292c6", "#084594", "#de2d26")
 alpha_scale<-0.75
 regressionA_start_yr <- 1900
 regressionB_start_yr <- 1970
@@ -30,7 +30,7 @@ legend("topleft",fil=c("black","white"),bty="n",cex=1.2,
        legend=c("Proportion of variance","Cumulative proportion"))
 title("A",adj=0,font=3,cex.main=2)
 
-par(lwd = 2)
+par(lwd = 1.5)
 barplot(as.matrix(PCclim_rotation[,c("PC1","PC2","PC3")]),
         horiz=F,beside=T,ylim=c(-1,1),
         ylab="Variable loading",cex.lab=1.4,cex.names=1.4,
@@ -74,6 +74,10 @@ points(2017,coef(PC3modB)[1]+coef(PC3modB)[2]*2017,pch=21,bg="black",cex=2,lwd=2
 
 # Vital rate figures -------------------------------------------------------------
 # there are the binning parameters for visualization
+size_bin_num <- 3
+bin_cols <- c("#a6bddb","#3690c0","#034e7b")
+alpha.col<-0.2
+
 flow_dat <- cholla.clim %>% 
   filter(!is.na(standvol_t1),
          !is.na(Goodbuds_t1),
@@ -93,190 +97,204 @@ fert_dat <- cholla.clim %>%
          !is.na(Goodbuds_t1),
          !is.na(PC1))
 
-PC_bins <- 4
-size_bin_num <- 3
-bin_cols <- c("#9ecae1","#4292c6","#084594")
-alpha.col<-0.2
-
-## here is how the size distn will be cut up:
-size_cuts <- cholla.clim %>% 
-  mutate(size_bin = cut_number(standvol_t,size_bin_num)) %>% 
-  group_by(size_bin) %>% 
-  summarise(bin_mean = mean(standvol_t))
-hist(cholla.clim$standvol_t)
-abline(v = size_cuts$bin_mean)
-
-## the chopping is different for fertility because this is subsetted to flowering plants
-fert_size_cuts <- cholla.clim %>% 
-  filter(Goodbuds_t1>0) %>% 
-  mutate(size_bin = cut_number(standvol_t1,size_bin_num)) %>% 
-  group_by(size_bin) %>% 
-  summarise(bin_mean = mean(standvol_t1))
-
 surv_dat_cuts <- surv_dat %>% 
-  mutate(size_bin = cut_number(standvol_t,size_bin_num),
-         size_bins = as.integer(size_bin)) %>% 
-  group_by(size_bins,Year_t) %>% 
-  summarise(bin_mean = mean(standvol_t),
-            mean_PC1 = mean(PC1),
+  mutate(size_bin = as.integer(cut_number(standvol_t,size_bin_num))) 
+surv_bin_means <- surv_dat_cuts%>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
             mean_PC2 = mean(PC2),
             mean_PC3 = mean(PC3),
             mean_surv = mean(Survival_t1),
             bin_n = n())
-flow_dat_cuts <- flow_dat %>% 
-  mutate(size_bin = cut_number(standvol_t1,size_bin_num),
-         size_bins = as.integer(size_bin)) %>% 
-  group_by(size_bins,Year_t) %>% 
-  summarise(bin_mean = mean(standvol_t1),
-            mean_PC1 = mean(PC1),
-            mean_PC2 = mean(PC2),
-            mean_PC3 = mean(PC3),
-            mean_flow = mean(Goodbuds_t1 > 0),
-            bin_n = n())
+surv_size_means <- surv_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t))
+
 grow_dat_cuts <- grow_dat %>% 
-  mutate(size_bin = cut_number(standvol_t,size_bin_num),
-         size_bins = as.integer(size_bin)) %>% 
-  group_by(size_bins,Year_t) %>% 
-  summarise(bin_mean = mean(standvol_t),
-            mean_PC1 = mean(PC1),
+  mutate(size_bin = as.integer(cut_number(standvol_t,size_bin_num))) 
+grow_bin_means <- grow_dat_cuts %>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
             mean_PC2 = mean(PC2),
             mean_PC3 = mean(PC3),
             mean_grow = mean(growth_t1),
             bin_n = n())
+grow_size_means <- grow_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t))
+
+flow_dat_cuts <- flow_dat %>% 
+  mutate(size_bin = as.integer(cut_number(standvol_t1,size_bin_num))) 
+flow_bin_means <- flow_dat_cuts %>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_flow = mean(Goodbuds_t1 > 0),
+            bin_n = n())
+flow_size_means <- flow_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t1))
+
 fert_dat_cuts <- fert_dat %>% 
-  mutate(size_bin = cut_number(standvol_t1,size_bin_num),
-         size_bins = as.integer(size_bin))%>% 
-  group_by(size_bins,Year_t) %>% 
-  summarise(bin_mean = mean(standvol_t1),
-            mean_PC1 = mean(PC1),
+  mutate(size_bin = as.integer(cut_number(standvol_t1,size_bin_num)))
+fert_bin_means <- fert_dat_cuts %>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
             mean_PC2 = mean(PC2),
             mean_PC3 = mean(PC3),
             mean_fert = mean(Goodbuds_t1),
             bin_n = n())
+fert_size_means <- fert_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t1))
 
+###Figure 2#####################
 win.graph()
 par(mfrow=c(4,3),mar=c(4,5,2,1))
 
-with(surv_dat_cuts,{
+with(surv_bin_means,{
   plot(mean_PC1,mean_surv,xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1),type="n",
        xlab="Climate PC1",ylab="Probability of survival",cex.lab=1.4)
-  for(i in 1:length(size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC1,
-          invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+          invlogit(mean_params$surv.mu + mean_params$surv.bsize*surv_size_means$size_mean[i] + 
                      mean_params$surv.bclim[1,1] * x_PC1),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC1,mean_surv,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC1,mean_surv,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("A",adj=0)
   
   plot(mean_PC2,mean_surv,xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1),type="n",
        xlab="Climate PC2",ylab="Probability of survival",cex.lab=1.4)
-  for(i in 1:length(size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC2,
-          invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+          invlogit(mean_params$surv.mu + mean_params$surv.bsize*surv_size_means$size_mean[i] + 
                      mean_params$surv.bclim[1,2] * x_PC2),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC2,mean_surv,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC2,mean_surv,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("B",adj=0)
   
   plot(mean_PC3,mean_surv,xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1),type="n",
        xlab="Climate PC3",ylab="Probability of survival",cex.lab=1.4)
-  for(i in 1:length(size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC3,
-          invlogit(mean_params$surv.mu + mean_params$surv.bsize*size_cuts$bin_mean[i] + 
+          invlogit(mean_params$surv.mu + mean_params$surv.bsize*surv_size_means$size_mean[i] + 
                      mean_params$surv.bclim[1,3] * x_PC3),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC3,mean_surv,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC3,mean_surv,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("C",adj=0)
 })
 
-with(grow_dat_cuts,{
-  plot(mean_PC1,mean_grow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)),
-       xlim=c(min(x_PC1),max(x_PC1)),ylim=c(min(grow_dat_cuts$mean_grow),max(grow_dat_cuts$mean_grow)),
+with(grow_bin_means,{
+  plot(mean_PC1,mean_grow,type="n",
+       xlim=c(min(x_PC1),max(x_PC1)),
        xlab="Climate PC1",ylab=expression(paste("Growth (", Delta, "volume)" )),cex.lab=1.4)
+  points(mean_PC1,mean_grow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC1,
+          mean_params$grow.mu + mean_params$grow.bsize*grow_size_means$size_mean[i] + 0*x_PC1,
+          lwd=3,lty=2,col=bin_cols[i])
+  }
   title("D",adj=0)
-  
-  plot(mean_PC2,mean_grow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)),
+
+  plot(mean_PC2,mean_grow,type="n",
        xlim=c(min(x_PC2),max(x_PC2)),
        xlab="Climate PC2",ylab=expression(paste("Growth (", Delta, "volume)" )),cex.lab=1.4)
+  points(mean_PC2,mean_grow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC2,
+          mean_params$grow.mu + mean_params$grow.bsize*grow_size_means$size_mean[i] + 0*x_PC2,
+          lwd=3,lty=2,col=bin_cols[i])
+  }
   title("E",adj=0)
   
-  plot(mean_PC3,mean_grow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)),
+  plot(mean_PC3,mean_grow,type="n",
        xlim=c(min(x_PC3),max(x_PC3)),
        xlab="Climate PC3",ylab=expression(paste("Growth (", Delta, "volume)" )),cex.lab=1.4)
+  points(mean_PC3,mean_grow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC3,
+          mean_params$grow.mu + mean_params$grow.bsize*grow_size_means$size_mean[i] + 0*x_PC3,
+          lwd=3,lty=2,col=bin_cols[i])
+  }
   title("F",adj=0)
-  
 })
 
-with(flow_dat_cuts,{
+with(flow_bin_means,{
   plot(mean_PC1,mean_flow,xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1),type="n",
        xlab="Climate PC1",ylab="Probability of flowering",cex.lab=1.4)
-  for(i in 1:length(size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC1,
-          invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+          invlogit(mean_params$flow.mu + mean_params$flow.bsize*flow_size_means$size_mean[i] + 
                      mean_params$flow.bclim[1,1] * x_PC1),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC1,mean_flow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC1,mean_flow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("G",adj=0)
   
   plot(mean_PC2,mean_flow,xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1),type="n",
        xlab="Climate PC2",ylab="Probability of flowering",cex.lab=1.4)
-  for(i in 1:length(size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC2,
-          invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+          invlogit(mean_params$flow.mu + mean_params$flow.bsize*flow_size_means$size_mean[i] + 
                      mean_params$flow.bclim[1,2] * x_PC2 + 
-                     mean_params$flow.bclim[3,2] * x_PC2 * size_cuts$bin_mean[i]),
+                     mean_params$flow.bclim[3,2] * x_PC2 * flow_size_means$size_mean[i]),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC2,mean_flow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC2,mean_flow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("H",adj=0)
   
   plot(mean_PC3,mean_flow,xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1),type="n",
        xlab="Climate PC3",ylab="Probability of flowering",cex.lab=1.4)
-  for(i in 1:length(size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC3,
-          invlogit(mean_params$flow.mu + mean_params$flow.bsize*size_cuts$bin_mean[i] + 
+          invlogit(mean_params$flow.mu + mean_params$flow.bsize*flow_size_means$size_mean[i] + 
                      mean_params$flow.bclim[1,3] * x_PC3 + 
-                     mean_params$flow.bclim[3,3] * x_PC3 * size_cuts$bin_mean[i]),
+                     mean_params$flow.bclim[3,3] * x_PC3 * flow_size_means$size_mean[i]),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC3,mean_flow,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC3,mean_flow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("I",adj=0)
 })
 
-with(fert_dat_cuts,{
-  plot(mean_PC1,mean_fert,col=alpha(bin_cols[size_bins],alpha.col),pch=1.4,cex=1.5,
+with(fert_bin_means,{
+  plot(mean_PC1,mean_fert,pch=1.4,cex=1.5,
        xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,max(mean_fert)),type="n",
        xlab="Climate PC1",ylab="No. flowerbuds",cex.lab=1.4)
-  points(mean_PC1,mean_fert,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC1,
+          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_means$size_mean[i] + 0*x_PC1),
+          lwd=3,col=bin_cols[i],lty=2)
+  }
+  points(mean_PC1,mean_fert,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("J",adj=0)
   
   plot(mean_PC2,mean_fert,type="n",
        xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,max(mean_fert)),
        xlab="Climate PC2",ylab="No. flowerbuds",cex.lab=1.4)
-  for(i in 1:length(fert_size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC2,
-          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_cuts$bin_mean[i] + 
+          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_means$size_mean[i] + 
                 mean_params$fert.bclim[1,2] * x_PC2 +
-                mean_params$fert.bclim[3,2] * x_PC2 * fert_size_cuts$bin_mean[i]),
+                mean_params$fert.bclim[3,2] * x_PC2 * fert_size_means$size_mean[i]),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC2,mean_fert,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC2,mean_fert,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("K",adj=0)
   
-  plot(mean_PC3,mean_fert,col=alpha(bin_cols[size_bins],alpha.col),pch=1.4,cex=1.5,
+  plot(mean_PC3,mean_fert,pch=1.4,cex=1.5,
        xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,max(mean_fert)),type="n",
        xlab="Climate PC3",ylab="No. flowerbuds",cex.lab=1.4)
-  for(i in 1:length(fert_size_cuts$bin_mean)){
+  for(i in 1:size_bin_num){
     lines(x_PC3,
-          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_cuts$bin_mean[i] + 
+          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_means$size_mean[i] + 
                 mean_params$fert.bclim[1,3] * x_PC3),
           lwd=3,col=bin_cols[i])
   }
-  points(mean_PC3,mean_fert,bg=bin_cols[size_bins],pch=21,cex= 3*(bin_n / max(bin_n)))
+  points(mean_PC3,mean_fert,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
   title("L",adj=0)
   
   
@@ -290,14 +308,15 @@ with(fert_dat_cuts,{
 
 
 # Demographic analysis ----------------------------------------------------
-
 mat.size = 200
+lower.extension = -0.2
+upper.extension = 1
 ## try estimating lambda with all PCs=0, which should be an average climate year
 cholla_mean <- bigmatrix(params = mean_params,
           PC1 = c(0,0), PC2 = c(0,0), PC3 = c(0,0),
           random = F, 
-          lower.extension = -0.2, 
-          upper.extension = 1,
+          lower.extension = lower.extension, 
+          upper.extension = upper.extension,
           mat.size = mat.size)
 lambda(cholla_mean$IPMmat)
 
@@ -335,43 +354,30 @@ ggplot(cholla.clim)+
 ## seem to have decent correspondence between pred and obs size distributions
 
 # climate dependence ------------------------------------------------------
-
-PC_gather <- PCclim %>% 
-  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
-  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
-  mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
-PC_range <- PC_gather %>% 
-  group_by(PC) %>% 
-  summarise(PC_min = min(value),
-            PC_max = max(value))
-
-x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.01)
-x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.01)
-x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.01)
 lambda_PC1<-lambda_PC2<-lambda_PC3<-c()
 
 for(i in 1:length(x_PC1)){
   lambda_PC1[i]<-lambda(bigmatrix(params = mean_params,
                                   PC1 = rep(x_PC1[i],2), PC2 = rep(0,2), PC3 = rep(0,2),
                                   random = F, 
-                                  lower.extension = -.1, 
-                                  upper.extension = .5,
+                                  lower.extension = lower.extension, 
+                                  upper.extension = upper.extension,
                                   mat.size = mat.size)$IPMmat)
 }
 for(i in 1:length(x_PC2)){
   lambda_PC2[i]<-lambda(bigmatrix(params = mean_params,
                                   PC1 = rep(0,2), PC2 = rep(x_PC2[i],2), PC3 = rep(0,2),
                                   random = F, 
-                                  lower.extension = -.1, 
-                                  upper.extension = .5,
+                                  lower.extension = lower.extension, 
+                                  upper.extension = upper.extension,
                                   mat.size = mat.size)$IPMmat)
 }
 for(i in 1:length(x_PC3)){
   lambda_PC3[i]<-lambda(bigmatrix(params = mean_params,
                                   PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(x_PC3[i],2),
                                   random = F, 
-                                  lower.extension = -.1, 
-                                  upper.extension = .5,
+                                  lower.extension = lower.extension, 
+                                  upper.extension = upper.extension,
                                   mat.size = mat.size)$IPMmat)
 }
 
@@ -409,24 +415,24 @@ for(i in 1:n_post){
     lambda_PC1_post[i,j]<-lambda(bigmatrix(params = sample.params,
                                            PC1 = rep(x_PC1[j],2), PC2 = rep(0,2), PC3 = rep(0,2),
                                            random = F, 
-                                           lower.extension = -.1, 
-                                           upper.extension = .5,
+                                           lower.extension = lower.extension, 
+                                           upper.extension = upper.extension,
                                            mat.size = mat.size)$IPMmat)
   }
   for(j in 1:length(x_PC2)){
     lambda_PC2_post[i,j]<-lambda(bigmatrix(params = sample.params,
                                            PC1 = rep(0,2), PC2 = rep(x_PC2[j],2), PC3 = rep(0,2),
                                            random = F, 
-                                           lower.extension = -.1, 
-                                           upper.extension = .5,
+                                           lower.extension = lower.extension, 
+                                           upper.extension = upper.extension,
                                            mat.size = mat.size)$IPMmat)
   }
   for(j in 1:length(x_PC3)){
     lambda_PC3_post[i,j]<-lambda(bigmatrix(params = sample.params,
                                            PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(x_PC3[j],2),
                                            random = F, 
-                                           lower.extension = -.1, 
-                                           upper.extension = .5,
+                                           lower.extension = lower.extension, 
+                                           upper.extension = upper.extension,
                                            mat.size = mat.size)$IPMmat)
   }
 }
@@ -461,7 +467,7 @@ for(j in 1:length(x_PC3)){
   PC3.lambda.25[,j]<-quantile(lambda_PC3_post[,j],probs=c(0.375,0.625))
 }
 
-
+###Figure 3#####################
 win.graph()
 par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(x_PC1,lambda_PC1,type="n",lwd=4,ylim=c(0.7,1),
@@ -554,8 +560,8 @@ for(i in 2:length(PCclim$lambda_year)){
                                           PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
                                           PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
                                           random = F, 
-                                          lower.extension = -.1, 
-                                          upper.extension = .5,
+                                          lower.extension = lower.extension, 
+                                          upper.extension = upper.extension,
                                           mat.size = mat.size)$IPMmat)
 }
 for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
@@ -564,16 +570,16 @@ for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
                                               PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
                                               PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
                                               random = F, 
-                                              lower.extension = -.1, 
-                                              upper.extension = .5,
+                                              lower.extension = lower.extension, 
+                                              upper.extension = upper.extension,
                                               mat.size = mat.size)$IPMmat)
   PCclim$lambda_year_RFX[i]<-lambda(bigmatrix(params = mean_params,
                                           PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
                                           PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
                                           PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
                                           random = F, 
-                                          lower.extension = -.1, 
-                                          upper.extension = .5,
+                                          lower.extension = lower.extension, 
+                                          upper.extension = upper.extension,
                                           mat.size = mat.size
                                           ,
                                           rfx = c(mean_params$grow.eps.year[i-length(min(PCclim$Year_t):2003)],
@@ -648,8 +654,8 @@ dtheta.dPC3[5] <- mean_params$fert.bclim[1,3]
 base_lambda <- lambda(bigmatrix(params = mean_params,
                  PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(0,2),
                  random = F, 
-                 lower.extension = -.1, 
-                 upper.extension = .5,
+                 lower.extension = lower.extension, 
+                 upper.extension = upper.extension,
                  mat.size = mat.size)$IPMmat)
 perturbation <- 0.001
 dlambda.dtheta <- c()
@@ -660,8 +666,8 @@ for(i in 1:length(PC_params)){
   LTRE_lambda <- lambda(bigmatrix(params = LTRE_params,
                                   PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(0,2),
                                   random = F, 
-                                  lower.extension = -.1, 
-                                  upper.extension = .5,
+                                  lower.extension = lower.extension, 
+                                  upper.extension = upper.extension,
                                   mat.size = mat.size)$IPMmat)
   dlambda.dtheta[i] <- (LTRE_lambda-base_lambda) / perturbation
 }
@@ -679,6 +685,7 @@ LTRE_PC3 <- dtheta.dPC3 * dlambda.dtheta
 sum(LTRE_PC3)
 coef(all_PC)[4]+coef(all_PC)[7]
 
+###Figure 4#####################
 win.graph()
 par(mfrow=c(1,2),mar=c(5,5,2,1))
 plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.78,1),
@@ -697,11 +704,14 @@ lines(1901:2017,coef(lambda_trend)[1]+coef(lambda_trend)[2]*1901:2017,col="black
 lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,col="black",lwd=2,lty=2)
 title("A",adj=0,font=3)
 
-barplot((cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3)),beside=T,ylab=expression(paste("LTRE contribution (d ",lambda / "dPC)")),
+barplot((cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3)[c(1,3,5),]+cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3)[c(2,4,6),]),
+        beside=T,ylab=expression(paste("LTRE contribution   ",partialdiff,lambda," / ",partialdiff,"PC")),
         col="black",names.arg=c("PC1","PC2","PC3"),ylim=c(-.01,0.01))
-legend("topright",c("Survival","Growth","Flowering","Fertility"),bty="n",fill=c("black","gray50","gray80","white"))
+legend("topright",c("Survival","Flowering","Fertility"),bty="n",fill=c("black","gray50","white"))
 title("B",adj=0,font=3)
 box()
+
+
 
 sum(abs(LTRE_PC2)) > sum(abs(LTRE_PC1)) + sum(abs(LTRE_PC3))
 
@@ -709,28 +719,96 @@ sum(abs(LTRE_PC2)) > sum(abs(LTRE_PC1)) + sum(abs(LTRE_PC3))
 # Stochastic population growth --------------------------------------------
 ## size of the sliding window
 window_size <- 9
-lambdaS <- c()
+lambdaS_rfxF <- lambdaS_rfxT <- c()
 
 for(t in 1:(nrow(PCclim)-window_size)){
   climate_window <- PCclim[t:(t+window_size),]
-  lambdaS[t] <- lambdaSim(params=mean_params,
+  lambdaS_rfxF[t] <- lambdaSim(params=mean_params,
             climate_window=climate_window,
             max_yrs=1000,
             mat_size=200,
-            lower.extension=-.1,
-            upper.extension=.5)
+            lower.extension=lower.extension,
+            upper.extension=upper.extension,
+            random=F)
+  lambdaS_rfxF[t] <- lambdaSim(params=mean_params,
+                               climate_window=climate_window,
+                               max_yrs=1000,
+                               mat_size=200,
+                               lower.extension=lower.extension,
+                               upper.extension=upper.extension,
+                               random=T)
   print(climate_window$Year_t[1])
 }
 
 plot(PCclim$Year_t[1:(nrow(PCclim)-window_size)],lambdaS,type="l")
+
+
+# Quantities reported in ms -----------------------------------------------
+## sample sizes for methods
+n_cholla <- cholla %>% mutate(uniqueID = interaction(Plot,TagID)) %>% select(uniqueID)%>% summarise(n_distinct(uniqueID))
+n_trans_yr <- cholla %>% summarise(n())
+
+## variance explained by PCA
+var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"PC3"]*100,2)
+PC1_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC1"]*100,2)
+PC2_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC2"]*100,2)
+PC3_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC3"]*100,2)
+
+## PC change trends
+PC1modA_anova$Df
+round(PC1modA_anova$`F value`[1],2)
+round(PC1modA_anova$`Pr(>F)`[1],5)
+PC2modA_anova$Df
+round(PC2modA_anova$`F value`[1],2)
+round(PC2modA_anova$`Pr(>F)`[1],5)
+PC3modA_anova$Df
+round(PC3modA_anova$`F value`[1],2)
+round(PC3modA_anova$`Pr(>F)`[1],5)
+
+##SVS results
+SVS_post<-read.csv("allrates_SVS_out.csv")[,c("X","mean")]
+fert_z <- SVS_post %>% 
+  filter(str_detect(X, 'fert.z')) %>% 
+  slice(c(10,1:9)) %>% 
+  select(mean) %>% 
+  mutate(mean = round(mean,2)) %>% 
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+flow_z <- SVS_post %>% 
+  filter(str_detect(X, 'flow.z')) %>% 
+  slice(c(10,1:9)) %>% 
+  select(mean) %>% 
+  mutate(mean = round(mean,2)) %>% 
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+grow_z <- SVS_post %>% 
+  filter(str_detect(X, 'grow.z')) %>% 
+  slice(c(10,1:9)) %>% 
+  select(mean) %>% 
+  mutate(mean = round(mean,2)) %>% 
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+surv_z <- SVS_post %>% 
+  filter(str_detect(X, 'surv.z')) %>% 
+  slice(c(10,1:9)) %>% 
+  select(mean) %>% 
+  mutate(mean = round(mean,2)) %>% 
+  mutate(mean = ifelse(mean>=0.1,paste0("$\\mathbf{", mean, "}$"),mean))
+
+coef_names <- as_tibble(c("Size",rep(c("PC","PC*PC","PC*size"),3)))
+PC_names <- as_tibble(c(NA,rep(1:3,each=3)))
+coefficients <- as_tibble(c("$\\beta_1$", 
+                            "$\\rho^{1}_{1}$","$\\rho^{1}_{2}$","$\\rho^{1}_{3}$",
+                            "$\\rho^{2}_{1}$","$\\rho^{2}_{2}$","$\\rho^{2}_{3}$",
+                            "$\\rho^{3}_{1}$","$\\rho^{3}_{2}$","$\\rho^{3}_{3}$"))
+all_z <- bind_cols(PC_names,coef_names,surv_z,grow_z,flow_z,fert_z)
+colnames(all_z) <- c("Climate PC","Model term","Survival","Growth","Flowering","Fertility")
+
+
+# Old junk -------------------------------------------------------
 
 ## calculate a simple geometric mean over 10-year windows
 PCclim$lambdaS_year<-NA
 for(i in 11:(length(PCclim$lambda_year))){
   PCclim$lambdaS_year[i]<-exp(mean(log(PCclim$lambda_year[(i-9):i])))
 }
-
-
 
 par(mfrow=c(2,1))
 plot(PCclim$Year_t,PCclim$lambda_year,type="b",ylim=c(0.75,1),
@@ -739,16 +817,6 @@ points(PCclim$Year_t,PCclim$lambda_year_RFX,type="b",pch=16)
 plot(PCclim$Year_t,PCclim$lambdaS_year,type="b",
      pch=21,bg="tomato",cex=1.2,#ylim=c(0.94,0.98),
      xlab="Year",ylab=expression(lambda[S]),cex.lab=1.4)
-
-
-
-
-
-
-
-# lambdaS posterior samples -------------------------------------------------------
-
-
 ## That was the posterior mean. Now sample the uncertainty. 
 lambda_posterior <- matrix(NA, ncol = length(PCclim$Year_t), nrow = n_post)
 rseed.vec <- runif(n=length(PCclim$Year_t), min=0, max = 1e7) ## vector of seeds for random numbers
@@ -801,8 +869,8 @@ for(i in 1:n_post){
                                        PC3 = PCclim$PC3[j],
                                        random = T,
                                        rand.seed=rseed.vec[j],
-                                       lower.extension = -.1, 
-                                       upper.extension = .5,
+                                       lower.extension = lower.extension, 
+                                       upper.extension = upper.extension,
                                        mat.size = mat.size)$IPMmat)
   }
   ## loop over years of study. we no longer draw random year effects. Instead,
@@ -815,8 +883,8 @@ for(i in 1:n_post){
                                        PC2 = PCclim$PC2[j], 
                                        PC3 = PCclim$PC3[j],
                                        random = F,
-                                       lower.extension = -.1, 
-                                       upper.extension = .5,
+                                       lower.extension = lower.extension, 
+                                       upper.extension = upper.extension,
                                        mat.size = mat.size,
                                        rfx = c(unlist(sample.params$grow.eps.year[1,j-length(min(PCclim$Year_t):2003)]),
                                                unlist(sample.params$surv.eps.year[1,j-length(min(PCclim$Year_t):2003)]),

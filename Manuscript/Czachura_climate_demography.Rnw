@@ -12,6 +12,7 @@
 \usepackage{float}
 \usepackage{setspace}
 \usepackage{caption}
+\usepackage{multirow}
 \doublespacing
 
 <<setup,echo=F, message=F, warning=F>>=
@@ -28,7 +29,7 @@ library(xtable)
 \author{Tom E.X. Miller}
 \affil{Program in Ecology and Evolutionary Biology, Department of BioSciences, Rice University, Houston, TX USA}
 \renewcommand\Authands{ and }
-\date{*Corresponding author: tom.miller@rice.edu}
+\date{*Corresponding author: tom.miller@rice.edu (1-713-348-4218)}
 
 %-------------------------------------------------------------------------
 \begin{document}
@@ -36,12 +37,12 @@ library(xtable)
 
 
 %-------------------------------------------------------------------------
-\section*{Summary}
+\section*{Abstract}
 
    
 %-------------------------------------------------------------------------
 \section*{Keywords}
-
+Cactaceae; Climate change; Demography; Extinction debt; Integral Projection Model; Long-term ecological research
 
 %--------------------------------------------------------------------
 \newpage
@@ -166,9 +167,9 @@ First, to evluate the consequences of different aspects of climate, we quantifie
 Because we estimated vital rates in a Bayesian framework, we were able to generate posterior distributions of $\lambda$ that reflect the combined uncertainties of all the underlying vital rates. 
 Second, we used statistical relationships between climate drivers and vital rate responses estimated during our 14-year field study to back-cast expected population growth rates over the entire climatalogical record that we had available, 1900--2017. 
 We used simple linear regression to test for temporal trends in $\lambda$ over this period. 
-We used a fixed-design Life Table Response Experiment to decompose the total response  of \lambda to climatic variation into contributions from each of the climate PCs and the underlying vital rate responses. 
+We used a fixed-design Life Table Response Experiment to decompose the total response  of $\lambda$ to climatic variation into contributions from each of the climate PCs and the underlying vital rate responses. 
 For the years of demographic data collection (2004--2017), we were able to partition inter-annual variation in $\lambda$ due to variation in the three climate PCs versus other, unspecific sources of variation (including climate drivers that were not captured by the climate PCs), which were statistically estimated as random year effects. 
-Finally, we estimated a time series for the stochastic population growth rate ($\lambda_S$) over the period 1900-2017 using a moving window approach with a window size of 10 years. 
+Finally, we estimated a time series for the stochastic population growth rate ($\lambda_{S}$) over the period 1900-2017 using a moving window approach with a window size of 10 years. 
 While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate incorporates the influences of year-to-year fluctuations and auto-correlation of climatic conditions (such as decadal droughts). 
 All of the code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM} and raw data is available through the Sevilleta LTER (\url{https://sevlter.unm.edu/data}).
 
@@ -304,10 +305,6 @@ We have no climate dependence in recruitment, and this is the emphasis of much o
 
 We have considered/assumed direct effects of climate change, but there may also be indirect effects through changes in interactions with competitors (Yu paper), herbivores (Cook), and mutualists. Any changes in interactions would be rolled into our total climate effect. Future studies that tease apart direct and indirect effects would be valuable. 
 
-
-
-
-
 %--------------------------------------------------------------------
 \section*{Acknowledgements}
 
@@ -316,6 +313,8 @@ We have considered/assumed direct effects of climate change, but there may also 
 
 \bibliographystyle{gcb}%Compile with jae.bst style file
 \bibliography{cholla_climate}
+
+
 
 %--------------------------------------------------------------------
 \newpage
@@ -538,7 +537,7 @@ As above, survival and growth functions also take time-varying random intercepts
 Equations \ref{eq:seed_banks} -- \ref{eq:cts_plants} clearly show where in the life cycle we include climate effects and where we do not. 
 All climate-independent processes (primarily related to seed banks and seedling recruitment) were parameterized from field data.
 These methods are described elsewhere \citep{compagnoni2016effect,elderd2016quantifying}.
-All parameter estimates are provided in Table \ref{}.
+All parameter estimates are provided in Table \ref{tab:param_vals}.
 
 \begin{figure}[h!]
   \begin{center}
@@ -586,5 +585,21 @@ and estimated the stochastic growth rate for that window as the expected value o
 \begin{align}\label{eq:lambdaS}
 log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
 \end{align}
+
+\begin{table}[h!]
+  \caption{Parameter values of tree cholla IPM.}
+  \label{tab:param_vals}
+  \begin{center}
+    \begin{tabular}{p{5cm}p{2cm}p{2cm}p{3cm}}
+      \hline
+      Parameter description & Symbol & Mean & 95\%CI\\
+      \hline
+      \multirow{2}{*}{Survival coefficients} & test & test & test\\
+       & test & test & test\\
+       
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
 
 \end{document}
