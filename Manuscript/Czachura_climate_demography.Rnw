@@ -116,6 +116,7 @@ Tree cholla are a dominant component of the vegetation in this area (0.07 m$^{-2
 The present study relies on long-term (2004--2017) demographic data on individual-level measures of growth, survival, and reproduction recorded from tagged plants in late May each year, a pre-breeding census that corresponds to the initiation of vegetative and reproductive structures. 
 We treat May 1 as the start of the transition year (coincident with the start of the warm-season months).
 There are a total of \Sexpr{n_cholla} unique individuals in the data set and \Sexpr{n_trans_yr} transition-year observations from 4--8 plots or spatial blocks depending on the year. 
+Over the study period, average density of \textit{C. imbricata} was QUANTITY.
 Full details of the study design and data collection are given elsewhere \citep{miller2009impacts,ohm2014balancing,elderd2016quantifying}.
 
 \subsection*{Climate data}
@@ -279,29 +280,91 @@ Collectively, responses to PC2 and PC3 -- that is, the tendency for greater cact
   \label{figure:lambda_year}
   \end{center}
 \end{figure}
+
 %--------------------------------------------------------------------
 \section*{Discussion}
-The key finding of this study is that the strongest features of climate change in this system are not the main drivers of population responses. 
-Specifically, the dominant feature of climate change in our study region was the accelerating trend toward years that are warmer and drier in both cool- and warm-seasons (captured by PC1), but this was the least important contributor to the back-casted increase in $\lambda$ over the past century. 
-Instead, we found that temporal trends in the viability of our focal population were dominated by more subtle climatic factors with relatively weak signals of recent change: the trend toward wetter and milder cool seasons, as captured by PCs 2 and 3. 
-Our results highlight the challenges of forecasting population responses to climate change, since the strongest and therefore most detectable features of climate change may not be the most important drivers of population responses.
-At the same time, our work highlights how population biologists can meet this challenge through careful accounting of various climate influences within a demographic modeling framework.
+We began this work with the hypothesis that the apparent extinction debt of our study population was a consequence of recent climate change. 
+Surprisingly, our results indicate the opposite: \textit{C. imbricata} is a climate change ``winner'', on an accelerating trajectory of increasing (less negative) population growth rates toward replacement-level within NN years if current climate change trends persist, and sooner if they accelerate. 
+We further show that the strongest feature of climate change in this system (the trend toward years that are overall warmer and drier, captured by PC1) was not the main driver of population responses. 
+Instead, temporal trends in population growth were dominated by more subtle climatic factors with relatively weak signals of recent change (the trend toward wetter and milder cool seasons, captured by PCs 2 and 3).
+Our results highlight the challenges of forecasting population responses to climate change, since the strongest and therefore most detectable features of climate change may not be the most important drivers of ecological responses.
+At the same time, our work highlights how population biologists can meet this challenge through careful accounting of potentially diverse climate influences within a demographic modeling framework.
 
-Extinction debt paragraph, with new hypotheses for why these plants have been persisting (land use?). Peters and Yao say grazing has been excluded since 1973.
+In the context of the past 120 years, the average climate has never been better for \textit{C. imbricata} than it is now. 
+This result begs the question of how these plants have reached their current, relatively high abundance, given over a century of population growth rates that were inferred to fall well below replacement levels.
+Land use history -- which is not incorporated into our back-casted estimates -- may have played a role. 
+The Sevilleta NWR was exposed to grazing for much of the 20$^{th}$ century until 1973.
+Previous work suggests that cacti, and \textit{C. imbricata} in particular, can increase in abundance in response to grazing, due to livestock dispersing detached stem segment and thus promoting asexual regeneration \citep{allen1991diffusion}. 
+During our study, we observed recruitment to be almost exclusively from seed (sexual and asexual recruits are easily distinguishable), though it is possible that regeneration dynamics were different under historical grazing regimes. 
+Grazing may have also promoted cactus populations through release of competitive interactions with grasses \citep{yu2019competitive}.
+Thus, one hypothesis is that \textit{C. imbricata} achieved current densities under the historical land use regime, and cannot maintain these densities in the absence of cattle grazing.
+Given the potentially long lifespans of these plants, it may requires several decades more for the legacy of 1970's land use to fade. 
+An alternative hypothesis is that, independent of grazing or other land use history, our study population may be located in `sink' habitat and maintained by dispersal from nearby populations that are more viable. 
+Indeed, previous work showed that \textit{C. imbricata} at lower elevations had positive population growth rates \citep{miller2009impacts}. 
+Regardless of which process or processes best account for the persistence of a population that is currently inviable, our results clearly indicate that it will be `rescued' by ongoing climate change.
 
-Relate results to other literature on climate change-demography, especially in plants. Historically not many studies made the climate-demography connection explicitly, though this is changing, especially now that the IPM framework makes inclusion of abiotic covariates so straightforward. 
+Until recently, few plant demographic studies explictly considered climatic drivers of inter-annual variation \citep{ehrlen2016advancing,crone2011plant}, though this is rapidly changing, especially as the GLM framework of IPMs very naturally incorporates abiotic covariates. 
+To our knowledge, ours is the first study to compare the magnitudes of different aspects of climate change alongside the magnitudes of demographic responses to those changes. 
+Consequently, further studies will be required to evaluate how commonly demographic responses are primarily driven by relatively weak components of climate change, as we found.
+However, we suspect that these patterns may be common since at the heart of our results lies the difference between annual versus seasonal climate trends. 
+Specifically, we found that annual rainfall totals have been decreasing but that more of the annual rainfall has been falling in the cool season, consistent with previous climatalogical studies in our region that suggest a shift from warm- to cool-season precipitation \citep{cook2013response,cook2015unprecedented,petrie2014regional}.
+Similarly, annual temperatures have been increasing in our study region but it was cool-season warming, specifically, that was most important for \textit{C. imbricata} demography.
+Many plant and animal life histories operate on seasonal schedules and may therefore be more sensitive to seasonal redistribution of rainfall and temperature than to climate effects that manifest over an entire year, as we found for \textit{C. imbricata}. 
+Our results are consistent with previous studies that demonstrate the importance of considering seasonal, not annual, drivers of plant demographic responses \citep{selwood2015effects,williams2015life}. 
+Some recent studies have taken a finer-grained approach, connecting plant responses to weather events on monthly, weekly, or even daily time scales \citep{teller2016linking,tenhumberg2018time,shriver2016quantifying}.
+For tractability, we did not explore lagged climate effects beyond one year, though methods for doing so are rapidly developing \citep{teller2016linking,tenhumberg2018time,ogle2015quantifying}. 
+Finding the appropriate timing and resolution of climate covariates will be an important area for future work as plant population biologists increasingly turn to environmentally explicit demographic models.
+
+Different aspects of a species' life cycle may respond in diverse ways to environmental drivers \citep{doak2010demographic,villellas2015demographic}, highlighting the importance of considering multiple vital rates for understanding responses to global change. 
+In addition to identifying the key climate drivers in this system, our work also pinpoints which responses throughout the life cycle were most important for the overall population response to climate. 
+Flowering and fertility were strongly sensitive to climate but the asymptotic population growth rate was very weakly sensitive to these reproductive processes, such that they made virtually no contribution to the overall population response to climate (Fig. \ref{figure:vital_rates}, \ref{figure:lambda_year}).
+On the other hand, survival responses to climate were relatively weak but $\lambda$ was highly sensitive to small changes in survival, leading to strong population impacts.
+Vegtative growth, another high-sensitivity vital rate \citep{elderd2016quantifying}, showed no signifanct responses to climate. 
+These trends are consistent with previous findings that high-sensitivity vital rates (those that strongly influence $\lambda$) are buffered against environmental variability while low-sensivity vital rates may exhibit wide fluctuations \citep{pfister1998patterns}. 
+However, incomplete buffering of survival led to greater mortality in years with cold and dry cool-seasons -- years that are becoming less frequent under climate change (Fig. \ref{figure:PCA}) -- and these survival responses dominated the overall increase in population viability (Fig. \ref{figure:lambda_year}). 
+These results mirror a recent study of another long-lived perennial plant, the alpine sunflower \textit{Helianthella quinquinervis}, where reproductive responses to climate drivers were strong but ultimately overwhelmed by weaker responses in survival that more strongly affected population growth. 
+It is commonly observed that demographic transitions related to growth and survival are the most important determinants of population viability in species with long-lived perennial life histories \citep{franco2004comparative}. 
+It may therefore be a general result that climate effects on growth and survival will be more consequential in long-lived perennials than effects on reproductive processes, even as the latter exhibit greater sensitivity to climate, since perennials have many reproductive opportunities over potentially long lifespans \citep{dalgleish2010can,morris2008longevity}. 
+
+Previous studies of cacti have emphasized their sensitivity to freezing as a constraint on physiological performance and geographic distribution \citep{yeaton2003replacement,kinraide1978ecological,nobel1984extreme}.
+In our study, we detected an important role for winter minimum temperature and observed the greatest annual mortality (percentage of all mortality events observed) in 2011, a year with record low winter temperatures over a multi-day deep-freeze (this is the low outlier in Fig. \ref{lambda_year}). 
+As these freezing events become less frequent under climate change, we expect an increase in regional abundance and perhaps northern expansion of \textit{C. imbricata}'s range, which currently extends to southern Colorado and is likely limited by winter temperatures.
+The role of cool-season precipitation that we detected was more surprising. 
+A majority of annual precipitation in the Southwest US comes from warm-season monsoon events \citep{adams1997north} and these events play a critical role in vegetation dynamics \citep{notaro2012simulated,petrie2014regional}, especially for plants with C4 and CAM photosynthesis that are physiologically most active during the warm summer months. 
+Previous cactus demographic studies have emphasized the role of summer monsoon precipitation \citep{winkler2018interaction,bowers2005influence}. 
+Our results suggest that, despite its summer-adapted CAM photosynthetic pathway, \textit{C. imbricata} is able to capitalize on cool-season moisture, and this was an important component of the positive demographic effects of recent climate change.
+Predicting climate change winners and losers based on physiological traits is a grand challenge in ecology. 
+Our results raise new questions about how well photosynthetic traits can predict responses to seasonal redistribution of rainfall. 
+
+Several limitations of our study warrant consideration in the interpretation of our results. 
+First, our consideration of climate dependence was limited to four vital rate processes of established plants.
+Because we could not reliably assign new recruits a birth year, we did not incorporate climate dependence in seedling recruitment. 
+Previous studies of cactus demography suggest that seedling recruitment may be highly sensitive to climate, especially monsoon precipitation (e.g., \citealt{bowers2005influence,winkler2018interaction}), and we suspect this is the case for \textit{C. imbricata}, since germination usually coincides with late-summer monsoons (\textit{T.E.X. Miller, unpubl. data}). 
+Because we do not consider this process, our results for climate effects on population growth are conservative. 
+However, consistent with expectations for long-lived perennials, we know seedling recruitment to have very low eigenvalue sensitivities \citep{elderd2016quantifying}, which suggests that even large climate effects on this process may not strongly register in terms of population growth, as we observed for the reproductive functions of established plants (Fig. \ref{figure:lambda_year}B). 
+
+A second limitation to consider is that our approach to quantifying climate drivers knowingly forfeits some information in two ways. 
+First, we relied on downscaled climate projections rather than direct climatalogical observations.
+While we know these two types of data to be highly correlated (Fig. \ref{fig:WNASEV}), they are not perfectly so; this is especially true for temperature minimia and maxima (Table \ref{tab:WNASEV}), where downscaled data likely miss localized extremes. 
+It is noteworthy that the downscaled climate data poorly captured the extreme deep-freeze of 2011  (Fig. \ref{fig:WNASEV}); poor demographic performance in this year was consequently attributed to a statistical random effect (Fig. \ref{figure:lambda_year}A), though this was almost certainly a true climate effect. 
+Second, we limit our consideration of climate drivers to the first three principal components of inter-annual variation.
+While these three components explained a large majority of the variation (Fig. \ref{figure:PCA}A), we know that we are missing some of the more subtle dimensions of climate variability and change. 
+Given our main finding that the strongest features of climate change are not the main determinants of population responses, these neglected dimensions may include important demographic drivers. 
+These two factors mean that our conclusions for climate-dependence likely err on the conservative side.
+
+Third, this was obviously an observational study, and we rely on PCA loadings to interpret mechanisms for responses to PC variation. 
+There would be value in climate manipulation experiments to test these patterns. 
+Bring up extrapolation.
+
+Fourth, climate effects may include disruption of biotic interactions.
 
 Our climate results are consistent with other climate studies in the region, suggesting a shift of precip into the cool season. Our case study reveals the importance of this shift, but we need a better understanding of who will be the winners and losers under this shift in precip. Perennial shrubs and cacti may benefit, C4 grasses and summer annuals may lose ground. We have not made quantitative forecasts but current trends are expected to continue or strengthen, depending on emissions, so we can say that the future looks bright for cholla. Mention here this is considered a pest species. 
 
-The climate drivers that we detected are consistent with what is known of cactus physiology and climate relations.
-
 Discuss larger-scale climate cycles like ENSO and PDO?
 
+Add something about climate variability? This is apparent in PC 3, which I think it primarily monsoon precip. 
+
 We did not include density dependence because we knew our population to be declining, so we assume that vital rates are not limited by intraspecific competition, as they would be at carrying capacity. Other studies suggest that accounting for DD may be critical for assessing climate drivers (Dahlgren et al. 2016). Climate may also interact with inter-specific competition (Chu, Adler) and with herbivory. 
-
-Downscaled climate data and use of 3 PCs means that we lost some resolution of climate drivers. Emphasize catostophic winter of 2011, yet it did not register very strongly in our analyses. These events are projected to become less frequent. Also, we decided to aggregate data in a particular way (seasonal). Other approaches consider more fine-grained variation in climatic factors (Teller and Ogle methods). There may also be delayed effects (Brigitte) that we have missed. 
-
-We have no climate dependence in recruitment, and this is the emphasis of much of the cactus literature (but only because they can reconstruct cohorts through size). We can justify why even strong climate effects on recruitment would probably not affect our conclusions. 
 
 We have considered/assumed direct effects of climate change, but there may also be indirect effects through changes in interactions with competitors (Yu paper), herbivores (Cook), and mutualists. Any changes in interactions would be rolled into our total climate effect. Future studies that tease apart direct and indirect effects would be valuable. 
 
@@ -586,6 +649,12 @@ and estimated the stochastic growth rate for that window as the expected value o
 log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
 \end{align}
 
+<<parameter summary table,echo=F,warning=F>>=
+setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+params_summ<-read.csv("allrates.selected.summary.csv")
+#params_summ$X97.5.[which(params_summ$X=="surv.bsize")]
+@
+
 \begin{table}[h!]
   \caption{Parameter values of tree cholla IPM.}
   \label{tab:param_vals}
@@ -594,9 +663,27 @@ log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
       \hline
       Parameter description & Symbol & Mean & 95\%CI\\
       \hline
-      \multirow{2}{*}{Survival coefficients} & test & test & test\\
-       & test & test & test\\
-       
+      \multirow{5}{*}{Survival coefficients} & 
+      $\beta_0$ & 
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="surv.mu")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="surv.mu")],2)}--
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="surv.mu")],2)})\\
+       & $\beta_1$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="surv.bsize")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="surv.bsize")],2)}--
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="surv.bsize")],2)})\\
+       & $\rho^{1}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="surv.bclim[1,1]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="surv.bclim[1,1]")],2)}--
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="surv.bclim[1,1]")],2)})\\
+       & $\rho^{2}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="surv.bclim[1,2]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="surv.bclim[1,2]")],2)}--
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="surv.bclim[1,2]")],2)})\\
+       & $\rho^{3}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="surv.bclim[1,3]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="surv.bclim[1,3]")],2)}--
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="surv.bclim[1,3]")],2)})\\
       \hline
     \end{tabular}
   \end{center}
