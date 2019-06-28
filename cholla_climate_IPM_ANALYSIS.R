@@ -740,8 +740,10 @@ for(t in 1:(nrow(PCclim)-window_size)){
   print(climate_window$Year_t[1])
 }
 
-plot(PCclim$Year_t[1:(nrow(PCclim)-window_size)],lambdaS,type="l")
-
+win.graph()
+par(mar=c(5,5,1,1))
+plot(PCclim$Year_t[1:(nrow(PCclim)-window_size)],lambdaS_rfxT,type="l",lwd=3,
+     xlab="Year",ylab=expression(paste(lambda[S])),cex.lab=1.4)
 
 # Quantities reported in ms -----------------------------------------------
 ## sample sizes for methods
