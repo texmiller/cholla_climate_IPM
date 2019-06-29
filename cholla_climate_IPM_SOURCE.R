@@ -40,8 +40,9 @@ x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC
 x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
 
 
-## Read in the mean parameter vector from the Bayesian estimation
+## Read in the mean parameter vector from the Bayesian estimation. Also including the 95% CI for ms readout
 mean_params <- readRDS("allrates.selected.mean.rds")
+params_summ<-read.csv("allrates.selected.summary.csv")
 
 ## Lastly, I need the size bounds.
 ## I will need to add demographic parameters to this list that were not
