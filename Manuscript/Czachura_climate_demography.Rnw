@@ -120,7 +120,7 @@ Over the study period, average density of \textit{C. imbricata} was QUANTITY.
 Full details of the study design and data collection are given elsewhere \citep{miller2009impacts,ohm2014balancing,elderd2016quantifying}.
 
 \subsection*{Climate data}
-Our goal was to connect inter-annual variation in demography to corresponding variation in tempoerature and precipitation
+Our goal was to connect inter-annual variation in demography to corresponding variation in temperature and precipitation.
 SEV-LTER collects climate data from a network of meteorolgical stations throughout SNWR, with the oldest records coming from the late 1980s.
 While the SEV-LTER climate data cover years of our plant demographic data collection, our intention was to back-cast demographic performance farther back into the 20th century. 
 We therefore gathered climate data from ClimateWNA v5.60 \citep{wang2016locally}, a software package that uses PRISM \cite{daly2008physiographically} and WorldClim \cite{hijmans2005very} data to calculate downscaled data for western North America based on location and elevation, going back as far back as 1900.
@@ -600,7 +600,7 @@ Continuous-size dynamics are given by:
 n(y)_{t+1} = (\gamma_{1}B_{1,t} + \gamma_{2}B_{2,t})\eta(y)\omega + \int_{L}^{U} S(x,\mathbf{c}_{t};\alpha^{S}_{t}) G(y,x,\mathbf{c}_{t};\alpha^{G}_{t}) n(x)_{t} dx
 \end{align}
 
-The first term indicates recruitment from the seed banks to size $y$, where $\eta(y)$ gives the seedling size distribution. 
+The first term indicates recruitment from the seed banks to size $y$, where $\eta(y)$ gives the seedling size distribution, assumed normal with mean $\mu_{s}$ and standard deviation $\sigma_{s}$. 
 Mortality between germination and the yearly demographic census is accounted for with survival probability $\omega$. 
 In the second term, functions $S$ and $G$ give the probabilities of surviving to year $t+1$ and growing to size $y$, respectively, for an $x$-sized plant in year $t$. 
 Climate-dependence and random year effects are included as in Eq. \ref{eq:seed_banks}, except the timing of climate effects is shifted such that growth and survival from $t$ to $t+1$ are affected by climate over the same interval. 
@@ -660,15 +660,14 @@ log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
 
 <<parameter summary table,echo=F,warning=F>>=
 setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
-params_summ<-read.csv("allrates.selected.summary.csv")
-#params_summ$X97.5.[which(params_summ$X=="surv.bsize")]
+source("cholla_climate_IPM_SOURCE.R")
 @
 
 \begin{table}[h!]
   \caption{Parameter values of tree cholla IPM.}
   \label{tab:param_vals}
   \begin{center}
-    \begin{tabular}{p{5cm}p{2cm}p{2cm}p{3cm}}
+    \begin{tabular}{p{5cm}p{2cm}p{1cm}p{5cm}}
       \hline
       Parameter description & Symbol & Mean & 95\%CI\\
       \hline
@@ -708,10 +707,100 @@ params_summ<-read.csv("allrates.selected.summary.csv")
       (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="grow.sigma.eps")],2)} --
       \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="grow.sigma.eps")],2)})\\
       \hline
+      \multirow{7}{*}{Flowering coefficients} & 
+      $\beta_0$ & 
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.mu")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.mu")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.mu")],2)})\\
+       & $\beta_1$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.bsize")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.bsize")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.bsize")],2)})\\
+       & $\rho^{1}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.bclim[1,1]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.bclim[1,1]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.bclim[1,1]")],2)})\\
+       & $\rho^{2}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.bclim[1,2]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.bclim[1,2]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.bclim[1,2]")],2)})\\
+       & $\rho^{2}_{3}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.bclim[3,2]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.bclim[3,2]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.bclim[3,2]")],2)})\\
+       & $\rho^{3}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.bclim[1,3]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.bclim[1,3]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.bclim[1,3]")],2)})\\
+      & $\rho^{3}_{3}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="flow.bclim[3,3]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="flow.bclim[3,3]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="flow.bclim[3,3]")],2)})\\
+      \hline
+      \multirow{5}{*}{Fertility coefficients} & 
+      $\beta_0$ & 
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="fert.mu")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="fert.mu")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="fert.mu")],2)})\\
+       & $\beta_1$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="fert.bsize")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="fert.bsize")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="fert.bsize")],2)})\\
+       & $\rho^{2}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="fert.bclim[1,2]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="fert.bclim[1,2]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="fert.bclim[1,2]")],2)})\\
+       & $\rho^{2}_{3}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="fert.bclim[3,2]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="fert.bclim[3,2]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="fert.bclim[3,2]")],2)})\\
+       & $\rho^{3}_{1}$ & 
+       \Sexpr{round(params_summ$mean[which(params_summ$X=="fert.bclim[1,3]")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="fert.bclim[1,3]")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="fert.bclim[1,3]")],2)})\\
+      \hline
+      Seeds per fruit & $\kappa$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="mu_spf")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="mu_spf")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="mu_spf")],2)})\\
+      Recruitment into seed bank & $\delta$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="seedsurv")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="seedsurv")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="seedsurv")],2)})\\
+      \hline
+      \multirow{2}{*}{Germination rates} & 
+      $\gamma_{1}$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="germ1")],4)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="germ1")],4)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="germ1")],4)})\\
+      & $\gamma_{2}$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="germ2")],4)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="germ2")],4)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="germ2")],4)})\\
+      \hline
+      \multirow{2}{*}{Seedling size distribution} & 
+      $\mu_{s}$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="mu_sdlgsize")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="mu_sdlgsize")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="mu_sdlgsize")],2)})\\
+      & $\sigma_{s}$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="sigma_sdlgsize")],2)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="sigma_sdlgsize")],2)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="sigma_sdlgsize")],2)})\\
+      \hline
+      Seedling survival & $\omega$ &
+      \Sexpr{round(params_summ$mean[which(params_summ$X=="precenus_surv")],3)} & 
+      (\Sexpr{round(params_summ$X2.5.[which(params_summ$X=="precenus_surv")],3)} --
+      \Sexpr{round(params_summ$X97.5.[which(params_summ$X=="precenus_surv")],3)})\\
+      \hline
+      \multirow{2}{*}{Size bounds} & $L$ & \Sexpr{round(mean_params$min.size,2)} &  \\
+      & $U$ & \Sexpr{round(mean_params$max.size,2)} &  \\
+      \hline
     \end{tabular}
   \end{center}
 \end{table}
 
+\newpage
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=0.75\linewidth]{Figures/lambdaS}
