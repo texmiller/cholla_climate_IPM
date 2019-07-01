@@ -19,6 +19,9 @@
 knitr::opts_chunk$set(fig.pos = 'H')
 library(tidyverse)
 library(xtable)
+setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+source("cholla_climate_IPM_SOURCE.R")
+ms_quantities <- readRDS("ms_quantities.rds")
 @
 
 %-------------------------------------------------------------------------
@@ -26,7 +29,7 @@ library(xtable)
 \title{Subtle dimensions of climate change have strong demographic effects on a cactus population in extinction debt}
 
 \author{Kevin Czachura}
-\author{Tom E.X. Miller}
+\author{Tom E.X. Miller$^{\ast}$}
 \affil{Program in Ecology and Evolutionary Biology, Department of BioSciences, Rice University, Houston, TX USA}
 \renewcommand\Authands{ and }
 \date{*Corresponding author: tom.miller@rice.edu (1-713-348-4218)}
@@ -56,8 +59,8 @@ Climate drivers may be inferred from temporal fluctuations in population size or
 Population extinction debt is likely to increase in frequency as a fingerprint of global change, including climate change \citep{dullinger2012extinction,urban2015accelerating}. 
 Extinction debt is a form of transient dynamics whereby populations persist despite having population growth rates that fall below replacement level ($\lambda=1$), suggesting a long-term trajectory toward extinction but with long time lags \citep{hastings2018transient,kuussaari2009extinction}. 
 This may be more likely for species with life cycles that are slow relative to environmental change \citep{vellend2006extinction}.
-While extinction debt is often studied through species richness patterns at the community level (cite), there is recent emphasis on the underlying single-species dynamics whereby populations transition from positive to negative growth rates \citep{lehtila2016forest,hylander2013mechanisms}.
-In the absence of significant migration, population extinction debt is indicative of environmental change, since transient persistence suggests that the environment was favorable for population growth at some time in the past. 
+While extinction debt is often studied through species richness patterns at the community level, there is recent emphasis on the underlying single-species dynamics whereby populations transition from positive to negative growth rates \citep{lehtila2016forest,hylander2013mechanisms}.
+In the absence of significant migration (which can maintain populations in sink habitats), population extinction debt is indicative of environmental change, since transient persistence suggests that the environment was favorable for population growth at some time in the past. 
 However, while evidence for extinction debt is growing, the mechanisms that cause populations to tip from positive to negative growth rates are rarely known, and this information may be critical for effective conservation planning \citep{hylander2013mechanisms}. 
 
 Structured population models built from individual-level demographic rates provide a powerful framework for studying drivers of extinction debt \citep{lehtila2016forest} and environment-dependent population dynamics more generally \citep{ehrlen2015predicting}. 
@@ -66,10 +69,10 @@ By incorporating climatic factors as statistical covariates, previous studies ha
 Additionally, articulating the connections between environment and demography can allow for `back-casting' population dynamics into historical environmental regimes \citep{Smith2005}, which may provide insight regarding when and why populations fell into extinction debt. 
 
 Despite the potential of demographic methods to reveal climate drivers of population dynamics, there are several challenges in scaling up from individual-level data to population responses to environmental change. 
-Climate change is a multi-dimensional process that may involve shifts in the means, variances, extreme events, and seasonal distributions of multiple variables related to temperature and precipitation (cite IPCC?). 
-Yet, it is not always apparent which dimensions of climate are most important for a given species, and even subtle environmental changes can elicit strong ecological responses \citep{lynch2014climate}.
+Climate change is a multi-dimensional process that may involve shifts in the means, variances, extreme events, and seasonal distributions of multiple variables related to temperature and precipitation. 
+Yet, it is not always apparent which dimensions of climate are most important for a given species, and even subtle environmental changes can elicit strong ecological responses (e.g., \citealt{harley2009contingencies,lynch2014climate}).
 Previous studies have shown that different components of climate change may have independent effects on different aspects of demography or physiology, such as distinct effects of climate means versus extremes \citep{buckley2012demographic,frederiksen2008demographic,van2010effects,lynch2014climate}.
-Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{dybala2013projecting,morrison2007demographic,tenhumberg2018time}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
+Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{doak2010demographic,dybala2013projecting,morrison2007demographic,tenhumberg2018time}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
 Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates, integrated across the life cycle \citep{mclean2016predicting,aadahl2006climate}. 
 These complications, common to environmentally explicit demographic studies \citep{ehrlen2016advancing}, highlight the value of leveraging long-term data to gain resolution of climate drivers and the importance of accounting for demographic complexity across the life cycle. 
 
@@ -84,7 +87,7 @@ Furthermore, there may be contrasting responses to precipitation that falls duri
 Other studies suggest key roles of temperature, and especially winter temperature minima, as a determinant of cactus mortality \citep{kinraide1978ecological,yeaton2003replacement} and reproduction \citep{bustamante2008effects}.
 No previous studies have attempted to integrate the potentially diverse demographic responses of cacti to seasonal climatic factors within a demographic modeling framework, which is essential for understanding how these pieces fit together to determine overall population responses to climatic variability.
 Given the important role cacti and other CAM plants in drylands worldwide, there is a need to better understand their responses to past and future climate change \citep{reyes2009crassulacean,yu2019competitive}. 
-We sought to understand how historical climate patterns affected population viability in \textit{C. imbricata} and to test the hypothesis that recent climate change (elevated temperatures and prolongued drought) has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
+We sought to understand how historical climate patterns affected population viability in \textit{C. imbricata} and to test the hypothesis that recent climate change has driven this population into extinction debt; this hypothesis predicts that historical climatic conditions were more favorable for population growth than present-day conditions. 
 
 Our specific objectives were to: 
 \begin{itemize}
@@ -96,125 +99,94 @@ Our specific objectives were to:
 
 %--------------------------------------------------------------------
 \section*{Materials and methods}
-<<methods,echo=F, message=F, warning=F>>=
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
-cholla <- read.csv("cholla_demography_20042018.csv") %>% filter(Year_t <= 2016)
-n_cholla <- cholla %>% mutate(uniqueID = interaction(Plot,TagID)) %>% select(uniqueID)%>% summarise(n_distinct(uniqueID))
-n_trans_yr <- cholla %>% summarise(n())
-@
 
 \subsection*{Study site and demographic data collection}
 Tree cholla cactus is widely distributed throughout desert and grassland habitats of the southwest U.S. and northern Mexico.
-These long-lived (30-plus-year), CAM plants grow through the production and elongation of cyclindrical stem segments. These vegetative structures as well as flowerbuds are initiated in late spring. 
+These long-lived plants grow through the production and elongation of cyclindrical stem segments. These vegetative structures as well as flowerbuds are initiated in late spring. 
 Flowering occurs in early summer and stem segment elongation takes place during the remainder of the growing season. 
 For climate analyses, we divide the calendar year into warm-season months (May through September), when vegetative growth and reproduction occur, and cool-season months (October through April).
 
-This study was conducted at the Sevilleta National Wildlife Refuge (SNWR), a Long-Term Ecological Research site (SEV-LTER) in central New Mexico and near the center of \textit{C. imbricata}'s geographic distribution (lat long). 
-Our focal population occurs in the Los Pinos mountains at an elevation of 1790 m. 
-Tree cholla are a dominant component of the vegetation in this area (0.07 m$^{-2}$: \citep{miller2009impacts}), along with oaks, yucca, Pinon pine, and the grasses (\textit{Bouteloua gracilis} and \textit{B. eriopoda}).
+This study was conducted at the Sevilleta National Wildlife Refuge (SNWR), a Long-Term Ecological Research site (SEV-LTER) in central New Mexico and near the center of this species' geographic distribution. 
+Our study population occurs in the Los Pi\~{n}os mountains at an elevation of 1790 m. 
+Tree cholla are a dominant component of the vegetation in this area (0.1 m$^{-2}$: \citealt{miller2009impacts}), along with oaks, yucca, Pinon pine, and the grasses (\textit{Bouteloua gracilis} and \textit{B. eriopoda}).
 
-The present study relies on long-term (2004--2017) demographic data on individual-level measures of growth, survival, and reproduction recorded from tagged plants in late May each year, a pre-breeding census that corresponds to the initiation of vegetative and reproductive structures. 
+The present study relies on long-term (2004--2017) demographic data on individual-level measures of growth, survival, and reproduction recorded from tagged plants in late May each year, a pre-breeding census that corresponds to the initiation of vegetative and reproductive structures (Fig. \ref{figure:lifecycle}). 
 We treat May 1 as the start of the transition year (coincident with the start of the warm-season months).
-There are a total of \Sexpr{n_cholla} unique individuals in the data set and \Sexpr{n_trans_yr} transition-year observations from 4--8 plots or spatial blocks depending on the year. 
-Over the study period, average density of \textit{C. imbricata} was QUANTITY.
+There are a total of \Sexpr{ms_quantities$n_cholla} unique individuals in the data set and \Sexpr{ms_quantities$n_trans_yr} transition-year observations from 4--8 plots or spatial blocks depending on the year. 
 Full details of the study design and data collection are given elsewhere \citep{miller2009impacts,ohm2014balancing,elderd2016quantifying}.
 
 \subsection*{Climate data}
 Our goal was to connect inter-annual variation in demography to corresponding variation in temperature and precipitation.
 SEV-LTER collects climate data from a network of meteorolgical stations throughout SNWR, with the oldest records coming from the late 1980s.
 While the SEV-LTER climate data cover years of our plant demographic data collection, our intention was to back-cast demographic performance farther back into the 20th century. 
-We therefore gathered climate data from ClimateWNA v5.60 \citep{wang2016locally}, a software package that uses PRISM \cite{daly2008physiographically} and WorldClim \cite{hijmans2005very} data to calculate downscaled data for western North America based on location and elevation, going back as far back as 1900.
-By relying on downscaled, interpolated climate data instead of direct observations from meteorological stations, we we are trading off local resolution in favor of more historical years of data.
+We therefore gathered climate data from ClimateWNA v5.60 \citep{wang2016locally}, a software package that uses PRISM \cite{daly2008physiographically} and WorldClim \cite{hijmans2005very} data to calculate downscaled data for western North America based on location and elevation, going as far back as 1900.
+By relying on downscaled, interpolated climate data instead of direct observations from meteorological stations, we are trading off local resolution in favor of more historical years of data.
 We quantified this loss of resolution by comparing predictions from ClimateWNA to SEV-LTER data for years that they over-lapped, using the SEV-LTER meteorological station that was nearsest our study population (Appendix A).
 We found that the two data sets were highly correlated (Table \ref{tab:WNASEV}, Figure \ref{fig:WNASEV}), which bolstered our confidence that ClimateWNA provided locally accurate climate data for both the demographic observation period as well as historical years that preceded our study. 
-% talk about extrapolation here?
 
 We derived seasonal estimates (warm- and cool-season) of total precipitation and mean, minimum, and maximum temperature from monthly climate data, for a total of eight variables. 
-Months were aligned to correspond to demographic transition years rather than calendar years, which means the cool-season climate for a transition year beginning in May of calendar year $t$ spans October of year $t$ through April of year $t+1$. 
+Months were aligned to correspond to demographic transition years rather than calendar years, which means the cool-season climate for a transition year beginning in May of year $t$ spans October of year $t$ through April of year $t+1$ (Fig. \ref{figure:lifecycle}). 
 
-To reduce the dimensionality of the climate data, we conducted Principal Component Analysis (PCA) on the eight climate variables (two seasons x four variables) for the years 1900-2017, with climate values scaled to unit variance. 
-We estimated the variance in the climate data explained by each PC and the variable loadings, which give the correlations between original variables and PC values.
-PCA allowed us to rank the magnitudes of multiple aspects of climate variation and change by examining how warm- and cool-season variables loaded onto the PC.
+To reduce the dimensionality of the climate data, we conducted Principal Components Analysis (PCA) on the eight climate variables for the years 1900-2017, with climate values scaled to unit variance. 
+We estimated the variance in the raw climate data explained by each PC and the variable loadings, which give the correlations between original variables and PC values.
+PCA allowed us to rank the magnitudes of multiple aspects of climate variation and change by examining how warm- and cool-season variables loaded onto the ranked PC axes.
 
 \subsection*{Statistical estimation of climate-dependence}
-<<PCA data, echo=F, message=F, warning=F>>=
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
-PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
-var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"PC3"]*100,2)
-PC1_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC1"]*100,2)
-PC2_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC2"]*100,2)
-PC3_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC3"]*100,2)
-@
 
-We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{var_explained}\% of the inter-annual variation in seasonal climate values (Figure \ref{figure:PCA}).
+We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{ms_quantities$var_explained}\% of the inter-annual variation in seasonal climate values (Results).
 Climate-dependence was limited to the four demographic vital rates for which we had long-term data: survival, growth (change in size), reproductive status (vegetative or flowering), and fertility of flowering plants (number of flower buds produced). 
 For each of these vital rates, we fit a statical model that included fixed effects of size, climate, size*climate interaction, and a quadratic term for climate to account for possible non-monotonic effects. 
 ``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model (Appendix B). 
 We used stochastic variable selection in a Bayesian framework to reduce model complexity, dropping coefficients that were effectively zero with $\geq 90\%$ certainty.
-All models additionally included random intercepts for spatial (plot or spatial block) and temporal (year) heterogeneity.
+All models additionally included random intercepts for spatial (plot) and temporal (year) heterogeneity.
 The year random-effect can be interpreted as inter-annual variability in demography that cannot be explained by the climate PCs.
 Full details for the statistical models are provided in Appendix B. 
 
 Survival and growth from year $t-1$ to $t$ were dependent on size in year $t-1$, and the climate covariate for each observation corresponded to the climate year $t-1$ to $t$. 
 Reproductive status and fertility in year $t$ were dependent on size in year $t$ and on climate from $t-1$ to $t$. 
 This timing of size and climate effects was intended to match processes in the population model (see life cycle diagram in Fig. \ref{figure:lifecycle}). 
-We did not quantify climate-dependence in seedling recruitment because, while plots were searched in each year, we could not assign a birth year to new recruits (which require several years of growth before they are consistently detectable in our census). 
+We did not quantify climate-dependence in seedling recruitment.
+While we searched plots each year and added newly detected plants to the census, we could not confidently assign a birth year to these new additions (seedlings require several years of growth before they are consistently detectable in our census) so we do not know the climatic conditions under which they recruited. 
 
 \subsection*{Demographic modeling}
 We used the statistical models for vital rate responses to build a stochastic, size-structured integral projection model that incorporated climate dependence. 
 Details of IPM construction and analysis are provided in Appendix C; here we provide a brief overview. 
 We used the model to predict how the asymptotic population growth rate ($\lambda$) responds to different components of climate variability and change, and to identify the demographic processes underlying those responses. 
-First, to evluate the consequences of different aspects of climate, we quantified the relationship between $\lambda$ and each of the three principal components of climate variation, holding the other two constant at their long-term means. 
+First, to evaluate the consequences of different aspects of climate, we quantified the relationship between $\lambda$ and each of the three principal components of climate variation, holding the other two constant at their long-term means. 
 Because we estimated vital rates in a Bayesian framework, we were able to generate posterior distributions of $\lambda$ that reflect the combined uncertainties of all the underlying vital rates. 
 Second, we used statistical relationships between climate drivers and vital rate responses estimated during our 14-year field study to back-cast expected population growth rates over the entire climatalogical record that we had available, 1900--2017. 
 We used simple linear regression to test for temporal trends in $\lambda$ over this period. 
-We used a fixed-design Life Table Response Experiment to decompose the total response  of $\lambda$ to climatic variation into contributions from each of the climate PCs and the underlying vital rate responses. 
+We used a fixed-design Life Table Response Experiment to decompose the total response  of $\lambda$ to climatic variation into contributions from each of the climate PCs and each of the underlying vital rate responses. 
 For the years of demographic data collection (2004--2017), we were able to partition inter-annual variation in $\lambda$ due to variation in the three climate PCs versus other, unspecific sources of variation (including climate drivers that were not captured by the climate PCs), which were statistically estimated as random year effects. 
 Finally, we estimated a time series for the stochastic population growth rate ($\lambda_{S}$) over the period 1900-2017 using a moving window approach with a window size of 10 years. 
-While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate incorporates the influences of year-to-year fluctuations and auto-correlation of climatic conditions (such as decadal droughts). 
-All of the code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM} and raw data is available through the Sevilleta LTER (\url{https://sevlter.unm.edu/data}).
+While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate integrated over a broader range of conditions, incorporating year-to-year fluctuations and auto-correlation of climate variables 
+All of the code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM} and raw data will be published in parallel with this manuscript.
 
 %--------------------------------------------------------------------
 \section*{Results}
 
 \subsection*{Climate trends}
-<<temporal trends, echo=F, message=F, warning=F>>=
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
-PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
-regressionA_start_yr <- 1900
-regressionB_start_yr <- 1970
-PC1modA<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
-PC1modA_anova<-anova(lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr)))
-PC1modB<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
-PC2modA<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
-PC2modA_anova<-anova(lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr)))
-PC2modB<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
-PC3modA<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
-PC3modA_anova<-anova(lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr)))
-PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
-@
-%\newpage
 
-Three principal components cumulatively explained \Sexpr{var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}A); we focus on these three PCs as potential climate drivers of demography. 
-PC1, which explained \Sexpr{PC1_var_explained}\% of variation, was dominanted by inter-annual differences in temperature and precipitation, regardless of season, and the three components of temperature (mean, min, max) loaded similarly onto this component (Figure \ref{figure:PCA}B). 
-Over the last century, PC1 trends have fluctuated, with prolonged stretches of warm and dry years (the 1950s and early 2000s) and other periods of cool and wet years (early 1900s and 1970s-80s), though the overall temporal trend for PC1 is negative ($F_{\Sexpr{PC1modA_anova$Df}}=\Sexpr{round(PC1modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC1modA_anova$`Pr(>F)`[1],5)}$).
+Three principal components cumulatively explained \Sexpr{ms_quantities$var_explained}\% of the inter-annual variation in climate (Figure \ref{figure:PCA}A); we focus on these three PCs as climate drivers of demography. 
+PC1, which explained \Sexpr{ms_quantities$PC1_var_explained}\% of variation, was dominanted by inter-annual differences in temperature and precipitation, regardless of season, and the three components of temperature (mean, min, max) loaded similarly onto this component (Figure \ref{figure:PCA}B). 
+Over the last century, PC1 trends have fluctuated, with prolonged stretches of warm and dry years (the 1950s and early 2000s) and other periods of cool and wet years (early 1900s and 1970s-80s), though the overall temporal trend for PC1 is negative ($F_{\Sexpr{ms_quantities$PC1modA_anova$Df}}=\Sexpr{round(ms_quantities$PC1modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(ms_quantities$PC1modA_anova$`Pr(>F)`[1],5)}$).
 The decline per-year is nearly five times stronger since 1970 compared to the long-term average (Figure \ref{figure:PCA}C), suggesting an accelerating trajectory of warmer and drier years. 
 
 \begin{figure}[H]
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/climate_trends.pdf}
-  \caption{Principal component analysis (PCA) of inter-annual climate variability at Sevilleta National Wildlife Refuge, 1901--2017. \textbf{A}, Proportion and cumulative proportion of variation in seasonal temperatures (minimum, mean, maximum) and precipitation explained by the first three PCs. \textbf{B}, Loadings of seasonal climate variables onto PC1-3. Because climate data were standardized to mean zero and unit variance, loadings can be interpreted as the correlation between the climate variable and the PC. \textbf{C--E}, Time series of PC values, with regression lines showing long-term trends since 1901 (solid lines) or 1970 (dashed lines).}
+    \includegraphics[width=0.75\linewidth]{Figures/climate_trends.pdf}
+  \caption{Principal component analysis (PCA) of inter-annual climate variability at Sevilleta National Wildlife Refuge, 1901--2017. \textbf{A}, Proportion and cumulative proportion of variation in seasonal temperatures (minimum, mean, maximum) and precipitation explained by the first three PCs. \textbf{B}, Loadings of seasonal climate variables onto PC1-3. Because climate data were standardized to mean zero and unit variance, loadings can be interpreted as the correlation between the climate variable and the PC. \textbf{C--E}, Time series of PC values, with regression lines showing long-term trends since 1901 (solid lines) or 1970 (dashed lines); open and filled points indicate the years 1970 and 2017, respectively, and correspond to the same shapes in Fig. \ref{figure:lambda_PC} }
    \label{figure:PCA}
    \end{center}
 \end{figure}
 
-The second principal component explained \Sexpr{PC2_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was strongly driven by cool-season climate, especially precipitation, such that greater values corresponded to wetter winters with low temperature maxima and high temperature minima (Figure \ref{figure:PCA}B). 
+The second principal component explained \Sexpr{ms_quantities$PC2_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was strongly driven by cool-season climate, especially precipitation, such that greater values corresponded to wetter winters with low temperature maxima and high temperature minima (Figure \ref{figure:PCA}B). 
 Warm-season temperatures also loaded positively onto this axis to a lesser degree (Figure \ref{figure:PCA}B). 
-PC2 has increased significantly significantly since 1900 ($F_{\Sexpr{PC2modA_anova$Df}}=\Sexpr{round(PC2modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC2modA_anova$`Pr(>F)`[1],5)}$) and the change per-year is nearly four times stronger since 1970 (Figure \ref{figure:PCA}D), indicating an accelerating trend of wetter cool seasons with moderate winter temperatures. 
+PC2 has increased significantly significantly since 1900 ($F_{\Sexpr{ms_quantities$PC2modA_anova$Df}}=\Sexpr{round(ms_quantities$PC2modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(ms_quantities$PC2modA_anova$`Pr(>F)`[1],8)}$) and the change per-year is nearly four times stronger since 1970 (Figure \ref{figure:PCA}D), indicating an accelerating trend of wetter cool seasons with moderate winter temperatures. 
 
-Lastly, PC3 explained \Sexpr{PC3_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was correlated with a combination of warm- and cool-season climate variables. 
+Lastly, PC3 explained \Sexpr{ms_quantities$PC3_var_explained}\% of climate variation (Figure \ref{figure:PCA}A) and was correlated with a combination of warm- and cool-season climate variables. 
 The strongest variable loadings on this principal component were minimum and mean temperatures in the cool season and warm-season precipitation. 
-Temporal trends for PC3 show significant declines since 1900 ($F_{\Sexpr{PC3modA_anova$Df}}=\Sexpr{round(PC3modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(PC3modA_anova$`Pr(>F)`[1],5)}$), correspdoning to milder winters with higher minimum and mean temperatures and wetter warm seasons; this trend has been slightly stronger since 1970 (Figure \ref{figure:PCA}E). 
+Temporal trends for PC3 show weak declines since 1900 ($F_{\Sexpr{ms_quantities$PC3modA_anova$Df}}=\Sexpr{round(ms_quantities$PC3modA_anova$`F value`[1],2)}$, $P \leq \Sexpr{round(ms_quantities$PC3modA_anova$`Pr(>F)`[1],5)}$), correspdoning to milder winters with higher minimum and mean temperatures and wetter warm seasons; this trend has been slightly stronger since 1970 (Figure \ref{figure:PCA}E). 
 
 \subsection*{Demographic responses to climate}
 
@@ -228,22 +200,22 @@ There was very little support for coefficients of quadratic climate effects (Tab
 For PC1, there was a weak reduction in survival probability (especially for smaller plants; Fig. \ref{figure:vital_rates}A) and a moderate reduction in flowering probability (especially for larger plants; Fig. \ref{figure:vital_rates}G) at higher PC values, i.e., in cooler and wetter years.
 Fertility of flowering plants was not responsive to PC1 variation (Fig. \ref{figure:vital_rates}J) and growth was not responsize to any of the climate PCs (Fig. \ref{figure:vital_rates}D,E,F). 
 There were positive responses to PC2 in survival(Fig. \ref{figure:vital_rates}B), flowering probability (Fig. \ref{figure:vital_rates}H), and fertility of flowering plants (Fig. \ref{figure:vital_rates}K), indicating that these vital rates benefitted from years with wetter cool seasons. 
-Responses to PC3 varied in sign, with survival increasing with decreasing PC values (years with moderate winter temperature minima and wet summers) and reproductive rates increasing with increasing PC values (years with low winter minima and dry summers) (Fig. \ref{figure:vital_rates}C,I,L). 
+Responses to PC3 varied in sign, with survival increasing with decreasing PC values (years with mild winter temperature minima and wet summers) and reproductive rates increasing with increasing PC values (years with low winter minima and dry summers) (Fig. \ref{figure:vital_rates}C,I,L). 
 
 \begin{figure}[H]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/vital_rates.pdf}
-  \caption{Climate- and size-dependent varation in survival (A-C), growth (D-F), flowering (G-I), and fertility of flowering plants (J-L) in relation to three principal components of seasonal climate variation (columns). For visualization only, the plant size distribution was discretized into three groups (small, medium, and large, corresponding to darker shades of blue). Points show means for each size group in each year, where different years have unique PC values and point size is proportional to sample size for each size group in each year (min, max). Lines show fitted statistical models using posterior mean parameter values, with colors corresponding to size group colors. Panels with no lines indicate that the climate predictor was not statistically supported through stochastic variable selection.}
+  \caption{Climate- and size-dependent varation in survival (A-C), growth (D-F), flowering (G-I), and fertility of flowering plants (J-L) in relation to three principal components of seasonal climate variation (columns). For visualization only, the plant size distribution was discretized into three groups (small, medium, and large, corresponding to darker shades of blue). Points show means for each size group in each year, where different years have unique PC values and point size is proportional to sample size for each size group in each year. Lines show fitted statistical models using posterior mean parameter values, with colors corresponding to size group colors. Dashed lines indicate that the climate predictor was not statistically supported through stochastic variable selection.}
   \label{figure:vital_rates}
   \end{center}
 \end{figure}
 
 Integrating across vital rate responses, the population growth rate $\lambda$ was predicted to increase with decreasing values of PC1 (hotter, drier years), holding other PCs fixed at their long-term average (Fig. \ref{figure:lambda_PC}A). 
 Population growth was also predicted to increase with increasing values of PC2 (wetter cool seasons; Fig. \ref{figure:lambda_PC}B). 
-Population growth was more senitive to PC2 than PC1, such that the change in $\lambda$ from 1970 to 2017 was similar in magnitude for PC1 (value) and PC2 (value) even though PC1 exhibited much greater change than PC2 over this period. 
+Population growth was more senitive to PC2 than PC1, such that the change in $\lambda$ from 1970 to 2017 was slightly greater for PC2 even though PC1 exhibited much greater change than PC2 over this period. 
 Finally, greater values of PC3 (colder winters and drier summers) were predicted to cause declines in population growth, indicating that negative effects on cactus survival outweighed positive effects of PC3 on reproduction (Fig. \ref{figure:vitalrates}). 
-PC3 has changed the least since 1970 but this was associated with a [percentage] change in $\lambda$, similar in magnitude to the response to relatively large change in PC1.
-Overall, recent climate change in each of the principal components, in isolation, has had consistently positive effects on population growth (Fig. \ref{figure:lambda_PC}). 
+PC3 has changed relatively little since 1970 but this was associated with a change in $\lambda$ of about half the magnitude to the response to relatively large change in PC1.
+Overall, recent climate change in each of the principal components, in isolation, has had positive effects on population growth (Fig. \ref{figure:lambda_PC}). 
 However, mean estimates for population growth rates were consistently below replacement level for all climate PC values, and the posterior probability densities rarely met or exceeded $\lambda=1$.
 
 \begin{figure}[H]
@@ -259,21 +231,21 @@ However, mean estimates for population growth rates were consistently below repl
 Figure \ref{figure:lambda_year}A shows the back-casted time series of $\lambda$ accounting for inter-annual variation in all three PC components.
 Back-casted predictions indicate that population growth rates likely remained below replacement levels over the entire record of historical climate data. 
 However, contrary to our hypothesis, we found that recent climate change has positively affected cactus population growth. 
-There was a positive temporal trend in $\lambda$ since 1900, and the rate of increase was nearly [number] times greater since 1970 compared to the overall trend since 1900 (solid vs. dashed lines in Fig. \ref{figure:lambda_year}A). 
-Under this more recent trajectory, population growth is expected to reach the threshold of positive population growth ($\lambda$ = 1) in [year]; further climate change would advance this transition to increasing growth rates. 
+There was a positive temporal trend in $\lambda$ since 1900, and the rate of increase was nearly \Sexpr{ms_quantities$lambda_timesgreater} times greater since 1970 compared to the overall trend since 1900 (solid vs. dashed lines in Fig. \ref{figure:lambda_year}A). 
+Under this more recent trajectory, population growth is expected to reach the threshold of positive population growth ($\lambda$ = 1) in \Sexpr{ms_quantities$viable_year}; accelerating climate change would advance this transition to increasing growth rates. 
 The stochastic population growth rate ($\lambda_{S}$), calculated over a sliding $10$-year window, showed a similar trend of increasing population growth rates over the past $120$ years (Fig. \ref{fig:lambdaS}).
 The stochastic growth rate reveals the effects of multi-year climate events, such as the runs of good years in the 1940s and 2000s. 
 
 The predicted time series of $\lambda$ is based solely on the three climate principal components.
 For the years of direct demographic observations (black line in Fig. \ref{figure:lambda_year}A) we were able to incorporate additional sources of variability, estimated as statistical random effects, in year-specific estimated of $\lambda$ (points in Fig. \ref{figure:lambda_year}A).
-For the observation years (2004-2017), we found that the three climate PCs explained [percentage] of the inter-annual variation in $\lambda$.
+For the observation years (2004-2017), we found that the three climate PCs explained \Sexpr{ms_quantities$climate_rsq}\% of the inter-annual variation in $\lambda$.
 Thus, while there was a clear climate signal to historical trends of population growth, there was also uncertainty in these trends due to process error, i.e., heterogeneity in the vital rates that could not be attribute to the climate PCs. 
 
 Life Table Response Experiments (LTRE) provided a decomposition of how $\lambda$ responded to long-term climate trends (1900-2017), allowing us to understand the relative importance of different dimensions of climate variability and vital rate responses to them. 
 LTRE results indicated that survival responses to climate were the overwhelming driver of temporal trends in $\lambda$ (Fig. \ref{figure:lambda_year}B). 
 Individual growth made no contribution to these trends because it was unresponsive to climate (Fig. \label{figure:vitalrates}D,E,F), whereas flowering and fertility were responsive to climate but their role was relatively small and imperceptible in Fig. \ref{figure:lambda_year}B.
 Furthermore, survival responses to climate PC2 were the dominant driver of temporal trends, followed by PC3 and then PC1.
-Collectively, responses to PC2 and PC3 -- that is, the tendency for greater cactus survival in years with wet and mild cool-seasons -- accounted for [percentage] of temporal variation in $\lambda$. 
+Collectively, responses to PC2 and PC3 accounted for \Sexpr{ms_quantities$noPC1_rsq} of temporal variation in the back-casted values of $\lambda$. 
 
 \begin{figure}[h!]
   \begin{center}
@@ -286,7 +258,7 @@ Collectively, responses to PC2 and PC3 -- that is, the tendency for greater cact
 %--------------------------------------------------------------------
 \section*{Discussion}
 We began this work with the hypothesis that the apparent extinction debt of our study population was a consequence of recent climate change. 
-Surprisingly, our results indicate the opposite: \textit{C. imbricata} is a climate change ``winner'', on an accelerating trajectory of increasing (less negative) population growth rates toward replacement-level within NN years if current climate change trends persist, and sooner if they accelerate. 
+Surprisingly, our results indicate the opposite: \textit{C. imbricata} is a climate change ``winner'', on an accelerating trajectory of increasing (less negative) population growth rates toward replacement-level within \Sexpr{ms_quantities$viable_year-2019} years if current climate change trends persist, and sooner if they accelerate. 
 We further show that the strongest feature of climate change in this system (the trend toward years that are overall warmer and drier, captured by PC1) was not the main driver of population responses. 
 Instead, temporal trends in population growth were dominated by more subtle climatic factors with relatively weak signals of recent change (the trend toward wetter and milder cool seasons, captured by PCs 2 and 3).
 Our results highlight the challenges of forecasting population responses to climate change, since the strongest and therefore most detectable features of climate change may not be the most important drivers of ecological responses.
@@ -331,7 +303,7 @@ It is commonly observed that demographic transitions related to growth and survi
 It may therefore be a general result that climate effects on growth and survival will be more consequential in long-lived perennials than effects on reproductive processes, even as the latter exhibit greater sensitivity to climate, since perennials have many reproductive opportunities over potentially long lifespans \citep{dalgleish2010can,morris2008longevity}. 
 
 Previous studies of cacti have emphasized their sensitivity to freezing as a constraint on physiological performance and geographic distribution \citep{yeaton2003replacement,kinraide1978ecological,nobel1984extreme}.
-In our study, we detected an important role for winter minimum temperature and observed the greatest annual mortality (percentage of all mortality events observed) in 2011, a year with record low winter temperatures over a multi-day deep-freeze (this is the low outlier in Fig. \ref{lambda_year}). 
+In our study, we detected an important role for winter minimum temperature and observed high mortality following record low winter temperatures over a multi-day deep-freeze in 2011 (this is the low outlier in Fig. \ref{lambda_year}). 
 As these freezing events become less frequent under climate change, we expect an increase in regional abundance and perhaps northern expansion of \textit{C. imbricata}'s range, which currently extends to southern Colorado and is likely limited by winter temperatures.
 This may be an issue of applied concern in the region since \textit{C. imbricata} is considered undesirable, particularly on rangelands \citep{allen1991diffusion}. 
 The role of cool-season precipitation that we detected was more surprising. 
@@ -343,7 +315,7 @@ Our results raise new questions about how well photosynthetic traits can predict
 
 Several limitations of our study warrant consideration in the interpretation of our results. 
 First, our consideration of climate dependence was limited to four vital rate processes of established plants.
-Because we could not reliably assign  a birth year to new recruits, we did not incorporate climate dependence in seedling recruitment. 
+Because we could not reliably assign a birth year to new recruits, we did not incorporate climate dependence in seedling recruitment. 
 Previous studies of cactus demography suggest that seedling recruitment may be highly sensitive to climate, especially monsoon precipitation (e.g., \citealt{bowers2005influence,winkler2018interaction}).
 We suspect this is the case for \textit{C. imbricata}, since germination usually coincides with late-summer monsoons (\textit{T.E.X. Miller, unpubl. data}). 
 Because we do not model this process as climate-dependent, our results for climate effects on population growth are conservative. 
@@ -361,7 +333,7 @@ These two factors mean that our conclusions for climate-dependence err on the co
 
 Third, like any observational study, our conclusions rest on statistical associations between climate and demography.
 Further experimental work to test the associations we detected would be valuable, especially since our back-casting analysis required that we extrapolate demographic responses to conditions that were not observed during our $13$-year study. 
-We think the extrapolated predictions of our statistical model are reasonable (Fig. \ref{figure:vitalrates}) but we intentionally avoided forecasting our demographic model into the future because climate projections for our region deviate substantially from observed conditions.
+We think the extrapolated predictions of our statistical models are reasonable (Fig. \ref{figure:vitalrates}) but we intentionally avoided forecasting our demographic model into the future because climate projections for our region deviate substantially from observed conditions.
 We therefore lacked confidence in our ability to quantitatively forecast population responses to future climatic conditions, but experimental manipulations that mimic these conditions could help brige the gap to a rigorous process-based forecast. 
 
 \paragraph{Conclusion.}
@@ -613,8 +585,10 @@ All parameter estimates are provided in Table \ref{tab:param_vals}.
 
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/lifecycle}
-  \caption{\textit{C. imbricata} life cycle and census timing. }
+    \includegraphics[width=0.75\linewidth]{Figures/lifecycle}
+  \caption{\textit{C. imbricata} life cycle and census timing with respect to warm- and cool-season climate. 
+  Numbered arrows correspond to demographic events that occur during a transition year: (1) established plants survive and grow, (2) plants that are reproductive in year \textit{t} contribute seeds that will make up the 1-yo seed bank in year \textit{t+1}, (3) a fraction of seeds in the 1-yo seed bank survive and recruit into the plant population as seedlings in year \textit{t+1}, (4) another fraction of seeds in the 1-yo seed bank survives and remains to form the 2-yo seed bank in year \textit{t+1}, (5) a fraction of seeds in the 2-yo seed bank survive and recruit into the plant population as seedlings in year \textit{t+1}.
+  Survival and growth from year \textit{t} to year \textit{t+1} (arrow 1) depended on climate year year \textit{t}, whereas flowering and flowerbud production in year \textit{t} (components of arrow 2) depended on climate in year year \textit{t-1}.}
   \label{figure:lifecycle}
   \end{center}
 \end{figure}
@@ -658,10 +632,10 @@ and estimated the stochastic growth rate for that window as the expected value o
 log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
 \end{align}
 
-<<parameter summary table,echo=F,warning=F>>=
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
-source("cholla_climate_IPM_SOURCE.R")
-@
+%<<parameter summary table,echo=F,warning=F>>=
+%setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+%source("cholla_climate_IPM_SOURCE.R")
+%@
 
 \begin{table}[h!]
   \caption{Parameter values of tree cholla IPM.}
@@ -800,13 +774,13 @@ source("cholla_climate_IPM_SOURCE.R")
   \end{center}
 \end{table}
 
-\newpage
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=0.75\linewidth]{Figures/lambdaS}
-  \caption{Time series of stochastic population growth rates ($\lambda_{S}$). Values are based on a $10$-year sliding window such that $\lambda_{S}$ is year $t$ is based on the climate regime over the years $t$ through $t+9$}
-  \label{fig:lambdaS}
-  \end{center}
-\end{figure}
+%\newpage
+%\begin{figure}[h!]
+%  \begin{center}
+%    \includegraphics[width=0.75\linewidth]{Figures/lambdaS}
+%  \caption{Time series of stochastic population growth rates ($\lambda_{S}$). Values are based on a %$10$-year sliding window such that $\lambda_{S}$ is year $t$ is based on the climate regime over the %years $t$ through $t+9$}
+%  \label{fig:lambdaS}
+%  \end{center}
+%\end{figure}
 
 \end{document}
