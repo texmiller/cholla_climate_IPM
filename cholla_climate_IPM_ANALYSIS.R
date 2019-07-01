@@ -12,11 +12,14 @@ alpha_scale<-0.75
 regressionA_start_yr <- 1900
 regressionB_start_yr <- 1970
 PC1modA<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC1modA_anova<-anova(PC1modA)
 PC1modB<-lm(PC1~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
 PC2modA<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
+PC2modA_anova<-anova(PC1modB)
 PC2modB<-lm(PC2~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
 PC3modA<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
 PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
+PC3modA_anova<-anova(PC3modA)
 
 ###Figure 1##################### 
 win.graph()
@@ -625,7 +628,8 @@ summary(PC1_only)$r.squared + summary(PC2_only)$r.squared + summary(PC3_only)$r.
 
 all_PC <- lm(lambda_year ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
 summary(all_PC)$r.squared
-
+no_PC1 <- lm(lambda_year ~ PC2 + PC3 + PC2_lastyr + PC3_lastyr, data = PCclim)
+summary(no_PC1)$r.squared
 
 # LTRE --------------------------------------------------------------------
 ## decompose inter-annual variation by vital rate responses to PCs
@@ -755,6 +759,51 @@ var_explained <- round(PCclim_var[which(PCclim_var$X=="Cumulative Proportion"),"
 PC1_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC1"]*100,2)
 PC2_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC2"]*100,2)
 PC3_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Variance"),"PC3"]*100,2)
+
+## change in lambda 1970-2017
+((lambda_PC1[which.min(abs(x_PC1-(coef(PC1modB)[1]+coef(PC1modB)[2]*2017)))]) - 
+  (lambda_PC1[which.min(abs(x_PC1-(coef(PC1modB)[1]+coef(PC1modB)[2]*1970)))])) /
+  (lambda_PC1[which.min(abs(x_PC1-(coef(PC1modB)[1]+coef(PC1modB)[2]*1970)))])
+
+((lambda_PC2[which.min(abs(x_PC2-(coef(PC2modB)[1]+coef(PC2modB)[2]*2017)))]) - 
+  (lambda_PC2[which.min(abs(x_PC2-(coef(PC2modB)[1]+coef(PC2modB)[2]*1970)))])) /
+  (lambda_PC2[which.min(abs(x_PC2-(coef(PC2modB)[1]+coef(PC2modB)[2]*1970)))])
+
+((lambda_PC3[which.min(abs(x_PC3-(coef(PC3modB)[1]+coef(PC3modB)[2]*2017)))]) - 
+  (lambda_PC3[which.min(abs(x_PC3-(coef(PC3modB)[1]+coef(PC3modB)[2]*1970)))])) /
+  (lambda_PC3[which.min(abs(x_PC3-(coef(PC3modB)[1]+coef(PC3modB)[2]*1970)))])
+
+## comparing temporal trend between overall data and >=1970
+lambda_timesgreater <- round(coef(lambda_trend1970)[2]/coef(lambda_trend)[2],2)
+
+## year of population viability under climate change trajectory since 1970
+viable_year <- round((1-coef(lambda_trend1970)[1])/coef(lambda_trend1970)[2],0)
+
+## how much does climate predict for the years where we have random effects?
+climate_rsq <- round(summary(lambda_t_PC_mod)$r.squared,2)*100
+
+## how much variance in lambda_t is explained WITHOUT PC1?
+noPC1_rsq <- round(summary(no_PC1)$r.squared,2)*100
+
+## what fraction of total mortality occurred in 2010/2011?
+cholla %>% filter(Survival_t1==0) %>% group_by(Year_t) %>% summarise(deaths = n())
+all_deaths<-cholla %>% filter(Survival_t1==0  & Year_t>=2005 & Year_t<=2016) %>% summarise(deaths = n())
+
+## create rds file
+ms_quantities <- list(n_cholla=n_cholla,
+                      n_trans_yr=n_trans_yr,
+                      var_explained=var_explained,
+                      PC1_var_explained=PC1_var_explained,
+                      PC2_var_explained=PC2_var_explained,
+                      PC3_var_explained=PC3_var_explained,
+                      PC1modA_anova=PC1modA_anova,
+                      PC2modA_anova=PC2modA_anova,
+                      PC3modA_anova=PC3modA_anova,
+                      lambda_timesgreater = lambda_timesgreater,
+                      viable_year=viable_year,
+                      climate_rsq=climate_rsq,
+                      noPC1_rsq=noPC1_rsq)
+saveRDS(ms_quantities,"ms_quantities.rds")
 
 ## PC change trends
 PC1modA_anova$Df
