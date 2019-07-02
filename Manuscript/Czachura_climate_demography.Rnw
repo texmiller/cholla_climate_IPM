@@ -40,6 +40,7 @@ ms_quantities <- readRDS("ms_quantities.rds")
 
 
 %-------------------------------------------------------------------------
+\newpage
 \section*{Abstract}
 
    
@@ -65,14 +66,16 @@ However, while evidence for extinction debt is growing, the mechanisms that caus
 
 Structured population models built from individual-level demographic rates provide a powerful framework for studying drivers of extinction debt \citep{lehtila2016forest} and environment-dependent population dynamics more generally \citep{ehrlen2015predicting}. 
 These methods derive predictions for population growth and viability from a suite of statistical models fitted to individual-level vital rates. 
-By incorporating climatic factors as statistical covariates, previous studies have identified climatic limits of population viability \citep{ilerreproductive} and forecasted responses to particular types of climate change \citep{Adler2013}. 
+By incorporating climatic factors as statistical covariates, previous studies have identified climatic limits of population viability and forecasted responses to particular types of climate change (e.g., \citealt{Adler2013,maschinski2006using,jenouvrier2014projected}). 
 Additionally, articulating the connections between environment and demography can allow for `back-casting' population dynamics into historical environmental regimes \citep{Smith2005}, which may provide insight regarding when and why populations fell into extinction debt. 
 
 Despite the potential of demographic methods to reveal climate drivers of population dynamics, there are several challenges in scaling up from individual-level data to population responses to environmental change. 
-Climate change is a multi-dimensional process that may involve shifts in the means, variances, extreme events, and seasonal distributions of multiple variables related to temperature and precipitation. 
-Yet, it is not always apparent which dimensions of climate are most important for a given species, and even subtle environmental changes can elicit strong ecological responses (e.g., \citealt{harley2009contingencies,lynch2014climate}).
+Climate change is a multi-dimensional process that may involve shifts in the means, variances, extreme events, and seasonal distributions of multiple variables related to temperature and precipitation \citep{IPCC2013}. 
+Many studies of climate-demography relationships focus on single climate variables (or single environmental markers of climate, such as timing of snowmelt [\citealt{ilerreproductive}] and loss of sea ice [\citealt{jenouvrier2009demographic}]) that are known to be a dominant component of climate change and / or known to have a strong influence on the focal species \citep{van2010effects}. 
+However, for many species, it is not always apparent \textit{a priori} which dimensions of climate are most important, and this poses challenges for predicting population responses to climate change. 
+%Furthermore, even subtle environmental changes can elicit strong ecological responses (e.g., \citealt{harley2009contingencies,lynch2014climate}).
 Previous studies have shown that different components of climate change may have independent effects on different aspects of demography or physiology, such as distinct effects of climate means versus extremes \citep{buckley2012demographic,frederiksen2008demographic,van2010effects,lynch2014climate}.
-Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{doak2010demographic,dybala2013projecting,morrison2007demographic,tenhumberg2018time}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life}. 
+Furthermore, different life stages (e.g., young vs old) and different vital rate processes (e.g., growth, survival, reproduction) may differ in the magnitude and even direction of their responses to single climate drivers \citep{doak2010demographic,dybala2013projecting,morrison2007demographic,tenhumberg2018time}, and single life stages or vital rates may be affected by multiple drivers \citep{dalgleish2011climate,williams2015life,frederiksen2008demographic}. 
 Ultimately, the influence of climate on population growth depends on the sensitivitities of vital rates to climate drivers and the sensitivities of $\lambda$ to the vital rates, integrated across the life cycle \citep{mclean2016predicting,aadahl2006climate}. 
 These complications, common to environmentally explicit demographic studies \citep{ehrlen2016advancing}, highlight the value of leveraging long-term data to gain resolution of climate drivers and the importance of accounting for demographic complexity across the life cycle. 
 
@@ -286,7 +289,7 @@ However, we suspect that these patterns may be common since at the heart of our 
 Specifically, we found that annual rainfall totals have been decreasing but that more of the annual rainfall has been falling in the cool season, consistent with previous climatalogical studies in our region that suggest a shift from warm- to cool-season precipitation \citep{cook2013response,cook2015unprecedented,petrie2014regional}.
 Similarly, annual temperatures have been increasing in our study region but it was cool-season warming, specifically, that was most important for \textit{C. imbricata} demography.
 Many plant and animal life histories operate on seasonal schedules and may therefore be more sensitive to seasonal redistribution of rainfall and temperature than to climate effects that manifest over an entire year, as we found for \textit{C. imbricata}. 
-Our results are consistent with previous studies that demonstrate the importance of considering seasonal, not annual, drivers of plant demographic responses \citep{selwood2015effects,williams2015life}. 
+Our results are consistent with previous studies that demonstrate the importance of considering seasonal, not annual, drivers of plant demographic responses \citep{selwood2015effects,williams2015life,dahlgren2016demography}. 
 Some recent studies have taken a finer-grained approach, connecting plant responses to weather events on monthly, weekly, or even daily time scales \citep{teller2016linking,tenhumberg2018time,shriver2016quantifying}.
 For tractability, we did not explore lagged climate effects beyond one year, though methods for doing so are rapidly developing \citep{teller2016linking,tenhumberg2018time,ogle2015quantifying}. 
 Finding the appropriate timing and resolution of climate covariates will be an important area for future work as plant population biologists increasingly turn to environmentally explicit demographic models.
