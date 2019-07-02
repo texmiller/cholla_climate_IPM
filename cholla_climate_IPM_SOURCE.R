@@ -15,6 +15,7 @@ getmode <- function(v) {
 ## Read in raw demographic data and merge with climate (copied from demography script)
 cholla <- read.csv("cholla_demography_20042018.csv")
 PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+SEV_WNA <- read.csv("SEV_WNA.csv")
 PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
 PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
