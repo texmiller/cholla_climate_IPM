@@ -5,7 +5,6 @@ library(scales)
 library(tidyverse)
 source("cholla_climate_IPM_SOURCE.R")
 
-
 # Climate trends (Figure 1) --------------------------------------------------------
 PC_cols <- c("#feb24c","#fc4e2a","#b10026","#0570b0")#c("#9ecae1", "#4292c6", "#084594", "#de2d26")
 alpha_scale<-0.75
@@ -73,6 +72,28 @@ lines(regressionB_start_yr:2017,coef(PC3modB)[1]+coef(PC3modB)[2]*regressionB_st
 title("E",adj=0,font=3,cex.main=2)
 points(1970,coef(PC3modB)[1]+coef(PC3modB)[2]*1970,pch=21,bg="white",cex=2,lwd=2)
 points(2017,coef(PC3modB)[1]+coef(PC3modB)[2]*2017,pch=21,bg="black",cex=2,lwd=2)
+
+
+# SEV-WNA correlation -----------------------------------------------------
+SEV_WNA$color <- ifelse(SEV_WNA$season=="cool","dodgerblue","orangered")
+
+win.graph()
+par(mfrow=c(1,2),mar=c(5,5,2,1))
+plot(SEV_WNA$mean_temp.x,SEV_WNA$mean_temp.y,col=SEV_WNA$color,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,xlim=c(-25,45),ylim=c(-10,35))
+points(SEV_WNA$min_temp.x,SEV_WNA$min_temp.y,pch=2,col=SEV_WNA$color)
+points(SEV_WNA$max_temp.x,SEV_WNA$max_temp.y,pch=3,col=SEV_WNA$color)
+abline(0,1,col="darkgrey")
+legend("topleft",legend = c("Cool season","Warm season","Min","Mean","Max"),bty="n",cex=1.2,
+       pch=c(16,16,2,1,3),col=c("dodgerblue","orangered",rep("darkgrey",3)))
+title("A",adj=0,font=4)
+
+plot(SEV_WNA$tot_prcp.x,SEV_WNA$tot_prcp.y,col=SEV_WNA$color,pch=16,cex.lab=1.2,
+     xlab="SEV-LTER Precipitation (mm)",ylab="ClimateWNA Precipitation (mm)")
+abline(0,1,col="darkgrey")
+title("B",adj=0,font=4)
 
 
 # Vital rate figures -------------------------------------------------------------
