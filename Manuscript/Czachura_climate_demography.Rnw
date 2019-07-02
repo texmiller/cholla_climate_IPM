@@ -42,8 +42,18 @@ ms_quantities <- readRDS("ms_quantities.rds")
 %-------------------------------------------------------------------------
 \newpage
 \section*{Abstract}
+\linenumbers
 
-   
+Population responses to climate change reflect the net influence of potentially diverse responses of individual-level demographic processes (growth, survival, regeneration) to multiple components of climate. 
+Articulating climate-demography connections can facilitate forecasts of responses to future climate change as well as back-casts that may reveal how populations responded to historical climate change. 
+We studied climate-demography relationships in the cactus \textit{Cyclindriopuntia imbricata}; previous work indicated that our focal population has high abundance but a negative population growth rate, suggesting that it persists under extinction debt. 
+We parameterized a climate-dependent integral projection model with data from a 14-year field study, then back-casted expected population growth rates since 1900 to test the hypothesis that recent climate change has driven this population into extinction debt.
+We found clear patterns of climate change in our central New Mexico study region but, contrary to our hypothesis, \textit{C. imbricata} has benefitted from recent climate change and is on track to reach replacement-level population growth within 65 years, or sooner if climate change accelerates. 
+Furthermore, the strongest feature of climate change (a trend toward years that are overall warmer and drier, captured by the first principal component of inter-annual variation) was not the main driver of population responses. 
+Instead, temporal trends in population growth were dominated by more subtle, seasonal climatic factors with relatively weak signals of recent change (wetter and milder cool seasons, captured by the second and third principal components).
+Our results highlight the challenges of forecasting population dynamics under climate change, since the most apparent features of climate change may not be the most important drivers of ecological responses.
+Environmentally explicit demographic models can help meet this challenge, but they must consider the magnitudes of different aspects of climate change alongside the magnitudes of demographic responses to those changes. 
+
 %-------------------------------------------------------------------------
 \section*{Keywords}
 Cactaceae; Climate change; Demography; Extinction debt; Integral Projection Model; Long-term ecological research
@@ -51,7 +61,6 @@ Cactaceae; Climate change; Demography; Extinction debt; Integral Projection Mode
 %--------------------------------------------------------------------
 \newpage
 \section*{Introduction}
-\linenumbers
 
 Understanding abiotic drivers of distribution and abundance is a foundational objective of ecology and takes on urgency in the context of ongoing global climate change. 
 The study of population dynamics is particularly well suited to identifying climate drivers, and this may facilitate forecasting responses to future climate change or hind-casting responses to historical climate trends. 
@@ -339,8 +348,7 @@ Further experimental work to test the associations we detected would be valuable
 We think the extrapolated predictions of our statistical models are reasonable (Fig. \ref{figure:vitalrates}) but we intentionally avoided forecasting our demographic model into the future because climate projections for our region deviate substantially from observed conditions.
 We therefore lacked confidence in our ability to quantitatively forecast population responses to future climatic conditions, but experimental manipulations that mimic these conditions could help brige the gap to a rigorous process-based forecast. 
 
-\paragraph{Conclusion.}
-This study illustrates how long-term patterns of population viability can be reconstructed through climate-demography relationships observed on relatively short time scales.
+To conclude, this study illustrates how long-term patterns of population viability can be reconstructed through climate-demography relationships observed on relatively short time scales.
 This allowed us to evluate the hypothesis that recent climate change has driven \textit{C. imbricata} in our region into extinction debt, a hypothesis that we soundly reject.
 Instead, this species is a climate change winner, largely due to its positive responses, especially in survival, to recent and ongoing shifts in cool-season temperature and precipitation. 
 Interestingly, changes in cool-season climate were not the strongest features of climate change, but they were nonetheless the most important determinants of population responses. 
@@ -424,25 +432,12 @@ The weakest correlation was that of warm-season temperature (Spearman's $r = \Se
   \end{center}
 \end{table}
 
-\begin{figure}[h!]
-  \caption{Correlations between seasonal climate values between SEV-LTER metereological data and downscaled estimates from ClimateWNA for years \Sexpr{min(SEV_WNA$trans_year)}--\Sexpr{max(SEV_WNA$trans_year)}.}
-  \label{fig:WNASEV}
-<<SEV_WNA corr,echo=F, message=F, warning=F,fig.width=9,fig.height=5,fig.align='center'>>=
-par(mfrow=c(1,2))
-plot(SEV_WNA$mean_temp.x,SEV_WNA$mean_temp.y,col=SEV_WNA$color,
-     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
-     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
-     cex.lab=1.2,xlim=c(-25,45),ylim=c(-10,35))
-points(SEV_WNA$min_temp.x,SEV_WNA$min_temp.y,pch=2,col=SEV_WNA$color)
-points(SEV_WNA$max_temp.x,SEV_WNA$max_temp.y,pch=3,col=SEV_WNA$color)
-abline(0,1,col="darkgrey")
-legend("topleft",legend = c("Cool season","Warm season","Min","Mean","Max"),bty="n",cex=1.2,
-       pch=c(16,16,2,1,3),col=c("dodgerblue","orangered",rep("darkgrey",3)))
-
-plot(SEV_WNA$tot_prcp.x,SEV_WNA$tot_prcp.y,col=SEV_WNA$color,pch=16,cex.lab=1.2,
-     xlab="SEV-LTER Precipitation (mm)",ylab="ClimateWNA Precipitation (mm)")
-abline(0,1,col="darkgrey")
-@
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/SEV-WNA_corr.pdf}
+  \caption{Correlations between seasonal climate values (\textbf{A}: temperature; \textbf{B}: precipitation) between SEV-LTER metereological data and downscaled estimates from ClimateWNA for years 2001--2017.}
+   \label{fig:WNASEV}
+   \end{center}
 \end{figure}
 
 %--------------------------------------------------------------------
@@ -777,13 +772,13 @@ log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
   \end{center}
 \end{table}
 
-%\newpage
-%\begin{figure}[h!]
-%  \begin{center}
-%    \includegraphics[width=0.75\linewidth]{Figures/lambdaS}
-%  \caption{Time series of stochastic population growth rates ($\lambda_{S}$). Values are based on a %$10$-year sliding window such that $\lambda_{S}$ is year $t$ is based on the climate regime over the %years $t$ through $t+9$}
-%  \label{fig:lambdaS}
-%  \end{center}
-%\end{figure}
+\newpage
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=0.75\linewidth]{Figures/lambdaS}
+  \caption{Time series of stochastic population growth rates ($\lambda_{S}$). Values are based on a $10$-year sliding window such that $\lambda_{S}$ is year $t$ is based on the climate regime over the years $t$ through $t+9$}
+  \label{fig:lambdaS}
+  \end{center}
+\end{figure}
 
 \end{document}
