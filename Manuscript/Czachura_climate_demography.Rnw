@@ -136,7 +136,7 @@ SEV-LTER collects climate data from a network of meteorolgical stations througho
 While the SEV-LTER climate data cover years of our demographic data collection, our intention was to back-cast demographic performance farther back into the 20th century. 
 We therefore gathered climate data from ClimateWNA v5.60 \citep{wang2016locally}, a software package that uses PRISM \citep{daly2008physiographically} and WorldClim \citep{hijmans2005very} data to calculate downscaled data for western North America based on location and elevation, going as far back as 1900.
 By relying on downscaled, interpolated climate data instead of direct observations from meteorological stations, we are trading off local resolution in favor of more historical years of data.
-We quantified this loss of resolution by comparing predictions from ClimateWNA to SEV-LTER data for years that they over-lapped, using the SEV-LTER meteorological station that was nearsest our study population (Appendix A).
+We quantified this loss of resolution by comparing predictions from ClimateWNA to SEV-LTER data for years that they over-lapped, using the SEV-LTER meteorological station that was nearest our study population (Appendix A).
 We found that the two data sets were highly correlated (Table \ref{tab:WNASEV}, Figure \ref{fig:WNASEV}), which bolstered our confidence that ClimateWNA provided locally accurate climate data for both the demographic observation period as well as historical years that preceded our study. 
 
 We derived seasonal estimates (warm- and cool-season) of total precipitation and mean, minimum, and maximum temperature from monthly climate data, for a total of eight variables. 
@@ -148,7 +148,7 @@ PCA allowed us to rank the magnitudes of multiple aspects of climate variation a
 
 \subsection*{Statistical estimation of climate-dependence}
 
-We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as capture by three PCs that collectively explained \Sexpr{ms_quantities$var_explained}\% of the inter-annual variation in seasonal climate values (Results).
+We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as captured by three PCs that collectively explained \Sexpr{ms_quantities$var_explained}\% of the inter-annual variation in seasonal climate values (Results).
 Climate-dependence was limited to the four demographic vital rates for which we had long-term data: survival, growth (change in size), reproductive status (vegetative or flowering), and fertility of flowering plants (number of flower buds produced). 
 For each of these vital rates, we fit a statical model that included fixed effects of size, climate, size*climate interaction, and a quadratic term for climate to account for possible non-monotonic effects. 
 ``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model (Appendix B). 
@@ -254,7 +254,7 @@ The stochastic growth rate reveals the effects of multi-year climate events, suc
 The predicted time series of $\lambda$ is based solely on the three climate principal components.
 For the years of direct demographic observations we were able to incorporate additional sources of variability, estimated as statistical random effects, in year-specific estimates of $\lambda$ (points in Fig. \ref{figure:lambda_year}A).
 For the observation years (2004-2017), we found that the three climate PCs explained \Sexpr{ms_quantities$climate_rsq}\% of the inter-annual variation in $\lambda$.
-Thus, while there was a clear climate signal to historical trends of population growth, there was also uncertainty in these trends due to process error, i.e., heterogeneity in vital rates across years that could not be attribute to the climate PCs. 
+Thus, while there was a clear climate signal to historical trends of population growth, there was also uncertainty in these trends due to process error, i.e., heterogeneity in vital rates across years that could not be attributed to the climate PCs. 
 
 Life Table Response Experiments (LTRE) provided a decomposition of how $\lambda$ responded to long-term climate trends (1900-2017), allowing us to understand the relative importance of different dimensions of climate variability and vital rate responses to them. 
 LTRE results indicated that survival responses to climate were the overwhelming driver of temporal trends in $\lambda$ (Fig. \ref{figure:lambda_year}B). 
@@ -310,7 +310,7 @@ Different aspects of a species' life cycle may respond in diverse ways to enviro
 In addition to identifying the key climate drivers in this system, our work also pinpoints which responses throughout the life cycle were most important for the overall population response to climate. 
 Flowering and fertility were strongly sensitive to climate but the asymptotic population growth rate was very weakly sensitive to these reproductive processes, such that they made virtually no contribution to the overall population response to climate (Fig. \ref{figure:vitalrates}, \ref{figure:lambda_year}).
 On the other hand, survival responses to climate were relatively weak but $\lambda$ was highly sensitive to small changes in survival, leading to strong population impacts.
-Vegtative growth, another high-sensitivity vital rate \citep{elderd2016quantifying}, showed no signifanct responses to climate. 
+Vegtative growth, another high-sensitivity vital rate \citep{elderd2016quantifying}, showed no significant responses to climate. 
 These trends are consistent with previous findings that high-sensitivity vital rates (those that strongly influence $\lambda$) are buffered against environmental variability while low-sensivity vital rates may exhibit wide fluctuations \citep{pfister1998patterns}. 
 However, incomplete buffering of survival led to greater mortality in years with cold and dry cool-seasons -- years that are becoming less frequent under climate change (Fig. \ref{figure:PCA}) -- and these survival responses dominated the overall increase in population viability over the past 120 years (Fig. \ref{figure:lambda_year}). 
 These results mirror a recent study of another long-lived perennial plant, the alpine sunflower \textit{Helianthella quinquinervis}, where reproductive responses to climate drivers were strong but ultimately overwhelmed by weaker responses in survival that more strongly affected population growth \citep{ilerreproductive}. 
@@ -352,7 +352,7 @@ We think the extrapolated predictions of our statistical models are reasonable (
 We therefore lacked confidence in our ability to quantitatively forecast population responses to future climatic conditions, but experimental manipulations that mimic these conditions could help brige the gap to a rigorous process-based forecast. 
 
 To conclude, this study illustrates how long-term patterns of population viability can be reconstructed through climate-demography relationships observed on relatively short time scales.
-This allowed us to evluate the hypothesis that recent climate change has driven \textit{C. imbricata} in our region into extinction debt, a hypothesis that we soundly reject.
+This allowed us to evaluate the hypothesis that recent climate change has driven \textit{C. imbricata} in our region into extinction debt, a hypothesis that we soundly reject.
 Instead, this species is a climate change winner, largely due to its positive responses, especially in survival, to recent and ongoing shifts in cool-season temperature and precipitation. 
 Interestingly, changes in cool-season climate were not the strongest features of climate change, but they were nonetheless the most important determinants of population responses. 
 The more general lesson for global change biologists is that relatively subtle dimensions of climate change may trigger strong ecological responses. 
