@@ -809,6 +809,110 @@ for(j in 2:length(PCclim$Year_t)){
   lambda_year_proc_est_err.25[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.375,0.625))
 }
 
+### New Figure with mean and uncertainty
+win.graph()
+par(mfrow=c(1,3),mar=c(5,5,2,1))
+plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.4,1.05),
+     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+abline(h=1,col="lightgray")
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_est_err.95[1,],rev(lambda_year_proc_est_err.95[2,])),
+        col=alpha("black",0.05),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_est_err.75[1,],rev(lambda_year_proc_est_err.75[2,])),
+        col=alpha("black",0.05),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_est_err.50[1,],rev(lambda_year_proc_est_err.50[2,])),
+        col=alpha("black",0.05),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_est_err.25[1,],rev(lambda_year_proc_est_err.25[2,])),
+        col=alpha("black",0.05),border=NA)
+#lines(PCclim$Year_t[1:which(PCclim$Year_t==2003)],
+      #PCclim$lambda_year[1:which(PCclim$Year_t==2003)],
+      #lwd=1,col=alpha("black",0.25))
+#lines(PCclim$Year_t[which(PCclim$Year_t>2003)],
+      #PCclim$lambda_year[which(PCclim$Year_t>2003)],
+      #lwd=1,col=alpha("black",1))
+lines(PCclim$Year_t,PCclim$lambda_year,col=alpha("black",1),lwd=2)
+abline(v=2003,lty=3)
+points(PCclim$Year_t,PCclim$lambda_year_RFX,cex=1,
+       pch=1,col=alpha("black",0.8))
+#lines(1901:2017,coef(lambda_trend)[1]+coef(lambda_trend)[2]*1901:2017,col="black",lwd=2)
+#lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,col="black",lwd=2,lty=2)
+#title("A",adj=0,font=3)
+
+## New figure for posterior of change in lambda per year
+yr_int_allyrs<-yr_slope_allyrs<-yr_int_1970<-yr_slope_1970<-stable_yr<-stable_yr_1970<-c()
+for(i in 1:150){
+  iter_dat <- cbind(PCclim,lambda_year_proc_est_err[i,])
+  names(iter_dat)[16]<-"lambda_year_proc_est_err"
+  ## all years
+  yr_mod_allyrs <- lm(lambda_year_proc_est_err ~ Year_t, data = iter_dat)
+  yr_int_allyrs[i] <- coef(yr_mod_allyrs)[1]
+  yr_slope_allyrs[i] <- coef(yr_mod_allyrs)[2]
+  ## since 1970
+  yr_mod_1970 <- lm(lambda_year_proc_est_err ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_int_1970[i] <- coef(yr_mod_1970)[1]
+  yr_slope_1970[i] <- coef(yr_mod_1970)[2]
+  ## what is the projected year of lambda=1?
+  stable_yr[i] <- (1-yr_int_allyrs[i])/yr_slope_allyrs[i]
+  stable_yr_1970[i] <- (1-yr_int_1970[i])/yr_slope_1970[i]
+}
+
+d_allyrs <- density(yr_slope_allyrs)
+d_1970 <- density(yr_slope_1970)
+plot(d_allyrs,xlim=c(-0.004,0.008),type="n",main=" ",
+     xlab=expression(paste(Delta,lambda," / ","year")),
+     ylab="Posterior probability density",cex.lab=1)
+abline(v=0,col="grey")
+polygon(d_allyrs, col=alpha("black",0.5), border="black",lwd=1)
+arrows(median(yr_slope_allyrs),0,
+       median(yr_slope_allyrs),
+       density(yr_slope_allyrs)[["y"]][which.min(abs(density(yr_slope_allyrs)[["x"]]-median(yr_slope_allyrs)))],
+       lwd=2,col="black",code=0)
+polygon(d_1970, col=alpha("black",0.2), border="black",lwd=1,lty=2)
+arrows(median(yr_slope_1970),0,
+       median(yr_slope_1970),
+       density(yr_slope_1970)[["y"]][which.min(abs(density(yr_slope_1970)[["x"]]-median(yr_slope_1970)))],
+       lwd=2,lty=2,col="black",code=0)
+legend("topright",legend=c("All years","Since 1970"),
+       fill=c(alpha("black",0.5),alpha("black",0.2)),
+       bty="n", lty=c(1,2))
+
+##what is the probability that lambda is increasing?
+length(which(yr_slope_allyrs>0)) / length(yr_slope_allyrs)
+length(which(yr_slope_1970>0)) / length(yr_slope_1970)
+
+## or express as odds (times likely)
+length(which(yr_slope_allyrs>0)) / length(which(yr_slope_allyrs<=0))
+length(which(yr_slope_1970>0)) / length(which(yr_slope_1970<=0))
+
+## for year of stable growth, just pull out the samples with positive slopes
+
+
+
+d_stable_yr <- density(stable_yr[which(yr_slope_allyrs>0)])
+d_stable_yr_1970 <- density(stable_yr_1970[which(yr_slope_1970>0)])
+
+
+plot(d_stable_yr_1970,type="n",main=" ",
+     xlab="Year of population viability",
+     ylab="Posterior probability density",cex.lab=1,xlim=c(1900,4000))
+polygon(d_stable_yr, col=alpha("black",0.5), border="black",lwd=1)
+arrows(median(stable_yr[which(yr_slope_allyrs>0)]),0,
+       median(stable_yr[which(yr_slope_allyrs>0)]),
+       density(stable_yr[which(yr_slope_allyrs>0)])[["y"]][which.min(abs(density(stable_yr[which(yr_slope_allyrs>0)])[["x"]]-median(stable_yr[which(yr_slope_allyrs>0)])))],
+       lwd=2,col="black",code=0)
+polygon(d_stable_yr_1970, col=alpha("black",0.2), border="black",lwd=1,lty=2)
+arrows(median(stable_yr_1970[which(yr_slope_1970>0)]),0,
+       median(stable_yr_1970[which(yr_slope_1970>0)]),
+       density(stable_yr_1970[which(yr_slope_1970>0)])[["y"]][which.min(abs(density(stable_yr_1970[which(yr_slope_1970>0)])[["x"]]-median(stable_yr_1970[which(yr_slope_1970>0)])))],
+       lwd=2,lty=2,col="black",code=0)
+legend("topright",legend=c("All years","Since 1970"),
+       fill=c(alpha("black",0.5),alpha("black",0.2)),
+       bty="n", lty=c(1,2))
+
+
 plot(PCclim$Year_t,lambda_year_proc_err.25[1,],type="l",ylim=c(0.4,1.1),lwd=3)
 abline(h=1,lty=2)
 lines(PCclim$Year_t,lambda_year_proc_err.25[2,],lwd=3)
