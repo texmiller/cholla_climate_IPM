@@ -409,7 +409,7 @@ for(i in 1:length(x_PC3)){
 
 # posterior samples of lambda v PC ----------------------------------------
 params_post <- read.csv("allrates.selected.posterior.csv")
-n_post <- pmin(100,nrow(params_post)) ## number of posterior draws
+n_post <- pmin(500,nrow(params_post)) ## number of posterior draws
 rand.indices <- sample.int(nrow(params_post), size=n_post)
 
 lambda_PC1_post <-matrix(NA,nrow=n_post,ncol=length(x_PC1))
@@ -740,7 +740,93 @@ box()
 
 sum(abs(LTRE_PC2)) > sum(abs(LTRE_PC1)) + sum(abs(LTRE_PC3))
 
+# Backcast posterior sampling ---------------------------------------------
+## matrix of outputs reflecting process error only (year in columns, samples in rows)
+lambda_year_proc_err<-matrix(NA,ncol = length(min(PCclim$Year_t):2016), nrow = n_post)
+## matrix of outputs reflecting process error plus estimation error
+lambda_year_proc_est_err<-matrix(NA,ncol = length(min(PCclim$Year_t):2016), nrow = n_post)
+## vector of seed numbers so that times series with and without estimation error sample the same 
+## year random effects
+seed_mat <- matrix(runif(n_post*length(lambda_year_proc_err),0,100000), nrow = n_post, ncol = length(lambda_year_proc_err))
 
+for(i in 1:n_post){
+  for(j in 2:length(PCclim$lambda_year)){
+    #print(i)
+    ## now convert params to list for the rest of it
+    sample.params <- as.list(params_post[i,])
+    sample.params$flow.bclim <- params_post[rand.indices[i],] %>% 
+      select(flow.bclim.1.1.:flow.bclim.3.3.) %>% 
+      matrix(nrow=3)
+    sample.params$fert.bclim <- params_post[rand.indices[i],] %>% 
+      select(fert.bclim.1.1.:fert.bclim.3.3.) %>% 
+      matrix(nrow=3)  
+    sample.params$grow.bclim <- params_post[rand.indices[i],] %>% 
+      select(grow.bclim.1.1.:grow.bclim.3.3.) %>% 
+      matrix(nrow=3) 
+    sample.params$surv.bclim <- params_post[rand.indices[i],] %>% 
+      select(surv.bclim.1.1.:surv.bclim.3.3.) %>% 
+      matrix(nrow=3) 
+    sample.params$min.size <- mean_params$min.size
+    sample.params$max.size <- mean_params$max.siz
+    
+  lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
+                                          PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+                                          PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+                                          PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+                                          random = T, 
+                                          rand.seed = seed_mat[i,j],
+                                          lower.extension = lower.extension, 
+                                          upper.extension = upper.extension,
+                                          mat.size = mat.size)$IPMmat)
+  lambda_year_proc_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
+                                              PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+                                              PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+                                              PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+                                              random = T, 
+                                              rand.seed = seed_mat[i,j],
+                                              lower.extension = lower.extension, 
+                                              upper.extension = upper.extension,
+                                              mat.size = mat.size)$IPMmat)
+  print(c(i,j))
+}## end year loop
+}##end sample loop
+
+## I only got through 150 samples, but write this to file
+write.csv(lambda_year_proc_err,"lambda_year_proc_err_1_through_150.csv")
+write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err_1_through_150.csv")
+
+lambda_year_proc_err.95<-lambda_year_proc_err.75<-lambda_year_proc_err.50<-lambda_year_proc_err.25<-matrix(NA,2,length(PCclim$lambda_year))
+lambda_year_proc_est_err.95<-lambda_year_proc_est_err.75<-lambda_year_proc_est_err.50<-lambda_year_proc_est_err.25<-matrix(NA,2,length(PCclim$lambda_year))
+for(j in 2:length(PCclim$Year_t)){
+  lambda_year_proc_err.95[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.025,0.975))
+  lambda_year_proc_err.75[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.125,0.875))
+  lambda_year_proc_err.50[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.25,0.75))
+  lambda_year_proc_err.25[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.375,0.625))
+
+  lambda_year_proc_est_err.95[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.025,0.975))
+  lambda_year_proc_est_err.75[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.125,0.875))
+  lambda_year_proc_est_err.50[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.25,0.75))
+  lambda_year_proc_est_err.25[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.375,0.625))
+}
+
+plot(PCclim$Year_t,lambda_year_proc_err.25[1,],type="l",ylim=c(0.4,1.1),lwd=3)
+abline(h=1,lty=2)
+lines(PCclim$Year_t,lambda_year_proc_err.25[2,],lwd=3)
+lines(PCclim$Year_t,lambda_year_proc_err.50[1,],lwd=2)
+lines(PCclim$Year_t,lambda_year_proc_err.50[2,],lwd=2)
+lines(PCclim$Year_t,lambda_year_proc_err.75[1,],lwd=1)
+lines(PCclim$Year_t,lambda_year_proc_err.75[2,],lwd=1)
+lines(PCclim$Year_t,lambda_year_proc_err.95[1,],lwd=0.5)
+lines(PCclim$Year_t,lambda_year_proc_err.95[2,],lwd=0.5)
+
+lines(PCclim$Year_t,lambda_year_proc_est_err.25[1,],lwd=3,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.25[2,],lwd=3,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.50[1,],lwd=2,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.50[2,],lwd=2,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.75[1,],lwd=1,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.75[2,],lwd=1,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.95[1,],lwd=0.5,col="red")
+lines(PCclim$Year_t,lambda_year_proc_est_err.95[2,],lwd=0.5,col="red")
 # Stochastic population growth --------------------------------------------
 ## size of the sliding window
 window_size <- 9
