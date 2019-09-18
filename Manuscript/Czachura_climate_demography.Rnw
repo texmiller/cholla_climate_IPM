@@ -43,17 +43,22 @@ ms_quantities <- readRDS("ms_quantities.rds")
 \newpage
 \section*{Abstract}
 \linenumbers
-
+\begin{enumerate}
+\item
 The effects of climate change on population viability reflect the net influence of potentially diverse responses of individual-level demographic processes (growth, survival, regeneration) to multiple components of climate. 
 Articulating climate-demography connections can facilitate forecasts of responses to future climate change as well as back-casts that may reveal how populations responded to historical climate change. 
+\item
 We studied climate-demography relationships in the cactus \textit{Cyclindriopuntia imbricata}; previous work indicated that our focal population has high abundance but a negative population growth rate, where deaths exceed births, suggesting that it persists under extinction debt. 
 We parameterized a climate-dependent integral projection model with data from a 14-year field study, then back-casted expected population growth rates since 1900 to test the hypothesis that recent climate change has driven this population into extinction debt. 
+\item
 We found clear patterns of climate change in our central New Mexico study region but, contrary to our hypothesis, \textit{C. imbricata} has benefitted from recent climate change and is on track to reach replacement-level population growth within 65 years, or sooner if climate change accelerates. 
 Furthermore, the strongest feature of climate change (a trend toward years that are overall warmer and drier, captured by the first principal component of inter-annual variation) was not the main driver of population responses. 
 Instead, temporal trends in population growth were dominated by more subtle, seasonal climatic factors with relatively weak signals of recent change (wetter and milder cool seasons, captured by the second and third principal components).
+\item
+\textit{Synthesis}.
 Our results highlight the challenges of forecasting population dynamics under climate change, since the most apparent features of climate change may not be the most important drivers of ecological responses.
 Environmentally explicit demographic models can help meet this challenge, but they must consider the magnitudes of different aspects of climate change alongside the magnitudes of demographic responses to those changes. 
-
+\end{enumerate}
 %-------------------------------------------------------------------------
 \section*{Keywords}
 Cactaceae; Climate change; Demography; Extinction debt; Integral Projection Model; Long-term ecological research
@@ -175,7 +180,6 @@ We used a fixed-design Life Table Response Experiment to decompose the total res
 For the years of demographic data collection (2004--2017), we were able to partition inter-annual variation in $\lambda$ due to variation in the three climate PCs versus other, unspecific sources of variation, which were statistically estimated as random year effects. 
 Finally, we estimated a time series for the stochastic population growth rate ($\lambda_{S}$) over the period 1900-2017 using a moving window approach with a window size of 10 years. 
 While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate integrated over a broader range of conditions, incorporating year-to-year fluctuations and auto-correlation of climate variables 
-All of the code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM} and raw data will be published in parallel with this manuscript.
 
 %--------------------------------------------------------------------
 \section*{Results}
@@ -369,6 +373,14 @@ This study was supported by the Sevilleta LTER (NSF LTER awards 1440478, 1655499
 We thank U.S Fish and Wildlife Service staff (especially J. Erz) for facilitating research access to Sevilleta NWR. 
 We thank M. Evans and E. Schultz for helpful discussions on modeling climate-demography relationships.
 Finally, we thank the many students and colleagues have contributed to long-term data collection, especially M. Donald and B. Ochocki. 
+
+\section*{Author contributions}
+TEXM initiated and maintains the long-term study. 
+KC collected and analyzed data and prepared a manuscript draft. 
+TEXM finalized text and analyses. Both coauthors approve this submission.
+
+\section*{Data accessibility}
+All of the code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM} and raw data will be published in parallel with this manuscript.
 
 %--------------------------------------------------------------------
 \bibliographystyle{gcb}
