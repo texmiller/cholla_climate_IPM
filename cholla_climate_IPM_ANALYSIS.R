@@ -740,6 +740,15 @@ box()
 
 sum(abs(LTRE_PC2)) > sum(abs(LTRE_PC1)) + sum(abs(LTRE_PC3))
 
+## LTRE standalone figure
+win.graph()
+par(mfrow=c(1,1),mar=c(5,5,2,1))
+barplot((cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3)[c(1,3,5),]+cbind(LTRE_PC1,LTRE_PC2,LTRE_PC3)[c(2,4,6),]),
+        beside=T,ylab=expression(paste("LTRE contribution   ",partialdiff,lambda," / ",partialdiff,"PC")),
+        col="black",names.arg=c("PC1","PC2","PC3"),ylim=c(-.01,0.01))
+legend("topright",c("Survival","Flowering","Fertility"),bty="n",fill=c("black","gray50","white"))
+box()
+
 # Backcast posterior sampling ---------------------------------------------
 ## matrix of outputs reflecting process error only (year in columns, samples in rows)
 lambda_year_proc_err<-matrix(NA,ncol = length(min(PCclim$Year_t):2016), nrow = n_post)
