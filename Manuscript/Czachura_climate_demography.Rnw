@@ -175,11 +175,13 @@ We used the model to predict how the asymptotic population growth rate ($\lambda
 First, to evaluate the consequences of different aspects of climate, we quantified the relationship between $\lambda$ and each of the three principal components of climate variation, holding the other two constant at their long-term means. 
 Because we estimated vital rates in a Bayesian framework, we were able to generate posterior distributions of $\lambda$ that reflect the combined uncertainties of all the underlying vital rates. 
 Second, we used statistical relationships between climate drivers and vital rate responses estimated during our 14-year field study to back-cast expected population growth rates over the entire climatalogical record that we had available, 1900--2017. 
-We used simple linear regression to test for temporal trends in $\lambda$ over this period. 
+We used linear regression to test for temporal trends in $\lambda$ over this period. 
+We incorporated two types of uncertainty into back-casted values of $\lambda$: imperfect knowledge of the parameter values (``estimation error'') and year-to-year fluctuations that were not related to climate (``process error''), which was estimated from the variances of random year effects. 
+For the years of demographic data collection (2004--2017), we could quantify the deviations between predicted $\lambda$ based solely on climate and ``observed'' $\lambda$ that reflects climate and non-climate year effects (quotations indicate that these are the asymptotic predictions given the vital rates observed in that year). 
 We used a fixed-design Life Table Response Experiment to decompose the total response  of $\lambda$ to climatic variation into contributions from each of the climate PCs and each of the underlying vital rate responses. 
-For the years of demographic data collection (2004--2017), we were able to partition inter-annual variation in $\lambda$ due to variation in the three climate PCs versus other, unspecific sources of variation, which were statistically estimated as random year effects. 
+
 Finally, we estimated a time series for the stochastic population growth rate ($\lambda_{S}$) over the period 1900-2017 using a moving window approach with a window size of 10 years. 
-While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate integrated over a broader range of conditions, incorporating year-to-year fluctuations and auto-correlation of climate variables 
+While the deterministic growth rate for each year estimates the long-run growth rate expected if the conditions of that year remained constant, the stochastic growth rate integrated over a broader range of conditions, incorporating year-to-year fluctuations and auto-correlation of climate variables.
 
 %--------------------------------------------------------------------
 \section*{Results}
@@ -193,7 +195,7 @@ The decline per-year is nearly five times stronger since 1970 compared to the lo
 
 \begin{figure}[H]
   \begin{center}
-    \includegraphics[width=0.75\linewidth]{Figures/climate_trends.pdf}
+    \includegraphics[width=1\linewidth]{Figures/climate_trends.pdf}
   \caption{Principal components analysis (PCA) of inter-annual climate variability at SNWR, 1901--2017. \textbf{A}, Proportion and cumulative proportion of variation in seasonal temperatures (minimum, mean, maximum) and precipitation explained by the first three PCs. \textbf{B}, Loadings of seasonal climate variables onto PC1-3. Because climate data were standardized to mean zero and unit variance, loadings can be interpreted as the correlation between the climate variable and the PC. \textbf{C--E}, Time series of PC values, with regression lines showing long-term trends since 1901 (solid lines) or 1970 (dashed lines); open and filled points indicate the years 1970 and 2017, respectively, and correspond to the same shapes in Fig. \ref{figure:lambda_PC} }
    \label{figure:PCA}
    \end{center}
@@ -260,17 +262,25 @@ For the years of direct demographic observations we were able to incorporate add
 For the observation years (2004-2017), we found that the three climate PCs explained \Sexpr{ms_quantities$climate_rsq}\% of the inter-annual variation in $\lambda$.
 Thus, while there was a clear climate signal to historical trends of population growth, there was also uncertainty in these trends due to process error, i.e., heterogeneity in vital rates across years that could not be attributed to the climate PCs. 
 
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/lambda_uncertainty.pdf}
+  \caption{\textbf{A}, Time series of asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in climate. Black lines show linear regressions for temporal trends in $\lambda$ since 1901 (solid) or 1970 (dashed). Vertical line separates years that were back-casted versus years that were directly observed. The observation years (2004 and later) include growth rates expected based on climate alone (line) and those that incorporate additional, non-designated sources of inter-annual demographic variation (points), captured statistically as year-specific random effects. \textbf{B}, }
+  \label{figure:lambda_year}
+  \end{center}
+\end{figure}
+
 Life Table Response Experiments (LTRE) provided a decomposition of how $\lambda$ responded to long-term climate trends (1900-2017), allowing us to understand the relative importance of different dimensions of climate variability and vital rate responses to them. 
-LTRE results indicated that survival responses to climate were the overwhelming driver of temporal trends in $\lambda$ (Fig. \ref{figure:lambda_year}B). 
+LTRE results indicated that survival responses to climate were the overwhelming driver of temporal trends in $\lambda$ (Fig. \ref{figure:LTRE}). 
 Individual growth made no contribution to these trends because it was unresponsive to climate (Fig. \label{figure:vitalrates}D,E,F), whereas flowering and fertility were responsive to climate but their role was relatively small and imperceptible in Fig. \ref{figure:lambda_year}B.
 Furthermore, survival responses to climate PC2 were the dominant driver of temporal trends, followed by PC3 and then PC1.
 Collectively, responses to PC2 and PC3 accounted for \Sexpr{ms_quantities$noPC1_rsq}\% of temporal variation in the back-casted values of $\lambda$. 
 
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/lambda_year_LTRE.pdf}
-  \caption{\textbf{A}, Time series of asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in climate. Black lines show linear regressions for temporal trends in $\lambda$ since 1901 (solid) or 1970 (dashed). Vertical line separates years that were back-casted versus years that were directly observed. The observation years (2004 and later) include growth rates expected based on climate alone (line) and those that incorporate additional, non-designated sources of inter-annual demographic variation (points), captured statistically as year-specific random effects. \textbf{B}, LTRE decomposition of inter-annual variability in population growth rates (based on climate alone). Bars show how each vital rate, responding to each climate PC, accounted for the overall pattern of inter-annual variation in $\lambda$. Survival dominated all vital rate responses to all climate PCs. Values for flowering and fertility were non-zero but imperceptible on this scale}
-  \label{figure:lambda_year}
+    \includegraphics[width=\linewidth]{Figures/LTRE.pdf}
+  \caption{LTRE decomposition of inter-annual variability in population growth rates (based on climate alone). Bars show how each vital rate, responding to each climate PC, accounted for the overall pattern of inter-annual variation in $\lambda$. Survival dominated all vital rate responses to all climate PCs. Values for flowering and fertility were non-zero but imperceptible on this scale.}
+  \label{figure:LTRE}
   \end{center}
 \end{figure}
 
