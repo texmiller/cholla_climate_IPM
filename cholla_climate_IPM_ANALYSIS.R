@@ -860,17 +860,6 @@ for(i in 1:n_post){
   stable_yr_1970_est[i] <- (1-yr_int_1970_est[i])/yr_slope_1970_est[i]
 }
 
-##what is the probability that lambda is increasing?
-length(which(yr_slope_allyrs>0)) / length(yr_slope_allyrs)
-length(which(yr_slope_1970>0)) / length(yr_slope_1970)
-
-length(which(yr_slope_allyrs_est>0)) / length(yr_slope_allyrs_est)
-length(which(yr_slope_1970_est>0)) / length(yr_slope_1970_est)
-
-## or express as odds (times likely)
-length(which(yr_slope_allyrs>0)) / length(which(yr_slope_allyrs<=0))
-length(which(yr_slope_1970>0)) / length(which(yr_slope_1970<=0))
-
 ### New Figure with mean and uncertainty
 win.graph()
 par(mfrow=c(1,3),mar=c(5,5,2,1))
@@ -1062,6 +1051,14 @@ noPC1_rsq <- round(summary(no_PC1)$r.squared,2)*100
 cholla %>% filter(Survival_t1==0) %>% group_by(Year_t) %>% summarise(deaths = n())
 all_deaths<-cholla %>% filter(Survival_t1==0  & Year_t>=2005 & Year_t<=2016) %>% summarise(deaths = n())
 
+##what is the probability that lambda is increasing?
+positive_lambda_prob <- length(which(yr_slope_allyrs>0)) / length(yr_slope_allyrs)
+positive_lambda_prob_1970 <- length(which(yr_slope_1970>0)) / length(yr_slope_1970)
+
+## or express as odds (times likely)
+positive_lambda_odds <- length(which(yr_slope_allyrs>0)) / length(which(yr_slope_allyrs<=0))
+positive_lambda_odds_1970 <- length(which(yr_slope_1970>0)) / length(which(yr_slope_1970<=0))
+
 ## create rds file
 ms_quantities <- list(n_cholla=n_cholla,
                       n_trans_yr=n_trans_yr,
@@ -1075,7 +1072,11 @@ ms_quantities <- list(n_cholla=n_cholla,
                       lambda_timesgreater = lambda_timesgreater,
                       viable_year=viable_year,
                       climate_rsq=climate_rsq,
-                      noPC1_rsq=noPC1_rsq)
+                      noPC1_rsq=noPC1_rsq,
+                      positive_lambda_prob=positive_lambda_prob,
+                      positive_lambda_prob_1970=positive_lambda_prob_1970,
+                      positive_lambda_odds=positive_lambda_odds,
+                      positive_lambda_odds_1970=positive_lambda_odds_1970)
 saveRDS(ms_quantities,"ms_quantities.rds")
 
 ## PC change trends
