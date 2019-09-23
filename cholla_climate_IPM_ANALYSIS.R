@@ -1038,8 +1038,10 @@ PC3_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Varianc
 ## comparing temporal trend between overall data and >=1970
 lambda_timesgreater <- round(coef(lambda_trend1970)[2]/coef(lambda_trend)[2],2)
 
-## year of population viability under climate change trajectory since 1970
-viable_year <- round((1-coef(lambda_trend1970)[1])/coef(lambda_trend1970)[2],0)
+## year of population viability under climate change trajectory
+#viable_year <- round((1-coef(lambda_trend1970)[1])/coef(lambda_trend1970)[2],0)
+viable_year <- median(stable_yr[which(yr_slope_allyrs>0)])
+viable_year_1970 <- median(stable_yr_1970[which(yr_slope_1970>0)][stable_yr_1970[which(yr_slope_1970>0)]<5000])
 
 ## how much does climate predict for the years where we have random effects?
 climate_rsq <- round(summary(lambda_t_PC_mod)$r.squared,2)*100
@@ -1071,6 +1073,7 @@ ms_quantities <- list(n_cholla=n_cholla,
                       PC3modA_anova=PC3modA_anova,
                       lambda_timesgreater = lambda_timesgreater,
                       viable_year=viable_year,
+                      viable_year_1970=viable_year_1970,
                       climate_rsq=climate_rsq,
                       noPC1_rsq=noPC1_rsq,
                       positive_lambda_prob=positive_lambda_prob,
