@@ -370,12 +370,29 @@ melt(cholla_Fmat) %>%
                      plot.title=element_text(size=11))
 
 win.graph()
-plot(stable.stage(cholla_mean$IPMmat)[3:mat.size])
+par(mfrow=c(2,1))
+plot(cholla_mean$meshpts,stable.stage(cholla_mean$IPMmat)[3:(mat.size+2)],
+     xlim=c(-4,2))
+hist(cholla.clim$standvol_t[cholla.clim$Year_t==2014],
+     xlim=c(-4,2))
+lines(cholla_mean$meshpts,stable.stage(cholla_mean$IPMmat)[3:(mat.size+2)])
 
-ggplot(cholla.clim)+
-  geom_histogram(aes(x=standvol_t))+
-  facet_wrap(~Year_t)
+tibble(x = cholla_mean$meshpts,
+       y = stable.stage(cholla_mean$IPMmat)[3:(mat.size+2)]) %>% 
+  ggplot()+
+  geom_line(aes(x,y)) +
+  xlim(-4,2) + xlab("Standardized volume") + ylab("Predicted frequency") -> ssd_pred
+
+cholla.clim %>% 
+  filter(Year_t>=2009) %>% 
+  ggplot()+
+  geom_histogram(aes(x=standvol_t,fill=as.factor(Year_t)),position = "dodge")+
+  theme(legend.position = "none") +
+  xlim(-4,2) + xlab("Standardized volume") + ylab("Observed frequency") -> ssd_obs
 ## seem to have decent correspondence between pred and obs size distributions
+
+## appendix figure
+multiplot(ssd_pred,ssd_obs)
 
 # climate dependence ------------------------------------------------------
 lambda_PC1<-lambda_PC2<-lambda_PC3<-c()
@@ -1060,6 +1077,15 @@ positive_lambda_prob_1970 <- length(which(yr_slope_1970>0)) / length(yr_slope_19
 ## or express as odds (times likely)
 positive_lambda_odds <- length(which(yr_slope_allyrs>0)) / length(which(yr_slope_allyrs<=0))
 positive_lambda_odds_1970 <- length(which(yr_slope_1970>0)) / length(which(yr_slope_1970<=0))
+
+## trend in abundance
+abun_trend <- cholla.clim %>% 
+  filter(Plot %in% c("1","2","3","4","5","6")) %>% 
+  group_by(Plot,Year_t) %>% 
+  summarise(abun=n())
+
+ggplot(abun_trend)+
+  geom_line(aes(x=Year_t,y=abun,group=Plot))
 
 ## create rds file
 ms_quantities <- list(n_cholla=n_cholla,
