@@ -264,8 +264,18 @@ Thus, while there was a clear climate signal to historical trends of population 
 
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/lambda_uncertainty.pdf}
-  \caption{\textbf{A}, Time series of asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in climate. Black lines show linear regressions for temporal trends in $\lambda$ since 1901 (solid) or 1970 (dashed). Vertical line separates years that were back-casted versus years that were directly observed. The observation years (2004 and later) include growth rates expected based on climate alone (line) and those that incorporate additional, non-designated sources of inter-annual demographic variation (points), captured statistically as year-specific random effects. \textbf{B}, }
+    \includegraphics[width=\linewidth]{Figures/lambda_year_uncertainty.pdf}
+  \caption{
+  \textbf{A}, Posterior probability distribution for the time series of asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in climate. 
+Thick black line shows the mean prediction and shaded regions show the 25, 50, 75, and 95\% credible regions accounting for both parameter uncertainty and process error. 
+Vertical line separates years that were back-casted versus years that were directly observed. 
+The observation years (2004 and later) include estimates for year-specific population growth rates that incorporate additional, non-designated sources of inter-annual demographic variation (points), captured statistically as year-specific random effects. 
+\textbf{B}, Posterior distributions for the rate of temporal change in population growth ($\frac{\Delta\lambda}{\Delta Year}$).
+Dark grey shows the rate of change across all years shown in \textbf{A} and light grey shows the rate of change since 1970. 
+Vertical lines show median values.
+\textbf{C}, Posterior distributions for the year of population viability ($\lambda=1$) for the subset of posterior samples for which $\frac{\Delta\lambda}{\Delta Year} > 0$.
+Shading and lines as in \textbf{B}.
+}
   \label{figure:lambda_year}
   \end{center}
 \end{figure}
@@ -278,8 +288,10 @@ Collectively, responses to PC2 and PC3 accounted for \Sexpr{ms_quantities$noPC1_
 
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/LTRE.pdf}
-  \caption{LTRE decomposition of inter-annual variability in population growth rates (based on climate alone). Bars show how each vital rate, responding to each climate PC, accounted for the overall pattern of inter-annual variation in $\lambda$. Survival dominated all vital rate responses to all climate PCs. Values for flowering and fertility were non-zero but imperceptible on this scale.}
+    \includegraphics[width=0.75\linewidth]{Figures/LTRE_posterior}
+  \caption{LTRE decomposition of climate-driven inter-annual variability in population growth rates. Lines of decreasing thickness show the 50, 75 and 95 percentiles of the posterior distributions of the vital rate parameters, and points show the median. 
+Shading corresponds to different vital rates (survival, flowering, and fertility) 
+Posterior distributions for flowering and fertility are imperceptible on this scale.}
   \label{figure:LTRE}
   \end{center}
 \end{figure}
@@ -626,6 +638,16 @@ We used $n=200$ bins.
 We extended integration limits $L$ and $U$ to avoid unintentional ``eviction'' \citep{williams2012avoiding}.
 
 We estimated the asmptotic population growth rate $\lambda$ as the dominant eigenvalue of the discretized IPM kernel. 
+We compared the observed size distribution and the predicted distribution at the long-term mean climate ($PC_{1}=PC_{2}=PC_{3}=0$).
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=0.75\linewidth]{Figures/SSD.pdf}
+  \caption{}
+  \label{figure:LTRE}
+  \end{center}
+\end{figure}
+
 We evaluated how $\lambda$ responded to climate variation by first varying each climate PC independently, holding the other two fixed at their long-term mean.
 Second, we back-casted $\lambda$ over the $20^{th}$ century using time series of PC values, which generated a time series of $\lambda_{t}$. 
 
