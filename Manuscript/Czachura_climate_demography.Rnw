@@ -19,7 +19,9 @@
 knitr::opts_chunk$set(fig.pos = 'H')
 library(tidyverse)
 library(xtable)
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+#setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+setwd("C:/Users/tm634/Desktop/git local/cholla_climate_IPM")
+#knitr::opts_knit$set(root.dir = 'C:/Users/tm634/Desktop/git local/cholla_climate_IPM')
 source("cholla_climate_IPM_SOURCE.R")
 ms_quantities <- readRDS("ms_quantities.rds")
 @
@@ -36,6 +38,7 @@ ms_quantities <- readRDS("ms_quantities.rds")
 
 %-------------------------------------------------------------------------
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \maketitle
 
 
@@ -416,7 +419,8 @@ All of the code for our statistical and demographic modeling is available at \ur
 \renewcommand{\theequation}{A\arabic{equation}}\setcounter{equation}{0}
 
 <<climate correlation,echo=F, message=F, warning=F>>=
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+#setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+setwd("C:/Users/tm634/Desktop/git local/cholla_climate_IPM")
 SEV_WNA <- read.csv("SEV_WNA.csv")
 SEV_WNA$color <- ifelse(SEV_WNA$season=="cool","dodgerblue","orangered")
 SEV_WNA_yr_range <- range(SEV_WNA$trans_year)
@@ -535,7 +539,8 @@ We estimated this probability for each coefficient in Eq. \ref{eq:SVS} and retai
 All $z_i$ values from the full model are shown in Table \ref{tab:SVS}.
 
 <<SVS_table,echo=F, message=F, warning=F, results = 'asis'>>=
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+setwd("C:/Users/tm634/Desktop/git local/cholla_climate_IPM")
+#setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 SVS_post<-read.csv("allrates_SVS_out.csv")[,c("X","mean")]
 fert_z <- SVS_post %>% 
   filter(str_detect(X, 'fert.z')) %>% 
