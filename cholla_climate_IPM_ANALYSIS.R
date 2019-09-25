@@ -795,7 +795,7 @@ for(i in 1:n_post){
       select(surv.bclim.1.1.:surv.bclim.3.3.) %>% 
       matrix(nrow=3) 
     sample.params$min.size <- mean_params$min.size
-    sample.params$max.size <- mean_params$max.siz
+    sample.params$max.size <- mean_params$max.size
     
   lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
                                           PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
@@ -999,8 +999,143 @@ legend("topright",legend=c("All years","Since 1970"),
        fill=c(alpha("black",0.5),alpha("black",0.2)),
        bty="n", lty=c(1,2))
 
+
+# Posterior sampling LTRE -------------------------------------------------
+## First create a vector identifying the climate-dependent parameters
+PC_params <- c("surv.mu","surv.bsize","flow.mu","flow.bsize","fert.mu","fert.bsize")
+## collect parameter sensitivities to climate
+dtheta.dPC1 <- dtheta.dPC2 <- dtheta.dPC3 <- rep(0,times = length(PC_params))
+## arbitrarily small perturbation
+perturbation <- 0.001
+## create matrices to store output
+LTRE_PC1<-LTRE_PC2<-LTRE_PC3<-matrix(NA,nrow = n_post, ncol = length(PC_params))
+
+for(i in 1:n_post){
+  sample.params <- as.list(params_post[i,])
+  sample.params$flow.bclim <- params_post[rand.indices[i],] %>% 
+    select(flow.bclim.1.1.:flow.bclim.3.3.) %>% 
+    matrix(nrow=3)
+  sample.params$fert.bclim <- params_post[rand.indices[i],] %>% 
+    select(fert.bclim.1.1.:fert.bclim.3.3.) %>% 
+    matrix(nrow=3)  
+  sample.params$grow.bclim <- params_post[rand.indices[i],] %>% 
+    select(grow.bclim.1.1.:grow.bclim.3.3.) %>% 
+    matrix(nrow=3) 
+  sample.params$surv.bclim <- params_post[rand.indices[i],] %>% 
+    select(surv.bclim.1.1.:surv.bclim.3.3.) %>% 
+    matrix(nrow=3) 
+  sample.params$min.size <- mean_params$min.size
+  sample.params$max.size <- mean_params$max.size
+  
+  ## PC1 - survival intercept and flowering intercept
+  dtheta.dPC1[1] <- sample.params$surv.bclim[1,1][[1]]
+  dtheta.dPC1[3] <- sample.params$flow.bclim[1,1][[1]]
+  ## PC2 - surv int and flow/fert int and slope
+  dtheta.dPC2[1] <- sample.params$surv.bclim[1,2][[1]]
+  dtheta.dPC2[3] <- sample.params$flow.bclim[1,2][[1]]
+  dtheta.dPC2[4] <- sample.params$flow.bclim[3,2][[1]]
+  dtheta.dPC2[5] <- sample.params$fert.bclim[1,2][[1]]
+  dtheta.dPC2[6] <- sample.params$fert.bclim[3,2][[1]]
+  ## PC3 - surv int, fert int, and flow int and slope
+  dtheta.dPC3[1] <- sample.params$surv.bclim[1,3][[1]]
+  dtheta.dPC3[3] <- sample.params$flow.bclim[1,3][[1]]
+  dtheta.dPC3[4] <- sample.params$flow.bclim[3,3][[1]]
+  dtheta.dPC3[5] <- sample.params$fert.bclim[1,3][[1]]
+  
+  ## calculate sensitivities of these parameters at the mean model (all PC=0)
+  base_lambda <- lambda(bigmatrix(params = sample.params,
+                                  PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(0,2),
+                                  random = F, 
+                                  lower.extension = lower.extension, 
+                                  upper.extension = upper.extension,
+                                  mat.size = mat.size)$IPMmat)
+  dlambda.dtheta <- c()
+  for(j in 1:length(PC_params)){
+    LTRE_params <- sample.params
+    LTRE_params[paste(PC_params[j])] <- as.numeric(LTRE_params[paste(PC_params[j])])+perturbation
+    LTRE_lambda <- lambda(bigmatrix(params = LTRE_params,
+                                    PC1 = rep(0,2), PC2 = rep(0,2), PC3 = rep(0,2),
+                                    random = F, 
+                                    lower.extension = lower.extension, 
+                                    upper.extension = upper.extension,
+                                    mat.size = mat.size)$IPMmat)
+    dlambda.dtheta[j] <- (LTRE_lambda-base_lambda) / perturbation
+  }
+  
+  LTRE_PC1[i,] <- dtheta.dPC1 * dlambda.dtheta
+  LTRE_PC2[i,] <- dtheta.dPC2 * dlambda.dtheta
+  LTRE_PC3[i,] <- dtheta.dPC3 * dlambda.dtheta
+  print(i)
+}
+
+mean_LTRE_PC1 <- colMeans((LTRE_PC1[,c(1,3,5)] + LTRE_PC1[,c(2,4,6)]))
+ci_LTRE_PC1.S <- quantile(LTRE_PC1[,1] + LTRE_PC1[,2],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+ci_LTRE_PC1.F <- quantile(LTRE_PC1[,3] + LTRE_PC1[,4],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+ci_LTRE_PC1.R <- quantile(LTRE_PC1[,5] + LTRE_PC1[,6],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+
+mean_LTRE_PC2 <- colMeans((LTRE_PC2[,c(1,3,5)] + LTRE_PC2[,c(2,4,6)]))
+ci_LTRE_PC2.S <- quantile(LTRE_PC2[,1] + LTRE_PC2[,2],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+ci_LTRE_PC2.F <- quantile(LTRE_PC2[,3] + LTRE_PC2[,4],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+ci_LTRE_PC2.R <- quantile(LTRE_PC2[,5] + LTRE_PC2[,6],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+
+mean_LTRE_PC3 <- colMeans((LTRE_PC3[,c(1,3,5)] + LTRE_PC3[,c(2,4,6)]))
+ci_LTRE_PC3.S <- quantile(LTRE_PC3[,1] + LTRE_PC3[,2],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+ci_LTRE_PC3.F <- quantile(LTRE_PC3[,3] + LTRE_PC3[,4],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+ci_LTRE_PC3.R <- quantile(LTRE_PC3[,5] + LTRE_PC3[,6],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
+
+#
+win.graph()
+LTRE_bar <- barplot(matrix(NA,3,3),
+                    beside=T,ylab=expression(paste("LTRE contribution   ",partialdiff,lambda," / ",partialdiff,"PC")),
+                    col=alpha("black",0.5),names.arg=c("PC1","PC2","PC3"),
+                    ylim=c(-.03,0.03),cex.axis = 0.8)
+abline(h=0,col="lightgray")
+legend("topright",c("Survival","Flowering","Fertility"),bty="n",
+       fill=c("gray25","gray50","gray75"))
+box()
+arrows(LTRE_bar[1,1],ci_LTRE_PC1.S[3],LTRE_bar[1,1],ci_LTRE_PC1.S[5],code=0,lwd=8,col="gray25")
+arrows(LTRE_bar[1,1],ci_LTRE_PC1.S[2],LTRE_bar[1,1],ci_LTRE_PC1.S[6],code=0,lwd=4,col="gray25")
+arrows(LTRE_bar[1,1],ci_LTRE_PC1.S[1],LTRE_bar[1,1],ci_LTRE_PC1.S[7],code=0,col="gray25")
+
+arrows(LTRE_bar[2,1],ci_LTRE_PC1.F[3],LTRE_bar[2,1],ci_LTRE_PC1.F[5],code=0,lwd=8,col="gray50")
+arrows(LTRE_bar[2,1],ci_LTRE_PC1.F[2],LTRE_bar[2,1],ci_LTRE_PC1.F[6],code=0,lwd=4,col="gray50")
+arrows(LTRE_bar[2,1],ci_LTRE_PC1.F[1],LTRE_bar[2,1],ci_LTRE_PC1.F[7],code=0,col="gray50")
+
+points(LTRE_bar[,1],c(ci_LTRE_PC1.S[4],ci_LTRE_PC1.F[4],ci_LTRE_PC1.R[4]),
+       pch=21,bg=c("gray25","gray50","gray75"),cex=2)
+
+arrows(LTRE_bar[1,2],ci_LTRE_PC2.S[3],LTRE_bar[1,2],ci_LTRE_PC2.S[5],code=0,lwd=8,col="gray25")
+arrows(LTRE_bar[1,2],ci_LTRE_PC2.S[2],LTRE_bar[1,2],ci_LTRE_PC2.S[6],code=0,lwd=4,col="gray25")
+arrows(LTRE_bar[1,2],ci_LTRE_PC2.S[1],LTRE_bar[1,2],ci_LTRE_PC2.S[7],code=0,col="gray25")
+
+arrows(LTRE_bar[2,2],ci_LTRE_PC2.F[3],LTRE_bar[2,2],ci_LTRE_PC2.F[5],code=0,lwd=8,col="gray50")
+arrows(LTRE_bar[2,2],ci_LTRE_PC2.F[2],LTRE_bar[2,2],ci_LTRE_PC2.F[6],code=0,lwd=4,col="gray50")
+arrows(LTRE_bar[2,2],ci_LTRE_PC2.F[1],LTRE_bar[2,2],ci_LTRE_PC2.F[7],code=0,col="gray50")
+
+arrows(LTRE_bar[3,2],ci_LTRE_PC2.R[3],LTRE_bar[3,2],ci_LTRE_PC2.R[5],code=0,lwd=8,col="gray75")
+arrows(LTRE_bar[3,2],ci_LTRE_PC2.R[2],LTRE_bar[3,2],ci_LTRE_PC2.R[6],code=0,lwd=4,col="gray75")
+arrows(LTRE_bar[3,2],ci_LTRE_PC2.R[1],LTRE_bar[3,2],ci_LTRE_PC2.R[7],code=0,col="gray75")
+
+points(LTRE_bar[,2],c(ci_LTRE_PC2.S[4],ci_LTRE_PC2.F[4],ci_LTRE_PC2.R[4]),
+       pch=21,bg=c("gray25","gray50","gray75"),cex=2)
+
+arrows(LTRE_bar[1,3],ci_LTRE_PC3.S[3],LTRE_bar[1,3],ci_LTRE_PC3.S[5],code=0,lwd=8,col="gray25")
+arrows(LTRE_bar[1,3],ci_LTRE_PC3.S[2],LTRE_bar[1,3],ci_LTRE_PC3.S[6],code=0,lwd=4,col="gray25")
+arrows(LTRE_bar[1,3],ci_LTRE_PC3.S[1],LTRE_bar[1,3],ci_LTRE_PC3.S[7],code=0,col="gray25")
+
+arrows(LTRE_bar[2,3],ci_LTRE_PC3.F[3],LTRE_bar[2,3],ci_LTRE_PC3.F[5],code=0,lwd=8,col="gray50")
+arrows(LTRE_bar[2,3],ci_LTRE_PC3.F[2],LTRE_bar[2,3],ci_LTRE_PC3.F[6],code=0,lwd=4,col="gray50")
+arrows(LTRE_bar[2,3],ci_LTRE_PC3.F[1],LTRE_bar[2,3],ci_LTRE_PC3.F[7],code=0,col="gray50")
+
+arrows(LTRE_bar[3,3],ci_LTRE_PC3.R[3],LTRE_bar[3,3],ci_LTRE_PC3.R[5],code=0,lwd=8,col="gray75")
+arrows(LTRE_bar[3,3],ci_LTRE_PC3.R[2],LTRE_bar[3,3],ci_LTRE_PC3.R[6],code=0,lwd=4,col="gray75")
+arrows(LTRE_bar[3,3],ci_LTRE_PC3.R[1],LTRE_bar[3,3],ci_LTRE_PC3.R[7],code=0,col="gray75")
+
+points(LTRE_bar[,3],c(ci_LTRE_PC3.S[4],ci_LTRE_PC3.F[4],ci_LTRE_PC3.R[4]),
+       pch=21,bg=c("gray25","gray50","gray75"),cex=2)
+
+
 # Stochastic population growth --------------------------------------------
-## size of the sliding window
 window_size <- 9
 lambdaS_rfxF <- lambdaS_rfxT <- c()
 
