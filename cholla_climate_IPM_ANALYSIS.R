@@ -797,23 +797,23 @@ for(i in 1:n_post){
     sample.params$min.size <- mean_params$min.size
     sample.params$max.size <- mean_params$max.size
     
-  lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
-                                          PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
-                                          PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
-                                          PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
-                                          random = T, 
-                                          rand.seed = seed_mat[i,j],
-                                          lower.extension = lower.extension, 
-                                          upper.extension = upper.extension,
-                                          mat.size = mat.size)$IPMmat)
-  lambda_year_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
-                                              PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
-                                              PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
-                                              PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
-                                              random = F, 
-                                              lower.extension = lower.extension, 
-                                              upper.extension = upper.extension,
-                                              mat.size = mat.size)$IPMmat)
+  #lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
+  #                                        PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+  #                                        PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+  #                                        PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+  #                                        random = T, 
+  #                                        rand.seed = seed_mat[i,j],
+  #                                        lower.extension = lower.extension, 
+  #                                        upper.extension = upper.extension,
+  #                                        mat.size = mat.size)$IPMmat)
+  #lambda_year_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
+  #                                            PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+  #                                            PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+  #                                            PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+  #                                            random = F, 
+  #                                            lower.extension = lower.extension, 
+  #                                            upper.extension = upper.extension,
+  #                                            mat.size = mat.size)$IPMmat)
   lambda_year_proc_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
                                               PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
                                               PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
@@ -827,10 +827,11 @@ for(i in 1:n_post){
 }## end year loop
 }##end sample loop
 
-## I only got through 150 samples, but write this to file
-write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv")
-write.csv(lambda_year_est_err,"lambda_year_est_err.csv")
-write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv")
+## write or read
+#write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv")
+#write.csv(lambda_year_est_err,"lambda_year_est_err.csv")
+write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv",row.names = F)
+test <- read.csv("lambda_year_proc_est_err.csv")[,-(1:2)]
 
 lambda_year_proc_err.95<-lambda_year_proc_err.75<-lambda_year_proc_err.50<-lambda_year_proc_err.25<-matrix(NA,2,length(PCclim$lambda_year))
 lambda_year_est_err.95<-lambda_year_est_err.75<-lambda_year_est_err.50<-lambda_year_est_err.25<-matrix(NA,2,length(PCclim$lambda_year))
@@ -1188,12 +1189,12 @@ PC3_var_explained <- round(PCclim_var[which(PCclim_var$X=="Proportion of Varianc
   (lambda_PC3[which.min(abs(x_PC3-(coef(PC3modB)[1]+coef(PC3modB)[2]*1970)))])
 
 ## comparing temporal trend between overall data and >=1970
-lambda_timesgreater <- round(coef(lambda_trend1970)[2]/coef(lambda_trend)[2],2)
+lambda_timesgreater <- round(median(yr_slope_1970)/median(yr_slope_allyrs),2)
 
 ## year of population viability under climate change trajectory
 #viable_year <- round((1-coef(lambda_trend1970)[1])/coef(lambda_trend1970)[2],0)
-viable_year <- median(stable_yr[which(yr_slope_allyrs>0)])
-viable_year_1970 <- median(stable_yr_1970[which(yr_slope_1970>0)][stable_yr_1970[which(yr_slope_1970>0)]<5000])
+viable_year <- round(median(stable_yr[which(yr_slope_allyrs>0)]))
+viable_year_1970 <- round(median(stable_yr_1970[which(yr_slope_1970>0)]))
 
 ## how much does climate predict for the years where we have random effects?
 climate_rsq <- round(summary(lambda_t_PC_mod)$r.squared,2)*100
