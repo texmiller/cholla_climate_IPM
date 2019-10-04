@@ -828,9 +828,9 @@ for(i in 1:n_post){
 }##end sample loop
 
 ## write or read
-#write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv")
-#write.csv(lambda_year_est_err,"lambda_year_est_err.csv")
-write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv",row.names = F)
+#write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv",row.names = F)
+#write.csv(lambda_year_est_err,"lambda_year_est_err.csv",row.names = F)
+#write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv",row.names = F)
 test <- read.csv("lambda_year_proc_est_err.csv")[,-(1:2)]
 
 lambda_year_proc_err.95<-lambda_year_proc_err.75<-lambda_year_proc_err.50<-lambda_year_proc_err.25<-matrix(NA,2,length(PCclim$lambda_year))
