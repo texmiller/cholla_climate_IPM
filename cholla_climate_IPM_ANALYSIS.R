@@ -20,6 +20,15 @@ PC3modA<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionA_start_yr))
 PC3modB<-lm(PC3~Year_t,data=subset(PCclim,Year_t>=regressionB_start_yr))
 PC3modA_anova<-anova(PC3modA)
 
+
+# Parallel analysis figure ------------------------------------------------
+
+pdf("Manuscript/Figures/SEV_paran.pdf",useDingbats = F)
+plot(1:8,SEV_paran$Ev,xlab="Principal component",ylab="Eigenvalue",type="b",
+     pch=16,cex=2)
+abline(h=1,col="darkgrey")
+dev.off()
+
 ###Figure 1##################### 
 win.graph()
 layout(matrix(c(1,1,1,2,2,2,3,3,4,4,5,5), 6, 2, byrow = F))
