@@ -18,6 +18,7 @@ PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
 SEV_WNA <- read.csv("SEV_WNA.csv")
 PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
 PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
+SEV_paran <- read_rds("SEV_paran.rds")
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
   filter(Year_t >= min(cholla$Year_t,na.rm=T),
          Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
