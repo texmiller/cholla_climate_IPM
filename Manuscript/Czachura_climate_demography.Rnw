@@ -155,7 +155,8 @@ PCA allowed us to rank the magnitudes of multiple aspects of climate variation a
 
 \subsection*{Statistical estimation of climate-dependence}
 
-We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as captured by three PCs that collectively explained \Sexpr{ms_quantities$var_explained}\% of the inter-annual variation in seasonal climate values (Results).
+We built generalized linear mixed models (GLMM) in a hierarchical Bayesian framework to connect inter-annual demographic variability to climate drivers, as captured by three PCs that collectively explained \Sexpr{ms_quantities$var_explained}\% of the inter-annual variation in seasonal climate values (Results). 
+The choice of three PCs was based on results of parallel analysis (Fig. \ref{fig:SEV_paran}), a statistical method for determining how many components to retain \citep{franklin1995parallel}. 
 Climate-dependence was limited to the four demographic vital rates for which we had long-term data: survival, growth (change in size), reproductive status (vegetative or flowering), and fertility of flowering plants (number of flower buds produced). 
 For each of these vital rates, we fit a statical model that included fixed effects of size, climate, size*climate interaction, and a quadratic term for climate to account for possible non-monotonic effects. 
 ``Climate'' in these models was each of the three PCs, so there were a total of $10$ candidate variables for each vital rate model (Appendix B). 
@@ -486,6 +487,7 @@ The weakest correlation was that of warm-season maximum temperature (Spearman's 
   \end{center}
 \end{table}
 
+\newpage
 \begin{figure}[H]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/SEV-WNA_corr.pdf}
@@ -494,6 +496,14 @@ The weakest correlation was that of warm-season maximum temperature (Spearman's 
    \end{center}
 \end{figure}
 
+\newpage
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/SEV_paran.pdf}
+  \caption{Parallel analysis.}
+   \label{fig:SEV_paran}
+   \end{center}
+\end{figure}
 %--------------------------------------------------------------------
 \newpage
 \section*{Appendix B: Vital rate modeling and stochastic variable selection}
