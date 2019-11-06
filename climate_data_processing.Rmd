@@ -8,9 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T,message=F,warning=F)
 library(tidyverse)
-library(data.table)
+#library(data.table)
 library(chron)
-library(ggfortify)
+#library(ggfortify)
 ```
 
 ## Overview
@@ -206,7 +206,17 @@ summary(SEV_PCA)
 autoplot(SEV_PCA,loadings=T,loadings.label=T)
 ```
 
-Lastly, write the PCA values to file, to be used in demographic analysis.
+## Parallel analysis
+```{r paran}
+library(paran)
+
+SEV_paran <- paran(PCA_dat[,2:9], iterations=5000)
+plot(1:8,SEV_paran$Ev,xlab="Principal component",ylab="Eigenvalue",type="b")
+abline(h=1,col="darkgrey")
+```
+
+
+Lastly, write the PCA values and parallel analysis to file, to be used in demographic analysis.
 ```{r write PCA}
 out<-data.frame(cbind(PCA_dat$trans_year,SEV_PCA$x))
 names(out)[1]<-"Year_t"
@@ -215,5 +225,6 @@ names(out)[1]<-"Year_t"
 #write.csv(data.frame(SEV_PCA$rotation),"climateWNA_PCrotation_out.csv",row.names=T)
 #write.csv(data.frame(summary(SEV_PCA)$importance),"climateWNA_variableimportance_out.csv")
 
+#write_rds(SEV_paran,"SEV_paran.rds")
 ```
 
