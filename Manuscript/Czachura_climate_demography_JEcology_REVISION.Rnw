@@ -14,6 +14,8 @@
 \usepackage{caption}
 \usepackage{multirow}
 \usepackage{hyperref}
+\usepackage{xr-hyper}
+\usepackage[usenames,dvipsnames]{xcolor}
 \doublespacing
 \newcommand{\revise}[1]{{\color{Mahogany}{#1}}}
 
@@ -21,7 +23,7 @@
 knitr::opts_chunk$set(fig.pos = 'H')
 library(tidyverse)
 library(xtable)
-#setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 source("cholla_climate_IPM_SOURCE.R")
 ms_quantities <- readRDS("ms_quantities.rds")
 @
@@ -95,14 +97,14 @@ Our previous work with the tree cholla cactus (\textit{Cylindriopuntia imbricata
 This region has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
 Recent and projected climate change in our study region includes increases in temperature and shifts in the seasonal timing of precipitation \citep{petrie2014regional,cook2013response,cook2015unprecedented}. 
 
-\revise{
+\revise{\linelabel{mod1}
 Our study was conducted in the following steps. 
 First, we characterized climate variation and change in our northern Chihuahuan desert study region over the past century.
 Second, we estimated vital rate responses to inter-annual climate variation during the demographic study period (2004--2017).
 Following previous studies, we hypothesized that high-sensitivity vital rates (those that strongly influence $\lambda$) would be less responsive environmental variability than low-sensivity vital rates \citep{pfister1998patterns}.
 Third, we back-casted climate-dependent demography to determine whether the past century included periods that were favorable for population growth, thus testing the hypothesis that recent climate change has driven this population into extinction debt.
 Our analysis relied on a Bayesian framework that incorporates key sources of uncertainty into our back-cast. 
-Finally, we asked whether the components of climate that are changing most strongly are the same climate drivers that most strongly influence cactus demography. 
+Finally, we asked whether the components of climate that are changing most strongly are the same climate components that most strongly influence cactus demography. 
 }
 
 %--------------------------------------------------------------------
