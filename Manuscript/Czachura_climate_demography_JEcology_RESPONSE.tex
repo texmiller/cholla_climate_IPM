@@ -1,0 +1,174 @@
+% ======================================================= %
+% Document: TEMPLATE FOR RESPONSES TO REVIEWERS
+% Author: Andrea Ballatore
+% Date: Jan 7, 2013
+% Source: https://raw.githubusercontent.com/ucd-spatial/Datasets/master/tex_response_to_reviewers_template/responses_to_reviewers.tex
+% Modified by Eduard Szöcs, 10.03.2015
+% ======================================================= %
+\documentclass[12pt]{article}
+
+% packages
+\usepackage{xr}
+\externaldocument[ms-]{Czachura_climate_demography_JEcology_REVISION}
+
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{color}
+\definecolor{mygray}{gray}{0.6}
+\usepackage[utf8]{inputenc}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[
+	round,	%(defaultage in the main file and \input ) for round parentheses;
+	colon,	% (default) to separate multiple citations with colons;
+	authoryear,% (default) for author-year citations;
+	sort,		% orders multiple citations into the sequence in which they
+]{natbib}
+\usepackage[%disable
+	]{todonotes}
+
+\usepackage{anysize}
+\marginsize{2.5cm}{2.5cm}{1.5cm}{2.5cm}
+
+% macros
+% add a counter
+\newcounter{cN}
+\setcounter{cN}{0}
+
+\newcommand{\comment}[1]{
+	\vspace{2em}
+	\refstepcounter{cN} % incrment counter
+	\noindent \hangindent=0em \textbf{\textcolor{Maroon}{\uline{Comment \thecN}:~}}\emph{``#1''}
+	}
+
+\newcommand{\response}[1]{
+	\\[0.25em]
+	\hangindent=2.3em \textbf{\textcolor{NavyBlue}{\uline{Response}:~}}#1
+	}
+
+\newcommand{\revise}[1]{{\color{Mahogany}{#1}}}
+
+\usepackage[normalem]{ulem}
+\definecolor{darkred}{rgb}{1,.6,.6}
+\DeclareRobustCommand\problemline{\bgroup\markoverwith{\textcolor{darkred}{\rule[-0.9ex]{4pt}{3pt}}}\ULon}
+\DeclareRobustCommand{\problem}[1]{\problemline{#1}} % soul
+\setcounter{secnumdepth}{-1}
+
+\begin{document}
+% ======================================================= %
+\title{JEcol-2019-0927 --- Response to reviewers}
+
+\maketitle
+% ======================================================= %
+\noindent To the editorial board,\\
+
+Thank you for the opportunity to submit a major revision of our manuscript for your consideration. Thanks also for giving us the extra time we needed to prepare a revision that rises to the challenges set out for us by the reviewers and associate editor. 
+
+In this document, we reproduce comments from the editors and reviewers and provide our point-by-point responses. As we explain in more detail below, our responses and corresponding revisions focus on the following major concerns that emerged from our previous review.
+\begin{enumerate}
+\item{First thing}
+\item{Second thing}
+\item{Third thing}
+\end{enumerate}
+
+All of our revisions are denoted in the manuscript with \revise{Mahogany font}.
+
+\vspace{2em}
+\hfill On behalf of myself and K. Czachura,
+
+\hfill Tom Miller
+\newpage
+
+
+
+% ======================================================= %
+\section{Response to Dr. Salguero-Gomez}
+\vspace{-2em}
+
+\comment{This paper brings together long-term data on an endemic cactus species, analysis on the trends of climate change at the region, and demographic modelling to show that the species in question is actually benefitting from the changes in the climate, but not so much due to the overall trend, but rather due to change in seasonality. Since this paper last came through my editorial board, it has improved significantly in terms of its clarity. I have read it with great attention and enjoyed doing so. However, I think that the laundry list of objectives (rather than formal, directional hypothesis) is really not fit for Journal of Ecology. I would urge the authors to seriously modify them, as there is a wealth of literature, theories, and observations that easily provide the backbone to develop and test hypotheses rather than to ask open-ended questions.}
+\response{}
+
+\comment{The main criticism that has emerged from the review process is that of the description, analyses and choice of environmental variables that most affect population growth rate and its underlying vital rates. Reviewer 1 makes a good case for how some key aspects that show the choice of variables to be somewhat dubious seems a bit hidden in the SOM. Reviewer 2 also highlights this and is concerned with the out-of-climatic-space sampling. I'd expect the authors to address these and some other minor points raised by reviewer 2 in the next round of revisions.}
+\response{}
+
+\section{Response to Reviewer 1}
+\vspace{-2em}
+
+\comment{There is many things I appreciate in this manuscript: it is well written, the results have been thought through and well explored, and the uncertainties around predictions addressed with appropriate methods and generally well presented. }
+\response{We thank this reviewer for their supportive comments and constructive criticisms.}
+
+\comment{Having said that, there is one, perhaps key problem that prevents me from fully credit the results. The correlation between the on-site meteorological data and downscaled climate data in the same years and location (see Table A1 and Figure A1) are low and not significant in three out of the eight variables used. The Figure A1 unfortunately doesn't present these poor correlations in a honest way, except perhaps the panel B, where the red dots clearly show the weak correlation. Despite this, the authors proceed to include all variables in the PCA, and use only the PCA results in their extrapolations. To me, due to this approach, climate signals were blurred from the start.}
+\response{}
+
+\comment{I therefore would like to see whether results change by using only climate variables that were highly, and significantly correlated with on-site data. As well, I would like to see comparatively the demographic responses to raw, measured meteorological data, and how these responses differ from those inferred using PCA axes during the census period. This approach would hopefully ascertain further results.}
+\response{While the reviewer's observations of the problem are exactly right, these two suggestions each have some drawbacks, as described next, so we have opted for a third approach. 
+Limiting the analysis to climate variables that were significantly correlated with on-site data would tend to bias the analyses in favor of climate means (which are generally well captured by the downscaled data) and against climate extremes (captured less well by the downscaled data). 
+The idea of using the raw meteorological observations as covariates is intuitively appealing but leads to high-dimensional models (there are eight climate coveriates) with several correlated variables (e.g., temperature means and maximima); with only $14$ years of demographic data, this creates convergence and identifiability problems.
+\\
+As a third approach that we think captures the spirit of the reviewer's suggestion, we have re-run our PCA-based analyses using the on-site climate data for all the years available. }
+
+\comment{Some further recommendations on how to approach demographic backcasting would also be welcome for less experienced researchers.}
+\response{}
+
+\section{Response to Reviewer 2}
+\vspace{-2em}
+
+\comment{Czachura \& Miller provide an interesting analysis exploring whether a common cactus species in the SW US is currently declining (population growth rate $<1$) and thus is part of a climate change-induced extinction debt. They find that in fact the opposite may be true, that Cyclindriopuntia imbricata is likely benefiting from ongoing climate warming and its population growth rate has increased over the last century. In addition, they find that although changes in winter conditions are not the strongest signal of climate change at their site, Cyclindriopuntia imbricata is most sensitive to the more these subtle changes in winter conditions. 
+\\
+Overall, I found the paper to be very clearly written, and the results are interesting and important. It thoughtfully illustrates that the impacts of climate change may often be unexpected in both the direction of the effect (in this case positive) and which drivers are most important.  In particular, I appreciated the authors thorough accounting of different sources of uncertainty into their back casting results. Although they find there is considerable uncertainty associated with their results, the honest portrayal of this in the figures and results I feel makes this study a useful example for how to present uncertain climate change forecast results. 
+}
+\response{}
+
+\comment{My primary concern with the manuscript is the extrapolation of climate PCAs beyond the observed range of variability. This is most concerning for PCs 1 and 2 where is seems like based on figure 2 nearly half of the modeled range of PC1 and 2 is never observed. So it’s a little hard to know how vital rates really respond to high values on PC1 and low values on PC2 because there are no vital rate measurements in those conditions. I’d encourage the authors to add additional analyses to explore how this extrapolation impacts results.}
+\response{}
+
+\comment{Additionally, separating out the contributions of parameter uncertainty and process uncertainty in the results would be helpful.}
+\response{}
+
+\comment{202: Given that stochastic variable selection is used for variable selection, Why not use raw climate variables that are easier to interpret and understand rather than PCs? How would this change results? 
+}
+\response{}
+
+\comment{268: The hypothetical language ``we could additionally'' here is slightly confusing. Was this analysis done?}
+\response{}
+
+\comment{Eq 5: Consider a different parameter for beta here, since beta with a slightly different meaning is already used in equation 1. }
+\response{}
+
+\comment{I can appreciate based on Figure 4 that it is more likely than not that population growth has increased over the last century in response to climate, but I think the most striking feature (at least to me) is how invariant population growth seems to be in response to the climate PCs (Fig. C3). Do you think this lack of variability is just a reflection of a life history that isn’t that sensitive to climate? What other factors could be important? Competition with grasses and other shrubs? }
+\response{}
+
+\comment{429-434: I really like the inclusion of this material, and I wish this type of language were more common in ecological studies. It’s difficult to improve forecasting without clear acknowledgment of what we do and do not know with certainty. Also, the footnote is great as a science communication tool. }
+\response{}
+
+\comment{433-434: I think this is a great point. I might just add that this uncertainty can take lots of forms depending on the data, and in some cases if uncertainty is autocorrelated (spatially or temporally) accounting for this can improve forecasts. }
+\response{}
+
+\comment{480: Do you think these low elevation populations at all reflect the future climate conditions of your focal populations in this study? How different are the two sites? }
+\response{}
+
+\comment{484: Given the degree of uncertainty associated with the estimates, I suggest softening this language to say: ``more likely than not to be `rescued' by climate change''}
+\response{}
+
+\comment{489: This assumes the relationship between the PCs and vital rates would not change or breakdown in any way with changing climate. }
+\response{}
+
+\comment{499: Consider providing a little more context here. My understanding is that the ``undesirability'' of cholla is mostly because it is not palatable by cattle, not necessarily because of any larger ecosystem impact. }
+\response{}
+
+\comment{512:  The term ``climate change winner'”'' seems a little simplified given the complexities of climate change and the possibility of indirect effects. I suggest the authors change this text to something like ``is likely to benefit from \ldots predicted climate change''. }
+\response{}
+
+\comment{526: This is likely beyond the scope of this paper, but It would be interesting to see how this asymptotic expectation changes after that desert plants often have pulsed recruitment that could lead to non-asymptotic size distributions. }
+\response{}
+
+\comment{535-536: Did you consider doing a second set of analyses to explore whether a local weather dataset (covering just the census years) would capture this freeze effect? }
+\response{}
+
+\comment{551: This language, similar to some of the language I highlighted above, seems overly confident given the results. I think one of the really nice features of the manuscript is the careful, full consideration of uncertainty, I'd encourage the authors to use similarly careful language in the text.}
+\response{}
+
+
+% ======================================================= %
+\end{document}
+% ======================================================= %
