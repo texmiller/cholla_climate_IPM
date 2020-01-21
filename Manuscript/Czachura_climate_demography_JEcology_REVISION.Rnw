@@ -15,12 +15,13 @@
 \usepackage{multirow}
 \usepackage{hyperref}
 \doublespacing
+\newcommand{\revise}[1]{{\color{Mahogany}{#1}}}
 
 <<setup,echo=F, message=F, warning=F>>=
 knitr::opts_chunk$set(fig.pos = 'H')
 library(tidyverse)
 library(xtable)
-setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
+#setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
 source("cholla_climate_IPM_SOURCE.R")
 ms_quantities <- readRDS("ms_quantities.rds")
 @
@@ -91,17 +92,18 @@ These complications, common to environmentally explicit demographic studies \cit
 
 We used long-term demographic data to study climate-dependent population dynamics of a long-lived Chihuahuan desert cactus persisting under extinction debt. 
 Our previous work with the tree cholla cactus (\textit{Cylindriopuntia imbricata} Haw. D.C.) (Cactaceae) indicated, with >$95\%$ certainty, that our focal population in the northern Chihuahuan Desert (New Mexico, USA) is in decline (stochastic population growth rate $\lambda_S < 1$) despite current densities that are reasonably high \citep{ohm2014balancing,miller2009impacts,elderd2016quantifying}.
-Our study region has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
+This region has experienced strong climatic fluctuations over the past century, including several decadal-scale droughts interrupted by relatively wet periods \citep{peters2015beyond}. 
 Recent and projected climate change in our study region includes increases in temperature and shifts in the seasonal timing of precipitation \citep{petrie2014regional,cook2013response,cook2015unprecedented}. 
-Our study was designed to reconstruct how historical climate patterns affected population viability in \textit{C. imbricata} and to test the hypothesis that recent climate change has driven this population into extinction debt. 
-We also sought to identify which aspects of climate are changing most strongly, and then ask whether the strongest features of climate change are the most important determinants of population responses.
-Our specific aims were to: 
-\begin{itemize}
-\item{Characterize climate variation and change in our northern Chihuahuan desert study region over the past century} 
-\item{Quantify cactus vital rate responses to inter-annual climate variation during the demographic study period (2004--2017)}
-\item{Back-cast climate-dependent demography to determine whether the past century included periods that were favorable for population growth}
-\item{Identify which aspects of climate (cool and warm season temperature and precipitation) are changing most strongly, and which demographic responses to climate (growth, survival, reproduction) most strongly determine temporal trends in population growth}
-\end{itemize}
+
+\revise{
+Our study was conducted in the following steps. 
+First, we characterized climate variation and change in our northern Chihuahuan desert study region over the past century.
+Second, we estimated vital rate responses to inter-annual climate variation during the demographic study period (2004--2017).
+Following previous studies, we hypothesized that high-sensitivity vital rates (those that strongly influence $\lambda$) would be less responsive environmental variability than low-sensivity vital rates \citep{pfister1998patterns}.
+Third, we back-casted climate-dependent demography to determine whether the past century included periods that were favorable for population growth, thus testing the hypothesis that recent climate change has driven this population into extinction debt.
+Our analysis relied on a Bayesian framework that incorporates key sources of uncertainty into our back-cast. 
+Finally, we asked whether the components of climate that are changing most strongly are the same climate drivers that most strongly influence cactus demography. 
+}
 
 %--------------------------------------------------------------------
 \section*{Materials and methods}
