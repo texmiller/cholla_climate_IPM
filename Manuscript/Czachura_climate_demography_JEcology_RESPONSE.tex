@@ -87,32 +87,47 @@ All of our revisions are denoted in the manuscript with \revise{Mahogany font}.
 \vspace{-2em}
 
 \comment{This paper brings together long-term data on an endemic cactus species, analysis on the trends of climate change at the region, and demographic modelling to show that the species in question is actually benefitting from the changes in the climate, but not so much due to the overall trend, but rather due to change in seasonality. Since this paper last came through my editorial board, it has improved significantly in terms of its clarity. I have read it with great attention and enjoyed doing so.}
-\response{We thank the AE for their time and constructive feedback. }
+\response{We thank the AE for volunteering their time to handle our manuscript.}
 
 \comment{However, I think that the laundry list of objectives (rather than formal, directional hypothesis) is really not fit for Journal of Ecology. I would urge the authors to seriously modify them, as there is a wealth of literature, theories, and observations that easily provide the backbone to develop and test hypotheses rather than to ask open-ended questions.}
+\response{We have eliminated the list at the end of the Introduction and replaced it with a paragraph that includes specific hypotheses that emerge from the demographic literature (l. \ref{ms-mod1}).}
 
 \comment{The main criticism that has emerged from the review process is that of the description, analyses and choice of environmental variables that most affect population growth rate and its underlying vital rates. Reviewer 1 makes a good case for how some key aspects that show the choice of variables to be somewhat dubious seems a bit hidden in the SOM. Reviewer 2 also highlights this and is concerned with the out-of-climatic-space sampling. I'd expect the authors to address these and some other minor points raised by reviewer 2 in the next round of revisions.}
-\response{We have conducted new analyses to address these two major concerns emphasized by the AE.
+\response{As explained in detail below, we have conducted new analyses to address these two major concerns emphasized by the AE.
+We also addressed the minor points raised by Reviewer 2.
 }
 
 \section{Response to Reviewer 1}
 \vspace{-2em}
 
 \comment{There is many things I appreciate in this manuscript: it is well written, the results have been thought through and well explored, and the uncertainties around predictions addressed with appropriate methods and generally well presented. }
-\response{We thank this reviewer for their supportive comments and constructive criticisms.}
+\response{We thank this reviewer for volunteering their time to review our manuscript and for their constructive feedback.}
 
 \comment{Having said that, there is one, perhaps key problem that prevents me from fully credit the results. The correlation between the on-site meteorological data and downscaled climate data in the same years and location (see Table A1 and Figure A1) are low and not significant in three out of the eight variables used. The Figure A1 unfortunately doesn't present these poor correlations in a honest way, except perhaps the panel B, where the red dots clearly show the weak correlation. Despite this, the authors proceed to include all variables in the PCA, and use only the PCA results in their extrapolations. To me, due to this approach, climate signals were blurred from the start.}
-\response{}
+\response{We agree with the reviewer's observations, though we regret that they found our presentation of these results to be less than honest.
+Since all temperature variables are in the same units, we thought our original figure was a space-saving way to show these results.
+In retrospect, we can see how that presentation was a little misleading. 
+In this resubmission, we show each climate correlation in its own panel (FIGURE) so that readers can better evaluate the correspondence between the two data sources. }
 
 \comment{I therefore would like to see whether results change by using only climate variables that were highly, and significantly correlated with on-site data. As well, I would like to see comparatively the demographic responses to raw, measured meteorological data, and how these responses differ from those inferred using PCA axes during the census period. This approach would hopefully ascertain further results.}
 \response{While the reviewer's observations of the problem are exactly right, these two suggestions each have some drawbacks, as described next, so we have opted for a third approach. 
-Limiting the analysis to climate variables that were significantly correlated with on-site data would tend to bias the analyses in favor of climate means (which are generally well captured by the downscaled data) and against climate extremes (captured less well by the downscaled data). 
-The idea of using the raw meteorological observations as covariates is intuitively appealing but leads to high-dimensional models (there are eight climate coveriates) with several correlated variables (e.g., temperature means and maximima); with only $14$ years of demographic data, this creates convergence and identifiability problems.
 \\
-As a third approach that we think captures the spirit of the reviewer's suggestion, we have re-run our PCA-based analyses using the on-site climate data for all the years available. }
+First, limiting the analysis to climate variables that were significantly correlated with on-site data would tend to bias the analyses in favor of temperature means and cool-season precipitation (which are generally well captured by the downscaled data) and against temperature extremes and warm-season precipitation (captured less well by the downscaled data). 
+Given the importance of warm-season precipitation, in particular, in this and other arid systems, eliminating this variable \textit{a priori} is not a biologically sound way to test responses to climate. 
+\\
+Second, the idea of using the raw meteorological observations as statistical covariates is intuitively appealing but leads to very high-dimensional models: there are eight climate covariates, each of which includes linear and quadratic terms and size-by-climate interactions (24 climate covariates in total and only 14 years of data).
+Furthermore, several of these variables are correlated (e.g., temperature means and maximima), raising problems for identifiability and convergence.
+Finally, the PCA approach naturally lends itself to ranking different ``dimensions'' of climate change, a key objective of our study that would be difficult with raw climate variables. 
+For all these reasons, we have a strong preference to use climate PC's as our statistical covariates. 
+We emphasize this because the suggestion of using raw climate variables was also raised by Reviewer 2. 
+We hope that our rationale for rejecting this suggestion is clear. 
+\\
+As a third approach that addresses the reviewer's concerns, we have re-run our PCA-based analyses using the on-site climate data for all the years available (YEARS). 
+We then compared the year-specific estimates of $\lambda$ between the on-site and downscaled approaches to climate data, to gain a sense of how much information is lost with latter. 
+}
 
 \comment{Some further recommendations on how to approach demographic backcasting would also be welcome for less experienced researchers.}
-\response{}
+\response{We have added some discussion of considerations for back-casting, which were also requested or suggested by Reviewer 2.}
 
 \section{Response to Reviewer 2}
 \vspace{-2em}
