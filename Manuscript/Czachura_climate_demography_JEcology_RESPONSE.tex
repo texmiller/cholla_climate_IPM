@@ -66,13 +66,16 @@ Thank you for the opportunity to submit a major revision of our manuscript for y
 In this document, we reproduce comments from the associate editor and reviewers and provide our point-by-point responses. As we explain in more detail below, our responses and corresponding revisions focus on the following two major concerns, one raised by each of the two reviewers, that were emphasized by the Associate Editor.
 
 First, Reviewer 1 was concerned about the sometimes-low correspondence between on-site climatological data and downscaled projections. 
-We have addressed this concern by conducting new analyses based entirely on the on-site data. 
-\textit{DESCRIBE RESULTS}
+We have addressed this concern by conducting new analyses based entirely on the on-site datan and comparing predictions from the two approaches to climate data. 
+We found \textit{DESCRIBE RESULTS}.
 
 Second, Reviewer 2 was concerned about extrapolation of our statistical models into unobserved climate states. 
-We have
+We have addressed this concern by re-running our analyses in a way that avoids any extrapolation.
+This more conservative approach provides a benchmark for understanding how the extrapolation highlighted by the reviewer affects our results and conclusions.
+We found \textit{DESCRIBE RESULTS}.
 
-All of our revisions are denoted in the manuscript with \revise{Mahogany font}.
+We additionally addressed the minor comments of the AE and reviewers. 
+All of our changes are denoted in the manuscript with \revise{Mahogany font}.
 
 \vspace{2em}
 \hfill On behalf of myself and K. Czachura,
@@ -87,7 +90,7 @@ All of our revisions are denoted in the manuscript with \revise{Mahogany font}.
 \vspace{-2em}
 
 \comment{This paper brings together long-term data on an endemic cactus species, analysis on the trends of climate change at the region, and demographic modelling to show that the species in question is actually benefitting from the changes in the climate, but not so much due to the overall trend, but rather due to change in seasonality. Since this paper last came through my editorial board, it has improved significantly in terms of its clarity. I have read it with great attention and enjoyed doing so.}
-\response{We thank the AE for volunteering their time to handle our manuscript.}
+\response{We thank the AE for their service to the journal, and for their constructive comments on our paper.}
 
 \comment{However, I think that the laundry list of objectives (rather than formal, directional hypothesis) is really not fit for Journal of Ecology. I would urge the authors to seriously modify them, as there is a wealth of literature, theories, and observations that easily provide the backbone to develop and test hypotheses rather than to ask open-ended questions.}
 \response{We have eliminated the list at the end of the Introduction and replaced it with a paragraph that includes specific hypotheses that emerge from the demographic literature (l. \ref{ms-mod1}).}
@@ -103,31 +106,36 @@ We also addressed the minor points raised by Reviewer 2.
 \comment{There is many things I appreciate in this manuscript: it is well written, the results have been thought through and well explored, and the uncertainties around predictions addressed with appropriate methods and generally well presented. }
 \response{We thank this reviewer for volunteering their time to review our manuscript and for their constructive feedback.}
 
-\comment{Having said that, there is one, perhaps key problem that prevents me from fully credit the results. The correlation between the on-site meteorological data and downscaled climate data in the same years and location (see Table A1 and Figure A1) are low and not significant in three out of the eight variables used. The Figure A1 unfortunately doesn't present these poor correlations in a honest way, except perhaps the panel B, where the red dots clearly show the weak correlation. Despite this, the authors proceed to include all variables in the PCA, and use only the PCA results in their extrapolations. To me, due to this approach, climate signals were blurred from the start.}
-\response{We agree with the reviewer's observations, though we regret that they found our presentation of these results to be less than honest.
+\comment{Having said that, there is one, perhaps key problem that prevents me from fully credit the results. 
+The correlation between the on-site meteorological data and downscaled climate data in the same years and location (see Table A1 and Figure A1) are low and not significant in three out of the eight variables used. 
+The Figure A1 unfortunately doesn't present these poor correlations in a honest way, except perhaps the panel B, where the red dots clearly show the weak correlation. Despite this, the authors proceed to include all variables in the PCA, and use only the PCA results in their extrapolations. 
+To me, due to this approach, climate signals were blurred from the start.}
+\response{We agree with the reviewer's observations (we raised this issue in our Discussion section), though we regret that they found our presentation of these results to be less than honest.
 Since all temperature variables are in the same units, we intended that figure as a space-saving way to show these results.
 In retrospect, we can see how that presentation was a little misleading. 
 In this resubmission, we show each climate correlation in its own panel (FIGURE) so that readers can better evaluate the correspondence between the two data sources. }
 
-\comment{I therefore would like to see whether results change by using only climate variables that were highly, and significantly correlated with on-site data. As well, I would like to see comparatively the demographic responses to raw, measured meteorological data, and how these responses differ from those inferred using PCA axes during the census period. This approach would hopefully ascertain further results.}
+\comment{I therefore would like to see whether results change by using only climate variables that were highly, and significantly correlated with on-site data. As well, I would like to see comparatively the demographic responses to raw, measured meteorological data, and how these responses differ from those inferred using PCA axes during the census period. 
+This approach would hopefully ascertain further results.}
 \response{While the reviewer's observations of the problem are exactly right, these two suggestions each have some drawbacks, as described next, so we have opted for a third approach. 
 \\
-First, limiting the analysis to climate variables that were significantly correlated with on-site data would tend to bias the analyses in favor of temperature means and cool-season precipitation (which are generally well captured by the downscaled data) and against temperature extremes and warm-season precipitation (captured less well by the downscaled data). 
-Given the importance of warm-season precipitation, in particular, in this and other arid systems, eliminating this variable \textit{a priori} is not a biologically sound way to test responses to climate. 
+First, limiting the analysis to climate variables that were significantly correlated with on-site data would tend to bias the analyses in favor of temperature means and cool-season precipitation (which are generally well captured by the downscaled data) and against temperature extremes and warm-season precipitation (captured less well). 
+Given the widely acknowledged importance of warm-season precipitation, in particular, in this and other arid systems, eliminating this variable \textit{a priori} would not be a biologically sound way to test responses to climate. 
 \\
-Second, the idea of using the raw meteorological observations as statistical covariates is intuitively appealing but leads to very high-dimensional models: there are eight climate covariates, each of which includes linear and quadratic terms and size-by-climate interactions (24 climate covariates in total and only 14 years of data).
-Furthermore, several of these variables are correlated (e.g., temperature means and maximima), raising problems for identifiability and convergence.
+Second, using the raw meteorological observations as statistical covariates is intuitively appealing but leads to very high-dimensional models: there are eight climate covariates, each of which includes linear and quadratic terms and size-by-climate interactions (this would be 24 climate covariates in total, to be estimated with only 14 years of data).
+Furthermore, several of these variables are correlated (e.g., temperature means and maximima). 
+These issues present problems for parameter identifiability and model convergence.
 Finally, the PCA approach naturally lends itself to ranking different ``dimensions'' of climate change, a key objective of our study that would be difficult with raw climate variables. 
 For all these reasons, we have a strong preference to use climate PC's as our statistical covariates. 
-We emphasize this because the suggestion of using raw climate variables was also raised by Reviewer 2. 
+We emphasize this because the suggestion of using raw climate variables was also raised by Reviewer 2, and we have a similar response to that suggestion. 
 We hope that our rationale for rejecting this suggestion is clear. 
 \\
 As a third approach that addresses the reviewer's concerns, we have re-run our PCA-based analyses using the on-site climate data for all the years available (YEARS). 
-We then compared the year-specific estimates of $\lambda$ between the on-site and downscaled approaches to climate data, to gain a sense of how much information is lost with latter. 
+We then compared the year-specific estimates of $\lambda$ between the on-site and downscaled approaches, to gain a sense of how much information is lost with latter. 
 }
 
 \comment{Some further recommendations on how to approach demographic backcasting would also be welcome for less experienced researchers.}
-\response{We have added some discussion of considerations for back-casting, which were also requested or suggested by Reviewer 2.}
+\response{We have added some discussion of considerations for back-casting, which were also requested or suggested by Reviewer 2. \textit{Line no.}}
 
 \section{Response to Reviewer 2}
 \vspace{-2em}
@@ -136,32 +144,40 @@ We then compared the year-specific estimates of $\lambda$ between the on-site an
 \\
 Overall, I found the paper to be very clearly written, and the results are interesting and important. It thoughtfully illustrates that the impacts of climate change may often be unexpected in both the direction of the effect (in this case positive) and which drivers are most important.  In particular, I appreciated the authors thorough accounting of different sources of uncertainty into their back casting results. Although they find there is considerable uncertainty associated with their results, the honest portrayal of this in the figures and results I feel makes this study a useful example for how to present uncertain climate change forecast results. 
 }
-\response{}
+\response{We thank the reviewer for volunteering their time to review our paper, and for providing us with supportive and constructive feedback.}
 
 \comment{My primary concern with the manuscript is the extrapolation of climate PCAs beyond the observed range of variability. This is most concerning for PCs 1 and 2 where is seems like based on figure 2 nearly half of the modeled range of PC1 and 2 is never observed. So it’s a little hard to know how vital rates really respond to high values on PC1 and low values on PC2 because there are no vital rate measurements in those conditions. I’d encourage the authors to add additional analyses to explore how this extrapolation impacts results.}
-\response{}
+\response{This is a reasonable concerned and we have followed the reviewer's suggestion to conduct additional analyses that explore how our results are affected by extrapolation.
+Specifically, we have re-run our demographic analysis without any extrapolation.
+To do so, we allowed climate-dependent vital rate responses only over the range of observed variation; beyond the observed range, we fixed vital rate values to those at the limits of observed climate, assuming them to be constant beyond that range.
+\textit{DESCRIBE RESULTS AND CITE LINES}}
 
 \comment{Additionally, separating out the contributions of parameter uncertainty and process uncertainty in the results would be helpful.}
-\response{}
+\response{This is a great suggestion, though it makes the visualization quite messy. 
+We present the partitioning of process and estimation error in the appendix, and describe these results qualitatively in the main text \textit{LINES}.}
 
 \comment{202: Given that stochastic variable selection is used for variable selection, Why not use raw climate variables that are easier to interpret and understand rather than PCs? How would this change results? 
 }
-\response{}
+\response{Please see our response to Reviewer 1 regarding use of raw climate variables as statistical covariates. 
+For reasons described above, this approach is not feasible.}
 
 \comment{268: The hypothetical language ``we could additionally'' here is slightly confusing. Was this analysis done?}
-\response{}
+\response{Yes, this was done.
+We have edited this text (\ref{ms-mod2}).}
 
 \comment{Eq 5: Consider a different parameter for beta here, since beta with a slightly different meaning is already used in equation 1. }
-\response{}
+\response{Good point.
+We have made this change.}
 
 \comment{I can appreciate based on Figure 4 that it is more likely than not that population growth has increased over the last century in response to climate, but I think the most striking feature (at least to me) is how invariant population growth seems to be in response to the climate PCs (Fig. C3). Do you think this lack of variability is just a reflection of a life history that isn’t that sensitive to climate? What other factors could be important? Competition with grasses and other shrubs? }
-\response{}
+\response{Good points. 
+We have added some cautious speculation about the apparent temporal stability of $\lambda$ to the Discussion (\textit{LINES}).}
 
 \comment{429-434: I really like the inclusion of this material, and I wish this type of language were more common in ecological studies. It’s difficult to improve forecasting without clear acknowledgment of what we do and do not know with certainty. Also, the footnote is great as a science communication tool. }
-\response{}
+\response{Thank you for this comment, it is really nice to hear!}
 
 \comment{433-434: I think this is a great point. I might just add that this uncertainty can take lots of forms depending on the data, and in some cases if uncertainty is autocorrelated (spatially or temporally) accounting for this can improve forecasts. }
-\response{}
+\response{Good point, we have added this (\textit{LINES}).}
 
 \comment{480: Do you think these low elevation populations at all reflect the future climate conditions of your focal populations in this study? How different are the two sites? }
 \response{}

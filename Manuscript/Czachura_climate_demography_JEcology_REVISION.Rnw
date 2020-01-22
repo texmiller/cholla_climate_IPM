@@ -227,13 +227,13 @@ We then evaluated how $\lambda$ responded to climate variation by first varying 
 Second, we back-casted $\lambda$ over the entire climatalogical record that we had available (1900--2017), which generated a time series of $\lambda_{t}$. 
 We used linear regression to test for temporal trends in $\lambda$ over this period. 
 We incorporated two types of uncertainty into back-casted values of $\lambda$: imperfect knowledge of the parameter values (``estimation error'') and year-to-year fluctuations that were not related to climate (``process error''); the latter was estimated from the variances of random year effects. 
-For the years of demographic data collection (2004--2017), we could additionally quantify the deviations between predicted $\lambda$ based solely on climate and ``observed'' $\lambda$ that reflects climate and non-climate year effects (quotations indicate that these are the asymptotic predictions given the vital rates observed in that year). 
+For the years of demographic data collection (2004--2017), \linelabel{mod2}revise{we additionally quantified} the deviations between predicted $\lambda$ based solely on climate and ``observed'' $\lambda$ that reflects climate and non-climate year effects (quotations indicate that these are the asymptotic predictions given the vital rates observed in that year). 
 We also conducted a similar analysis of $\lambda_{S}$ using a $10$-year sliding window, as described in Appendix C. 
 
 Finally, we used Life Table Response Experiments (LTREs) to decompose which combinations of climate PCs and vital rate responses were most strongly responsible for temporal fluctuations in the back-casted time series $\lambda_{t}$.
 We used a fixed-design LTRE \citep{caswell2001} where $\lambda_{t}$ was defined as a linear function of climate predictors:
 \begin{align}\label{eq:LTRE_linmod}
-\lambda_{t} = \bar{\lambda} + \sum_{i=1}^{3} \beta_{i}PC_{i,t}
+\lambda_{t} = \bar{\lambda} + \sum_{i=1}^{3} \gamma_{i}PC_{i,t}
 \end{align}
 There is no error term because, in this analysis, climate PCs are assumed to be the sole drivers of fluctuations in $\lambda_{t}$.
 The coefficient for each climate PC was approximated as:
