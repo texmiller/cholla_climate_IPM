@@ -3,6 +3,9 @@ library(paran)
 ## This script recreates the analysis using SEV-LTER met data instead of
 ## climateNA. 
 
+
+# PCA ---------------------------------------------------------------------
+
 ## The data were processed in a different script ('climate_data_processing.Rmd')
 ## I will jump straight to the output file of that script
 SEV_clim <- read_csv("SEV_WNA.csv")
