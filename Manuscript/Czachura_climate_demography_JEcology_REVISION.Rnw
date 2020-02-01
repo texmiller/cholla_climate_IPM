@@ -647,10 +647,6 @@ and estimated the stochastic growth rate for that window as the expected value o
 log(\lambda_{S}) = \mathbb{E}[log(\frac{N_{t+1}}{N_{t}})]
 \end{align}
 
-%<<parameter summary table,echo=F,warning=F>>=
-%setwd("C:/Users/tm9/Desktop/git local/cholla_climate_IPM")
-%source("cholla_climate_IPM_SOURCE.R")
-%@
 \newpage
 \begin{table}[h!]
   \caption{Parameter values of tree cholla IPM.}
@@ -823,4 +819,61 @@ The ``new'' plants in our plots each year were likely several years old.}
   \end{center}
 \end{figure}
 
+%--------------------------------------------------------------------
+\newpage
+\revise{
+\section*{Appendix D: Exploring the consequences of climate extrapolation}
+\renewcommand{\thefigure}{D\arabic{figure}}\setcounter{figure}{0}
+\renewcommand{\thetable}{D\arabic{table}}\setcounter{table}{0}
+\renewcommand{\theequation}{D\arabic{equation}}\setcounter{equation}{0}
+
+Our analysis in the main text relied on extrapolating demographic responses to climate into climate environments that were not directly observed during our field study.
+For example, high values of PC1 and low values of PC2 were under-represented during the study years (Fig. \ref{fig:climate_coverage_histograms}).  
+We explored the consequences of this extrapolation by re-running our demographic analysis with bounds on climate responses.
+For each vital rate that responded to a climate PC according to some function $f(PC)$, we defined a second function $f^*(PC)$ as:
+
+\[
+    f^*(PC)= 
+\begin{cases} \label{eq:extrap}
+    f(PC_{L}),& \text{if } PC < PC_{L}\\
+    f(PC_{U}),& \text{if } PC > PC_{U}\\
+    f(PC),  & \text{otherwise}
+\end{cases}
+\]
+
+\noindent where $PC_{L}$ and $PC_{U}$ are the lower and upper bounds, respectively, of the observed range of PC values. 
+For simulations into historical climates more extreme than observed, this approach pins demographic responses to equal the responses at observed extrema, as can be seen in $\lambda$ responses to PC variation. 
+We repeated our back-casting analysis using this approach. 
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/climate_coverage_histograms}
+  \caption{Caption.}
+  \label{fig:climate_coverage_histograms}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/lambda_PC_extrapF}
+  \caption{Caption.}
+  \label{fig:lambda_PC_extrapF}
+  \end{center}
+\end{figure}
+
+Results show that our qualitative results are not affected by climate extrapolation. 
+The back-casted time series of $\lambda$ was generally consistent with and without extrapolation (Fig. \ref{fig:backcast_extrapTF}).
+The main differences were in the extreme low $\lambda$ values, which were lower with extrapolation. 
+Both time series yielded a positive temporal trend, though the mean change in $\lambda$ per year was \Sexpr{ms_quantities$extrap_effect}\% weaker for the entire time series and \Sexpr{ms_quantities$extrap_effect_1970}\% weaker since 1970 when vital rates were not extrapolated.
+The minor influence of extrapolation was due to the fact that we relied most heavily on extrapolation for PC1 (Fig. \ref{fig:climate_coverage_histograms}). 
+As we show in the main paper, this PC has changed the most during the historical record but it had the weakest effects on cactus demography. 
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/backcast_extrapTF}
+  \caption{Caption.}
+  \label{fig:backcast_extrapTF}
+  \end{center}
+\end{figure}
+}
 \end{document}
