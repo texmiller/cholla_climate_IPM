@@ -227,8 +227,8 @@ We then evaluated how $\lambda$ responded to climate variation by first varying 
 Second, we back-casted $\lambda$ over the entire climatalogical record that we had available (1900--2017), which generated a time series of $\lambda_{t}$. 
 We used linear regression to test for temporal trends in $\lambda$ over this period. 
 We incorporated two types of uncertainty into back-casted values of $\lambda$: imperfect knowledge of the parameter values (``estimation error'') and year-to-year fluctuations that were not related to climate (``process error''); the latter was estimated from the variances of random year effects. 
-For the years of demographic data collection (2004--2017), \linelabel{mod2}revise{we additionally quantified} the deviations between predicted $\lambda$ based solely on climate and ``observed'' $\lambda$ that reflects climate and non-climate year effects (quotations indicate that these are the asymptotic predictions given the vital rates observed in that year). 
-We also conducted a similar analysis of $\lambda_{S}$ using a $10$-year sliding window, as described in Appendix C. 
+For the years of demographic data collection (2004--2017), \revise{\linelabel{mod2}we additionally quantified} the deviations between predicted $\lambda$ based solely on climate and ``observed'' $\lambda$ that reflects climate and non-climate year effects (quotations indicate that these are the asymptotic predictions given the vital rates observed in that year). 
+We also conducted a similar analysis of $\lambda_{S}$ using a $10$-year sliding window (Appendix C), \revise{\linelabel{mod4}and we explored the consequences of extrapolating vital rate responses to climate values more extreme than those observed during the study period (Appendix D).}
 
 Finally, we used Life Table Response Experiments (LTREs) to decompose which combinations of climate PCs and vital rate responses were most strongly responsible for temporal fluctuations in the back-casted time series $\lambda_{t}$.
 We used a fixed-design LTRE \citep{caswell2001} where $\lambda_{t}$ was defined as a linear function of climate predictors:
@@ -319,8 +319,9 @@ There was wide uncertainty in the rate of change but the posterior probability d
 Furthermore, the median rate of increase was \Sexpr{ms_quantities$lambda_timesgreater} times greater since 1970 compared to the overall trend since 1900 (Fig. \ref{figure:lambda_year}B), corresponding to the acceleration of climate change (Fig. \ref{figure:PCA}). 
 There was greater uncertainty in $\frac{\Delta\lambda}{\Delta Year}$ since 1970 because this estimate was based on fewer years.
 Under the trajectory since 1970, population growth was expected to reach the threshold of positive population growth ($\lambda$ = 1) in the year \Sexpr{round(ms_quantities$viable_year_1970,0)} (Fig. \ref{figure:lambda_year}C); accelerating climate change would advance this transition to viable growth rates. 
+\revise{\linelabel{mod3}In Appendix D, we show that our inference that $\lambda$ is likely increasing in response to climate change holds even with a more conservative approach that does not extrapolate vital rate responses beyond the climate extremes of the observation years.}
 
-The stochastic population growth rate ($\lambda_{S}$) showed a similar trend of $\lambda_{S} < 1$ but increasing population growth rates over the past $120$ years (Fig. \ref{fig:lambdaS}).
+The stochastic population growth rate ($\lambda_{S}$) showed a similar trend of $\lambda_{S} < 1$ and increasing population growth rates over the past $120$ years (Fig. \ref{fig:lambdaS}).
 The stochastic growth rate reveals the effects of multi-year climate events, such as the runs of good years in the 1940s and 2000s. 
 
 \begin{figure}[h!]
@@ -832,14 +833,16 @@ For example, high values of PC1 and low values of PC2 were under-represented dur
 We explored the consequences of this extrapolation by re-running our demographic analysis with bounds on climate responses.
 For each vital rate that responded to a climate PC according to some function $f(PC)$, we defined a second function $f^*(PC)$ as:
 
-\[
+%\[ 
+\begin{equation}
     f^*(PC)= 
-\begin{cases} \label{eq:extrap}
+\begin{cases} 
     f(PC_{L}),& \text{if } PC < PC_{L}\\
     f(PC_{U}),& \text{if } PC > PC_{U}\\
     f(PC),  & \text{otherwise}
-\end{cases}
-\]
+\end{cases} \label{eq:extrap}
+\end{equation}
+%\]
 
 \noindent where $PC_{L}$ and $PC_{U}$ are the lower and upper bounds, respectively, of the observed range of PC values. 
 For simulations into historical climates more extreme than observed, this approach pins demographic responses to equal the responses at observed extrema, as can be seen in $\lambda$ responses to PC variation. 
@@ -848,7 +851,8 @@ We repeated our back-casting analysis using this approach.
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/climate_coverage_histograms}
-  \caption{Caption.}
+  \caption{Distributions of observed climate values during the observation period (2004--2017) relative to historical values (1901-2016).
+  Climate values are three principal components of inter-annual variation in cool- and warm-season temperature and precipitation.}
   \label{fig:climate_coverage_histograms}
   \end{center}
 \end{figure}
@@ -856,7 +860,8 @@ We repeated our back-casting analysis using this approach.
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_PC_extrapF}
-  \caption{Caption.}
+  \caption{Relationships between $\lambda$ and three climate PCs with no extrapolation into unobserved climate conditions. 
+  For PC values lower than the minimum (red vertical lines) and greater than the maximum (blue vertical lines) of the observation period, demographic responses were forced to match the extrema of the observation period according to Eq. \ref{eq:extrap}.}
   \label{fig:lambda_PC_extrapF}
   \end{center}
 \end{figure}
@@ -864,14 +869,15 @@ We repeated our back-casting analysis using this approach.
 Results show that our qualitative results are not affected by climate extrapolation. 
 The back-casted time series of $\lambda$ was generally consistent with and without extrapolation (Fig. \ref{fig:backcast_extrapTF}).
 The main differences were in the extreme low $\lambda$ values, which were lower with extrapolation. 
-Both time series yielded a positive temporal trend, though the mean change in $\lambda$ per year was \Sexpr{ms_quantities$extrap_effect}\% weaker for the entire time series and \Sexpr{ms_quantities$extrap_effect_1970}\% weaker since 1970 when vital rates were not extrapolated.
-The minor influence of extrapolation was due to the fact that we relied most heavily on extrapolation for PC1 (Fig. \ref{fig:climate_coverage_histograms}). 
+Both time series yielded a positive temporal trend, though the mean change in $\lambda$ per year was \Sexpr{ms_quantities$extrap_effect}\% weaker for the entire time series and \Sexpr{ms_quantities$extrap_effect_1970}\% weaker since 1970 when vital rates were not extrapolated (Fig. \ref{fig:lambda_PC_extrapF}).
+The limited influence of extrapolation was due to the fact that we relied most heavily on extrapolation for PC1 (Fig. \ref{fig:climate_coverage_histograms}). 
 As we show in the main paper, this PC has changed the most during the historical record but it had the weakest effects on cactus demography. 
 
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/backcast_extrapTF}
-  \caption{Caption.}
+  \caption{Back-casted values of climate-dependent population growth ($\lambda$) with (solid lines) and without (dashed lines) extrapolation of vital rate responses to unobserved climate conditions based on posterior mean parameter values.
+  Red and blue lines show fitted regressions for the entire time series and since 1970, respectively.}
   \label{fig:backcast_extrapTF}
   \end{center}
 \end{figure}

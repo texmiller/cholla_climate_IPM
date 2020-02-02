@@ -120,15 +120,15 @@ This approach would hopefully ascertain further results.}
 \response{While the reviewer's observations of the problem are exactly right, these two suggestions each have some drawbacks, as described next, so we have opted for a third approach. 
 \\
 First, limiting the analysis to climate variables that were significantly correlated with on-site data would tend to bias the analyses in favor of temperature means and cool-season precipitation (which are generally well captured by the downscaled data) and against temperature extremes and warm-season precipitation (captured less well). 
-Given the widely acknowledged importance of warm-season precipitation, in particular, in this and other arid systems, eliminating this variable \textit{a priori} would not be a biologically sound way to test responses to climate. 
+Given the widely acknowledged importance of warm-season precipitation, in particular, in this and other arid systems, excluding this variable from the analysis would not be a biologically sound way to test responses to climate. 
 \\
 Second, using the raw meteorological observations as statistical covariates is intuitively appealing but leads to very high-dimensional models: there are eight climate covariates, each of which includes linear and quadratic terms and size-by-climate interactions (this would be 24 climate covariates in total, to be estimated with only 14 years of data).
 Furthermore, several of these variables are correlated (e.g., temperature means and maximima). 
-These issues present problems for parameter identifiability and model convergence.
+These issues create problems for parameter identifiability and model convergence.
 Finally, the PCA approach naturally lends itself to ranking different ``dimensions'' of climate change, a key objective of our study that would be difficult with raw climate variables. 
-For all these reasons, we have a strong preference to use climate PC's as our statistical covariates. 
+For all these reasons, we think the use climate PC's as our statistical covariates is the best approach for the aims of our study. 
 We emphasize this because the suggestion of using raw climate variables was also raised by Reviewer 2, and we have a similar response to that suggestion. 
-We hope that our rationale for rejecting this suggestion is clear. 
+We hope that our rationale is clear; if not, we would be happy to follow up with the editor or reviewers. 
 \\
 As a third approach that addresses the reviewer's concerns, we have re-run our PCA-based analyses using the on-site climate data for all the years available (YEARS). 
 We then compared the year-specific estimates of $\lambda$ between the on-site and downscaled approaches, to gain a sense of how much information is lost with latter. 
@@ -147,10 +147,14 @@ Overall, I found the paper to be very clearly written, and the results are inter
 \response{We thank the reviewer for volunteering their time to review our paper, and for providing us with supportive and constructive feedback.}
 
 \comment{My primary concern with the manuscript is the extrapolation of climate PCAs beyond the observed range of variability. This is most concerning for PCs 1 and 2 where is seems like based on figure 2 nearly half of the modeled range of PC1 and 2 is never observed. So it’s a little hard to know how vital rates really respond to high values on PC1 and low values on PC2 because there are no vital rate measurements in those conditions. I’d encourage the authors to add additional analyses to explore how this extrapolation impacts results.}
-\response{This is a reasonable concerned and we have followed the reviewer's suggestion to conduct additional analyses that explore how our results are affected by extrapolation.
-Specifically, we have re-run our demographic analysis without any extrapolation.
-To do so, we allowed climate-dependent vital rate responses only over the range of observed variation; beyond the observed range, we fixed vital rate values to those at the limits of observed climate, assuming them to be constant beyond that range.
-\textit{DESCRIBE RESULTS AND CITE LINES}}
+\response{This is a reasonable concern and we have followed the reviewer's suggestion to conduct additional analyses that explore how our results are affected by extrapolation.
+Specifically, we now compare our demographic analysis with and without  extrapolation.
+This analysis is presented in the new Appendix D, and methods and results are briefly described in the main text (lines \ref{ms-mod4}, \ref{ms-mod3}).
+We have also added a new figure to more clearly show how the climate values observed during the field study compare to the long-term record (Fig. D1). 
+We found that, without extrapolation, the rate of change in $\lambda$ was 26--35\% weaker, but our main conclusions hold up, qualitatively. 
+Extrapolation has a limited influence in this study because, as the reviewer points out, our need to extrapolate was greatest for PC1, and this was the climate PC that had the weakest influence on cactus demography. 
+We think these additions have strengthened the paper and we thank the reviewer for pushing us in this direction.
+}
 
 \comment{Additionally, separating out the contributions of parameter uncertainty and process uncertainty in the results would be helpful.}
 \response{This is a great suggestion, though it makes the visualization quite messy. 
@@ -159,7 +163,7 @@ We present the partitioning of process and estimation error in the appendix, and
 \comment{202: Given that stochastic variable selection is used for variable selection, Why not use raw climate variables that are easier to interpret and understand rather than PCs? How would this change results? 
 }
 \response{Please see our response to Reviewer 1 regarding use of raw climate variables as statistical covariates. 
-For reasons described above, this approach is not feasible.}
+For reasons described above, this approach sounds very reasonable but would be a nightmare in practice.}
 
 \comment{268: The hypothetical language ``we could additionally'' here is slightly confusing. Was this analysis done?}
 \response{Yes, this was done.
