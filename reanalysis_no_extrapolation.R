@@ -236,19 +236,25 @@ for(i in 2:length(PCclim$lambda_year_extrapT)){
                                                   extrap = F)$IPMmat)
   }
 
-pdf("Manuscript/Figures/backcast_extrapTF.pdf",useDingbats = F,height=5,width=5)
-plot(PCclim$Year_t,PCclim$lambda_year_extrapT,type="l",ylim=c(0.9,1),
-     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
-lines(PCclim$Year_t,PCclim$lambda_year_extrapF,lty=2)
-legend("topleft",title="Climate extrapolation",
-       legend=c("Yes","No"),lty=1:2,bty="n")
-dev.off()
-
 lambda_trend_extrapT <- lm(lambda_year_extrapT ~ Year_t, data = PCclim)
 lambda_trend1970_extrapT <- lm(lambda_year_extrapT ~ Year_t, data = subset(PCclim,Year_t >= 1970))
 
 lambda_trend_extrapF <- lm(lambda_year_extrapF ~ Year_t, data = PCclim)
 lambda_trend1970_extrapF <- lm(lambda_year_extrapF ~ Year_t, data = subset(PCclim,Year_t >= 1970))
+
+
+pdf("Manuscript/Figures/backcast_extrapTF.pdf",useDingbats = F,height=5,width=5)
+plot(PCclim$Year_t,PCclim$lambda_year_extrapT,type="l",ylim=c(0.9,1),
+     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+lines(PCclim$Year_t,PCclim$lambda_year_extrapF,lty=2)
+lines(PCclim$Year_t,coef(lambda_trend_extrapT)[1] + coef(lambda_trend_extrapT)[2]*PCclim$Year_t,col="red",lwd=2)
+lines(PCclim$Year_t,coef(lambda_trend_extrapF)[1] + coef(lambda_trend_extrapF)[2]*PCclim$Year_t,lty=2,col="red",lwd=2)
+lines(1970:2016,coef(lambda_trend1970_extrapT)[1] + coef(lambda_trend1970_extrapT)[2]*1970:2016,col="blue",lwd=2)
+lines(1970:2016,coef(lambda_trend1970_extrapF)[1] + coef(lambda_trend1970_extrapF)[2]*1970:2016,lty=2,col="blue",lwd=2)
+legend("topleft",title="Climate extrapolation",
+       legend=c("Yes","No"),lty=1:2,bty="n")
+dev.off()
+
 
 # how different are the slopes?
 extrap_effect <- round((1 - (coef(lambda_trend_extrapF)[2] / coef(lambda_trend_extrapT)[2]))*100,0)
