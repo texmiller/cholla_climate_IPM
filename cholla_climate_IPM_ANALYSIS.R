@@ -787,7 +787,7 @@ lambda_year_proc_est_err<-matrix(NA,ncol = length(min(PCclim$Year_t):2016), nrow
 seed_mat <- matrix(runif(n_post*length(lambda_year_proc_err),0,100000), nrow = n_post, ncol = length(lambda_year_proc_err))
 
 for(i in 1:n_post){
-  for(j in 2:length(PCclim$lambda_year)){
+  for(j in 2:nrow(PCclim)){
     #print(i)
     ## now convert params to list for the rest of it
     sample.params <- as.list(params_post[i,])
@@ -806,23 +806,23 @@ for(i in 1:n_post){
     sample.params$min.size <- mean_params$min.size
     sample.params$max.size <- mean_params$max.size
     
-  #lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
-  #                                        PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
-  #                                        PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
-  #                                        PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
-  #                                        random = T, 
-  #                                        rand.seed = seed_mat[i,j],
-  #                                        lower.extension = lower.extension, 
-  #                                        upper.extension = upper.extension,
-  #                                        mat.size = mat.size)$IPMmat)
-  #lambda_year_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
-  #                                            PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
-  #                                            PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
-  #                                            PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
-  #                                            random = F, 
-  #                                            lower.extension = lower.extension, 
-  #                                            upper.extension = upper.extension,
-  #                                            mat.size = mat.size)$IPMmat)
+  lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
+                                          PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+                                          PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+                                          PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+                                          random = T, 
+                                          rand.seed = seed_mat[i,j],
+                                          lower.extension = lower.extension, 
+                                          upper.extension = upper.extension,
+                                          mat.size = mat.size)$IPMmat)
+  lambda_year_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
+                                              PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+                                              PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+                                              PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+                                              random = F, 
+                                              lower.extension = lower.extension, 
+                                              upper.extension = upper.extension,
+                                              mat.size = mat.size)$IPMmat)
   lambda_year_proc_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
                                               PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
                                               PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
@@ -837,10 +837,9 @@ for(i in 1:n_post){
 }##end sample loop
 
 ## write or read
-#write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv",row.names = F)
-#write.csv(lambda_year_est_err,"lambda_year_est_err.csv",row.names = F)
-#write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv",row.names = F)
-test <- read.csv("lambda_year_proc_est_err.csv")[,-(1:2)]
+write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv",row.names = F)
+write.csv(lambda_year_est_err,"lambda_year_est_err.csv",row.names = F)
+write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv",row.names = F)
 
 lambda_year_proc_err.95<-lambda_year_proc_err.75<-lambda_year_proc_err.50<-lambda_year_proc_err.25<-matrix(NA,2,length(PCclim$lambda_year))
 lambda_year_est_err.95<-lambda_year_est_err.75<-lambda_year_est_err.50<-lambda_year_est_err.25<-matrix(NA,2,length(PCclim$lambda_year))
@@ -865,26 +864,34 @@ for(j in 2:length(PCclim$Year_t)){
 ## New figure for posterior of change in lambda per year
 yr_int_allyrs<-yr_slope_allyrs<-yr_int_1970<-yr_slope_1970<-stable_yr<-stable_yr_1970<-c()
 yr_int_allyrs_est<-yr_slope_allyrs_est<-yr_int_1970_est<-yr_slope_1970_est<-stable_yr_est<-stable_yr_1970_est<-c()
+yr_int_allyrs_proc<-yr_slope_allyrs_proc<-yr_int_1970_proc<-yr_slope_1970_proc<-stable_yr_proc<-stable_yr_1970_proc<-c()
 for(i in 1:n_post){
-  iter_dat <- cbind(PCclim,lambda_year_est_err[i,],lambda_year_proc_est_err[i,])
-  names(iter_dat)[16:17]<-c("lambda_year_est_err","lambda_year_proc_est_err")
+  iter_dat <- cbind(PCclim,lambda_year_est_err[i,],lambda_year_proc_err[i,],lambda_year_proc_est_err[i,])
   ## all years
-  yr_mod_allyrs <- lm(lambda_year_proc_est_err ~ Year_t, data = iter_dat)
+  yr_mod_allyrs <- lm(`lambda_year_proc_est_err[i, ]` ~ Year_t, data = iter_dat)
   yr_int_allyrs[i] <- coef(yr_mod_allyrs)[1]; yr_slope_allyrs[i] <- coef(yr_mod_allyrs)[2]
   ## since 1970
-  yr_mod_1970 <- lm(lambda_year_proc_est_err ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_mod_1970 <- lm(`lambda_year_proc_est_err[i, ]` ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
   yr_int_1970[i] <- coef(yr_mod_1970)[1]; yr_slope_1970[i] <- coef(yr_mod_1970)[2]
   ## what is the projected year of lambda=1?
   stable_yr[i] <- (1-yr_int_allyrs[i])/yr_slope_allyrs[i]
   stable_yr_1970[i] <- (1-yr_int_1970[i])/yr_slope_1970[i]
   
-  yr_mod_allyrs_est <- lm(lambda_year_est_err ~ Year_t, data = iter_dat)
+  yr_mod_allyrs_est <- lm(`lambda_year_est_err[i, ]` ~ Year_t, data = iter_dat)
   yr_int_allyrs_est[i] <- coef(yr_mod_allyrs_est)[1]; yr_slope_allyrs_est[i] <- coef(yr_mod_allyrs_est)[2]
-  yr_mod_1970_est <- lm(lambda_year_est_err ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_mod_1970_est <- lm(`lambda_year_est_err[i, ]` ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
   yr_int_1970_est[i] <- coef(yr_mod_1970_est)[1]; yr_slope_1970_est[i] <- coef(yr_mod_1970_est)[2]
   ## what is the projected year of lambda=1?
   stable_yr_est[i] <- (1-yr_int_allyrs_est[i])/yr_slope_allyrs_est[i]
   stable_yr_1970_est[i] <- (1-yr_int_1970_est[i])/yr_slope_1970_est[i]
+  
+  yr_mod_allyrs_proc <- lm(`lambda_year_proc_err[i, ]` ~ Year_t, data = iter_dat)
+  yr_int_allyrs_proc[i] <- coef(yr_mod_allyrs_proc)[1]; yr_slope_allyrs_proc[i] <- coef(yr_mod_allyrs_proc)[2]
+  yr_mod_1970_proc <- lm(`lambda_year_proc_err[i, ]` ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_int_1970_proc[i] <- coef(yr_mod_1970_proc)[1]; yr_slope_1970_proc[i] <- coef(yr_mod_1970_proc)[2]
+  ## what is the projected year of lambda=1?
+  stable_yr_proc[i] <- (1-yr_int_allyrs_proc[i])/yr_slope_allyrs_proc[i]
+  stable_yr_1970_proc[i] <- (1-yr_int_1970_proc[i])/yr_slope_1970_proc[i]
 }
 
 ### New Figure with mean and uncertainty
