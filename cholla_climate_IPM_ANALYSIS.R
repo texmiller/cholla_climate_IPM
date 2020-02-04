@@ -104,6 +104,102 @@ plot(SEV_WNA$tot_prcp.x,SEV_WNA$tot_prcp.y,col=SEV_WNA$color,pch=16,cex.lab=1.2,
 abline(0,1,col="darkgrey")
 title("B",adj=0,font=4)
 
+## revise to show each variable separately
+## 2 x 3 panel for six temp variables
+win.graph()
+par(mfrow=c(2,3),mar=c(5,5,2,1))
+#cool season
+plot(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$min_temp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex=1.4,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,
+     xlim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T)));
+abline(0,1);title("A",adj=0)
+plot(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex=1.4,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,
+     xlim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T)));
+abline(0,1);title("B",adj=0)
+plot(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$max_temp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex=1.4,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,
+     xlim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T)));
+abline(0,1);title("C",adj=0)
+#warm season
+plot(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$min_temp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex=1.4,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,
+     xlim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T)));
+abline(0,1);title("D",adj=0)
+plot(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex=1.4,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T)));
+abline(0,1);title("E",adj=0)
+plot(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$max_temp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex=1.4,
+     xlab=expression(paste("SEV-LTER Temperature ",degree,"C")),
+     ylab=expression(paste("ClimateWNA Temperature ",degree,"C")),
+     cex.lab=1.2,
+     xlim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T)));
+abline(0,1);title("F",adj=0)
+
 
 # Vital rate figures -------------------------------------------------------------
 # there are the binning parameters for visualization
