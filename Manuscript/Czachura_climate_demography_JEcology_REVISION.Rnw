@@ -310,8 +310,9 @@ However, mean estimates for population growth rates were consistently below repl
 \subsection*{Back-casting population growth}
 Figure \ref{figure:lambda_year}A shows the back-casted time series of $\lambda$ accounting for inter-annual variation in all three PC components.
 For the the observation years (2004-2017), the three climate PCs explained \Sexpr{ms_quantities$climate_rsq}\% of the inter-annual variation in $\lambda$ (points in Fig. \ref{figure:lambda_year}A).
-Thus, even with relatively strong climate-demography associations (Fig. \ref{figure:vital_rates}), there was substantial uncertainty in our back-casted estimates of $\lambda$ due to process error, i.e., heterogeneity in vital rates across years that could not be attributed to the climate PCs.
-This uncertainty, combined with uncertainty arising from imperfect knowledge of the underlying parameters, is shown in the shaded regions of Fig. Figure \ref{figure:lambda_year}A.
+Thus, even with relatively strong climate-demography associations (Fig. \ref{figure:vital_rates}), there was substantial uncertainty in our back-casted estimates of $\lambda$.
+\revise{\linelabel{mod5}The shaded region in Fig. \ref{figure:lambda_year}A represents the combined uncertainty arising from heterogeneity in vital rates across years that could not be attributed to the climate PCs (process error) and imperfect knowledge of the underlying parameters (estimation error).
+In Appendix Fig. \ref{fig:lambda_year_proc_est_err}, we show that process error contributed the majority of the total uncertainty.}
 
 Despite uncertainty in our back-cast, the results indicated that $\lambda$ has likely remained below replacement levels for more than a century; there was no evidence that climate change drove this population into extinction debt.
 To the contrary, there was a positive temporal trend ($\frac{\Delta\lambda}{\Delta Year} > 0$), suggesting a trajectory of increasing population growth rates through time (Fig. \ref{figure:lambda_year}B).
@@ -808,6 +809,19 @@ This is consistent with the idea that the population may have recently transitio
 Also, the peak for new recruits was at a larger size in the observed distribution, but this was likely a consequence of the fact that we rarely detected new recruits.
 The ``new'' plants in our plots each year were likely several years old.}
   \label{figure:SSD}
+  \end{center}
+\end{figure}
+
+\newpage
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/lambda_year_proc_est_err}
+  \caption{\textbf{A}, Time series of back-casted asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in three climate PCs. 
+Shaded regions show the 95\% credible interval of the posterior probability distributions for three uncertainty scenarios: estimation error only (parameter uncertainty; red), process error only (year-to-year heterogeneity unrelated to the climate PCs; blue), and both estimation and process error (black).
+\textbf{B, C}, Posterior probability distribution for the change in $\lambda$ per year based on the entire time series (\textbf{B}) or years since 1970 (\textbf{C}). 
+Vertical lines show the medians of the posterior distributions.
+Colors as in \textbf{A}.}
+  \label{fig:lambda_year_proc_est_err}
   \end{center}
 \end{figure}
 
