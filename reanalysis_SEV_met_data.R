@@ -234,3 +234,106 @@ allrates.out$BUGSoutput$mean$surv.zsize
 write.csv(data.frame(allrates.out$BUGSoutput$summary),
           "allrates_SVS_out_SevLTER.csv")
 
+# Final selected vital rate model -----------------------------------------
+## add new data to existing data vector
+fruit.dat<-read.csv("JO_fruit_data_final_dropplant0.csv",T)  %>% drop_na() %>% 
+  ## taking the subset of pollinator+ant access, not vacant
+  ## this is the subset used in Elderd&Miller
+  filter(poll.access=="y" & treatment!="tc" & vacant=="n" & ant.access=="y")
+cholla.dat$N_spf <- length(fruit.dat$seed_count)
+cholla.dat$y_spf <-fruit.dat$seed_count
+
+fruit.surv<-read.csv("FruitSurvival.csv",T) %>% drop_na()
+fruitsurv<-glm((Fr.on.grnd.not.chewed/Fr.on.plant~1),weights=Fr.on.plant,family="binomial",data=fruit.surv)
+## this model fits the ca.-6mo seed survival rate. Squaring this estimates gives the ca. 1-year rate.
+## But this may over-estimate mortality. Maybe most of it does happen in that 6-mo window...experiment with this
+cholla.dat$N_seedsurv <- nrow(fruit.surv)
+cholla.dat$y_seedsurv <- fruit.surv$Fr.on.grnd.not.chewed
+cholla.dat$trials_seedsurv <- fruit.surv$Fr.on.plant
+
+germ.dat<-read.csv("Germination.csv") %>% drop_na()
+cholla.dat$N_germ <- nrow(germ.dat)
+cholla.dat$y_germ1 <- germ.dat$Seedlings04
+cholla.dat$trials_germ1 <- germ.dat$Input
+cholla.dat$y_germ2 <- germ.dat$Seedlings05
+cholla.dat$trials_germ2 <- germ.dat$Input-germ.dat$Seedlings04
+
+precensus.dat<-read.csv("PrecensusSurvival.csv") %>% drop_na()
+cholla.dat$N_precenus_surv <-nrow(precensus.dat)
+cholla.dat$y_precensus_surv <- precensus.dat$survive0405
+
+seedlings <- cholla %>% 
+  mutate(vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)=="H",
+         Recruit==1)
+cholla.dat$N_sdlgsize <- length(seedlings$standvol_t)
+cholla.dat$y_sdlgsize <- seedlings$standvol_t
+
+inits<-function(){list(flow.mu=rnorm(1,mean=-10),
+                       fert.mu=rnorm(1),
+                       surv.mu=rnorm(1),
+                       grow.mu=rnorm(1),
+                       
+                       flow.sigma.plot=rlnorm(1),
+                       fert.sigma.plot=rlnorm(1),
+                       surv.sigma.plot=rlnorm(1),
+                       grow.sigma.plot=rlnorm(1),
+                       
+                       flow.sigma.year=rlnorm(1),
+                       fert.sigma.year=rlnorm(1),
+                       surv.sigma.year=rlnorm(1),
+                       grow.sigma.year=rlnorm(1),
+                       
+                       fert.sigma.overdisp=rlnorm(1),
+                       grow.sigma.eps=rlnorm(1),
+                       
+                       flow.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       fert.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       grow.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       surv.bclim=matrix(rnorm(9),nrow=3,ncol=3),
+                       
+                       flow.bsize=rnorm(1),
+                       fert.bsize=rnorm(1),
+                       grow.bsize=rnorm(1),
+                       surv.bsize=rnorm(1),
+                       
+                       mu_spf=rnorm(1),
+                       sigma_spf=rlnorm(1),
+                       seedsurv=runif(1,0,1),
+                       germ1=runif(1,0,1),
+                       germ2=runif(1,0,1),
+                       precenus_surv=runif(1,0,1),
+                       mu_sdlgsize=rnorm(1),
+                       sigma_sdlgsize=rlnorm(1)
+)}
+
+## Params to estimate
+parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
+              "flow.bsize","fert.bsize","surv.bsize","grow.bsize",
+              "flow.bclim","fert.bclim","surv.bclim","grow.bclim",
+              "flow.sigma.plot","fert.sigma.plot","surv.sigma.plot","grow.sigma.plot",
+              "flow.sigma.year","fert.sigma.year","surv.sigma.year","grow.sigma.year",
+              "fert.sigma.overdisp",
+              "grow.sigma.eps",
+              "flow.eps.year","fert.eps.year","surv.eps.year","grow.eps.year",
+              "flow.fit","fert.fit","surv.fit","grow.fit",
+              "flow.fit.new","fert.fit.new","surv.fit.new","grow.fit.new",
+              
+              "mu_spf","sigma_spf","seedsurv","germ1","germ2",
+              "precenus_surv","mu_sdlgsize","sigma_sdlgsize",
+              "grow.sq.res")
+
+## MCMC settings
+ni<-30000
+nb<-5000
+nt<-10
+nc<-3
+
+allrates.selected.out<-jags(data=cholla.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_allrates_selected_misc_params_SevLTER.txt",
+                            n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
+
+
+# Visualize vital rate results --------------------------------------------
+
+
