@@ -34,3 +34,4 @@
 *.xlsx
 
 Manuscript/figure
+!Manuscript/Figures
