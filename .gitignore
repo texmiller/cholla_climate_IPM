@@ -29,8 +29,6 @@
 *.synctex.gz
 *.tex
 !Czachura_climate_demography_JEcology_RESPONSE.tex
-*.pdf
-*.csv
 *.xlsx
 
 Manuscript/figure
