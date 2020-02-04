@@ -953,7 +953,7 @@ legend("topright",legend=c("All years","Since 1970"),
 
 ## for year of stable growth, just pull out the samples with positive slopes
 ## proc + est
-d_stable_yr <- density(stable_yr[which(yr_slope_allyrs>0)])
+d_stable_yr <- density(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000])
 d_stable_yr_1970 <- density(stable_yr_1970[which(yr_slope_1970>0)][stable_yr_1970[which(yr_slope_1970>0)]<5000])
 
 plot(d_stable_yr_1970,type="n",main=" ",
@@ -1016,6 +1016,58 @@ legend("topright",legend=c("All years","Since 1970"),
        fill=c(alpha("black",0.5),alpha("black",0.2)),
        bty="n", lty=c(1,2))
 
+## New figure -- compare proc+est to est only
+win.graph()
+par(mfrow=c(1,3),mar=c(5,5,2,1))
+plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.2,1.05),
+     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_est_err.95[1,],rev(lambda_year_proc_est_err.95[2,])),
+        col=alpha("black",1),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_err.95[1,],rev(lambda_year_proc_err.95[2,])),
+        col=alpha("dodgerblue",1),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_est_err.95[1,],rev(lambda_year_est_err.95[2,])),
+        col=alpha("tomato",1),border=NA)
+abline(h=1,col="lightgray")
+lines(PCclim$Year_t,lambda_year_proc_est_err.95[1,],lwd=1)
+lines(PCclim$Year_t,lambda_year_proc_est_err.95[2,],lwd=1)
+lines(PCclim$Year_t,lambda_year_est_err.95[1,],lwd=1,col="tomato")
+lines(PCclim$Year_t,lambda_year_est_err.95[2,],lwd=1,col="tomato")
+lines(PCclim$Year_t,lambda_year_proc_err.95[1,],lwd=1,col="dodgerblue")
+lines(PCclim$Year_t,lambda_year_proc_err.95[2,],lwd=1,col="dodgerblue")
+legend("bottomright",fill=c("tomato","dodgerblue","black"),cex=1.4,
+       legend=c("Estimation error","Process error","Estimation + process error"))
+title("A",adj=0,font=3)
+
+d_allyrs_est <- density(yr_slope_allyrs_est)
+d_allyrs_proc <- density(yr_slope_allyrs_proc)
+d_allyrs <- density(yr_slope_allyrs)
+plot(d_allyrs_est,xlim=c(-0.002,0.003),type="n",main=" ",
+     xlab=expression(paste(Delta,lambda," / ","year")),
+     ylab="Posterior probability density",cex.lab=1.4)
+abline(v=0,col="grey")
+polygon(d_allyrs, col=alpha("black",.8), border=NA,lwd=1)
+polygon(d_allyrs_proc, col=alpha("dodgerblue",.8), border=NA,lwd=1)
+polygon(d_allyrs_est, col=alpha("tomato",.8), border=NA,lwd=1)
+abline(v=c(median(yr_slope_allyrs),median(yr_slope_allyrs_est),median(yr_slope_allyrs_proc)),
+       col=c("black","tomato","dodgerblue"),lwd=2)
+title("B",adj=0,font=3)
+
+d_1970_est <- density(yr_slope_1970_est)
+d_1970_proc <- density(yr_slope_1970_proc)
+d_1970 <- density(yr_slope_1970)
+plot(d_1970_est,xlim=c(-0.005,0.006),type="n",main=" ",
+     xlab=expression(paste(Delta,lambda," / ","year")),
+     ylab="Posterior probability density",cex.lab=1.4)
+abline(v=0,col="grey")
+polygon(d_1970, col=alpha("black",.8), border=NA,lwd=1)
+polygon(d_1970_proc, col=alpha("dodgerblue",.8), border=NA,lwd=1)
+polygon(d_1970_est, col=alpha("tomato",.8), border=NA,lwd=1)
+abline(v=c(median(yr_slope_1970),median(yr_slope_1970_est),median(yr_slope_1970_proc)),
+       col=c("black","tomato","dodgerblue"),lwd=2)
+title("C",adj=0,font=3)
 
 # Posterior sampling LTRE -------------------------------------------------
 ## First create a vector identifying the climate-dependent parameters
