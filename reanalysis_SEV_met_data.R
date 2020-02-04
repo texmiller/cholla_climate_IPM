@@ -332,7 +332,15 @@ nc<-3
 
 allrates.selected.out<-jags(data=cholla.dat,inits=inits,parameters.to.save=parameters,model.file="Bayes models\\HB_cholla_allrates_selected_misc_params_SevLTER.txt",
                             n.thin=nt,n.chains=nc,n.burnin=nb,n.iter=ni,DIC=T,working.directory=getwd())
-
+#write summary table
+write.csv(allrates.selected.out$BUGSoutput$summary,
+          "allrates.selected.summary_SevLTER.csv")
+#write posterior means
+saveRDS(allrates.selected.out$BUGSoutput$mean,"allrates.selected.mean_SevLTER.rds")
+#write full posterior samples
+samples<-sample(1:7500,size=1000,replace=F)
+allrates.selected.posterior_SevLTER<-data.frame(allrates.selected.out$BUGSoutput$sims.matrix[samples,])
+write.csv(allrates.selected.posterior_SevLTER,"allrates.selected.posterior_SevLTER.csv")
 
 # Visualize vital rate results --------------------------------------------
 
