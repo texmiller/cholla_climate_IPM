@@ -134,7 +134,7 @@ While the SEV-LTER climate data cover years of our demographic data collection, 
 We therefore gathered climate data from ClimateWNA v5.60 \citep{wang2016locally}, a software package that uses PRISM \citep{daly2008physiographically} and WorldClim \citep{hijmans2005very} data to calculate downscaled data for western North America based on location and elevation, going as far back as 1900.
 By relying on downscaled, interpolated climate data instead of direct observations from meteorological stations we are trading off local resolution in favor of more historical years of data.
 We quantified this loss of resolution by comparing predictions from ClimateWNA to SEV-LTER data for years that they over-lapped, using the SEV-LTER meteorological station that was nearest our study population (Appendix A).
-We found that the two data sets were highly correlated (Table \ref{tab:WNASEV}, Figure \ref{fig:WNASEV}), which bolstered our confidence that ClimateWNA provided locally accurate climate data for both the demographic observation period as well as historical years that preceded our study. 
+We found that the two data sets were \revise{generally well correlated} (Table \ref{tab:WNASEV}, Fig. \ref{fig:WNASEV_temp},\ref{fig:WNASEV_precip}), which bolstered our confidence that ClimateWNA provided locally accurate climate data for both the demographic observation period as well as historical years that preceded our study. 
 We derived seasonal estimates (warm- and cool-season) of total precipitation and mean, minimum, and maximum temperature from monthly climate data, for a total of eight variables. 
 Months were aligned to correspond to demographic transition years rather than calendar years, which means the cool-season climate for a transition year beginning in May of year $t$ spans October of year $t$ through April of year $t+1$ (Fig. \ref{figure:lifecycle}). 
 
@@ -435,8 +435,8 @@ However, consistent with expectations for long-lived perennials, we know seedlin
 
 A second limitation is that our approach to quantifying climate drivers knowingly forfeits some information, and in two ways. 
 First, in order to gain deep temporal coverage, we relied on downscaled climate projections rather than direct climatalogical observations.
-While we know these two types of data to be highly correlated (Fig. \ref{fig:WNASEV}), they are not perfectly so; this is especially true for temperature minimia and maxima (Table \ref{tab:WNASEV}), where downscaled data likely mis-estimate localized extremes. 
-It is noteworthy that the downscaled climate data poorly captured the extreme deep-freeze of winter 2011  (Fig. \ref{fig:WNASEV}).
+While these two types of data were correlated, they were not perfectly so (Appendix A); this was especially true for temperature minima and maxima (Table \ref{tab:WNASEV}), where downscaled data likely mis-estimate localized extremes. 
+It is noteworthy that the downscaled climate data poorly captured the extreme deep-freeze of winter 2011  (Fig. \ref{fig:WNASEV_temp}A).
 Poor demographic performance in this year was consequently attributed to a statistical random effect (Fig. \ref{figure:lambda_year}A), though this was almost certainly a true climate effect. 
 Second, we limited our consideration of climate drivers to the first three principal components of inter-annual variation.
 While these three components explained a large majority of the variation (Fig. \ref{figure:PCA}A), we are disregarding some of the more subtle dimensions of climate variability and change. 
@@ -515,9 +515,10 @@ cool_prcp <- cor.test(SEV_WNA_cool$tot_prcp.x,SEV_WNA_cool$tot_prcp.y,method="pe
 We compared warm- and cool-season values of four climate variables (total precipitation and minimum, mean, and maximum temperature) between two data sources: the SEV-LTER meteorological station nearest our study site (station 50 in the SEV-LTER meteorological network) and downscaled data from ClimateWNA corresponding to the same latitude, longitude, and elevation as station 50. 
 Our goal was to determine how well the downscaled data captured conditions `on the ground' as measured directly by the meteorological station. We compared the years \Sexpr{SEV_WNA_yr_range[1]} through \Sexpr{SEV_WNA_yr_range[2]}, which are the years of overlap between the two data sources.
 
-There was generally strong agreement between the two data sources (Table \ref{tab:WNASEV}, Figure \ref{fig:WNASEV}). 
-Temperature extrema were less strongly correlated between the two data sets than temperature means, which is unsurprising given that extreme values may be sensitive to local micro-environmental conditions that the relatively coarse downscaled data would miss. 
-The weakest correlation was that of warm-season maximum temperature (Spearman's $r = \Sexpr{round(warm_max$estimate,2)}$, $P = \Sexpr{round(warm_max$p.value,2)}$). 
+There was moderate to strong agreement between the two data sources (Table \ref{tab:WNASEV}, Fig. \ref{fig:WNASEV_temp}, Fig. \ref{fig:WNASEV_precip}). 
+Temperature extrema were less strongly correlated between the two data sets than temperature means (Fig. \ref{fig:WNASEV_temp}), which is unsurprising given that extreme values may be sensitive to local micro-environmental conditions that the relatively coarse downscaled data would miss. 
+There was an extreme-cold event in 2010 that was particularly poorly captured by the downscaled data (Fig. \ref{fig:WNASEV_temp}A).
+The weakest correlation was that of warm-season maximum temperature (Fig. \ref{fig:WNASEV_temp}F; Spearman's $r = \Sexpr{round(warm_max$estimate,2)}$, $P = \Sexpr{round(warm_max$p.value,2)}$). 
 
 \begin{table}[h!]
   \caption{Correlations between seasonal climate values measured by an on-site meteorological station versus dowwscaled data from ClimateWNA corresponding to the same years and location. Correlation values show Pearson correlations and P-values come from $t$-tests with \Sexpr{warm_min$parameter} degrees of freedom.}
@@ -541,16 +542,22 @@ The weakest correlation was that of warm-season maximum temperature (Spearman's 
   \end{center}
 \end{table}
 
-\newpage
 \begin{figure}[H]
   \begin{center}
-    \includegraphics[width=\linewidth]{Figures/SEV-WNA_corr.pdf}
-  \caption{Correlations between seasonal climate values (\textbf{A}: temperature; \textbf{B}: precipitation) between SEV-LTER metereological data and downscaled estimates from ClimateWNA for years 2001--2017. Gray lines show $y=x$.}
-   \label{fig:WNASEV}
+    \includegraphics[width=\linewidth]{Figures/SEV-WNA_corr_temp.pdf}
+  \caption{\revise{Correlations of minimum, mean, and maximum temperature values of cool (\textbf{A--C}) and warm (\textbf{D--F}) seasons between SEV-LTER metereological data and downscaled estimates from ClimateWNA for years 2004--2017. Diagonal lines show $y=x$.}}
+   \label{fig:WNASEV_temp}
    \end{center}
 \end{figure}
 
-\newpage
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/SEV-WNA_corr_precip.pdf}
+  \caption{\revise{Correlations of cool- (\textbf{A}) and warm-season (\textbf{B}) precipitation between SEV-LTER metereological data and downscaled estimates from ClimateWNA for years 2004--2017. Diagonal lines show $y=x$.}}
+   \label{fig:WNASEV_precip}
+   \end{center}
+\end{figure}
+
 \begin{figure}[H]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/SEV_paran.pdf}
@@ -816,11 +823,11 @@ The ``new'' plants in our plots each year were likely several years old.}
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_year_proc_est_err}
-  \caption{\textbf{A}, Time series of back-casted asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in three climate PCs. 
+  \caption{\revise{\textbf{A}, Time series of back-casted asymptotic population growth rates ($\lambda$) predicted based on inter-annual variation in three climate PCs. 
 Shaded regions show the 95\% credible interval of the posterior probability distributions for three uncertainty scenarios: estimation error only (parameter uncertainty; red), process error only (year-to-year heterogeneity unrelated to the climate PCs; blue), and both estimation and process error (black).
 \textbf{B, C}, Posterior probability distribution for the change in $\lambda$ per year based on the entire time series (\textbf{B}) or years since 1970 (\textbf{C}). 
 Vertical lines show the medians of the posterior distributions.
-Colors as in \textbf{A}.}
+Colors as in \textbf{A}.}}
   \label{fig:lambda_year_proc_est_err}
   \end{center}
 \end{figure}
@@ -874,8 +881,8 @@ We repeated our back-casting analysis using this approach.
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/lambda_PC_extrapF}
-  \caption{Relationships between $\lambda$ and three climate PCs with no extrapolation into unobserved climate conditions. 
-  For PC values lower than the minimum (red vertical lines) and greater than the maximum (blue vertical lines) of the observation period, demographic responses were forced to match the extrema of the observation period according to Eq. \ref{eq:extrap}.}
+  \caption{\revise{Relationships between $\lambda$ and three climate PCs with no extrapolation into unobserved climate conditions. 
+  For PC values lower than the minimum (red vertical lines) and greater than the maximum (blue vertical lines) of the observation period, demographic responses were forced to match the extrema of the observation period according to Eq. \ref{eq:extrap}.}}
   \label{fig:lambda_PC_extrapF}
   \end{center}
 \end{figure}
@@ -890,8 +897,8 @@ As we show in the main paper, this PC has changed the most during the historical
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\linewidth]{Figures/backcast_extrapTF}
-  \caption{Back-casted values of climate-dependent population growth ($\lambda$) with (solid lines) and without (dashed lines) extrapolation of vital rate responses to unobserved climate conditions based on posterior mean parameter values.
-  Red and blue lines show fitted regressions for the entire time series and since 1970, respectively.}
+  \caption{\revise{Back-casted values of climate-dependent population growth ($\lambda$) with (solid lines) and without (dashed lines) extrapolation of vital rate responses to unobserved climate conditions based on posterior mean parameter values.
+  Red and blue lines show fitted regressions for the entire time series and since 1970, respectively.}}
   \label{fig:backcast_extrapTF}
   \end{center}
 \end{figure}
