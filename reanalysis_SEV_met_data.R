@@ -2,6 +2,11 @@ library(tidyverse)
 library(paran)
 library(scales)
 library(R2jags)
+invlogit<-function(x){exp(x)/(1+exp(x))}
+volume <- function(h, w, p){
+  (1/3)*pi*h*(((w + p)/2)/2)^2
+}
+
 ## This script recreates the analysis using SEV-LTER met data instead of
 ## climateNA. 
 
@@ -66,9 +71,6 @@ legend("topleft",fill=alpha(PC_cols,alpha_scale),border=PC_cols,bty="n",cex=1.2,
 
 # Vital rate fitting ------------------------------------------------------
 ## merge demography and SEV-LTER climate PCA
-volume <- function(h, w, p){
-  (1/3)*pi*h*(((w + p)/2)/2)^2
-}
 cholla <- read.csv("cholla_demography_20042018.csv")
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
   filter(Year_t >= min(cholla$Year_t,na.rm=T),
@@ -343,5 +345,244 @@ allrates.selected.posterior_SevLTER<-data.frame(allrates.selected.out$BUGSoutput
 write.csv(allrates.selected.posterior_SevLTER,"allrates.selected.posterior_SevLTER.csv")
 
 # Visualize vital rate results --------------------------------------------
+## read in JAGS outputs
+mean_params <- read_rds("allrates.selected.mean_SevLTER.rds")
+
+## params for visualization
+size_bin_num <- 3
+bin_cols <- c("#a6bddb","#3690c0","#034e7b")
+alpha.col<-0.2
+
+surv_dat_cuts <- surv_dat %>% 
+  mutate(size_bin = as.integer(cut_number(standvol_t,size_bin_num))) 
+surv_bin_means <- surv_dat_cuts%>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_surv = mean(Survival_t1),
+            bin_n = n())
+surv_size_means <- surv_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t))
+
+grow_dat_cuts <- grow_dat %>% 
+  mutate(size_bin = as.integer(cut_number(standvol_t,size_bin_num))) 
+grow_bin_means <- grow_dat_cuts %>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_grow = mean(growth_t1),
+            bin_n = n())
+grow_size_means <- grow_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t))
+
+flow_dat_cuts <- flow_dat %>% 
+  mutate(size_bin = as.integer(cut_number(standvol_t1,size_bin_num))) 
+flow_bin_means <- flow_dat_cuts %>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_flow = mean(Goodbuds_t1 > 0),
+            bin_n = n())
+flow_size_means <- flow_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t1))
+
+fert_dat_cuts <- fert_dat %>% 
+  mutate(size_bin = as.integer(cut_number(standvol_t1,size_bin_num)))
+fert_bin_means <- fert_dat_cuts %>% 
+  group_by(size_bin,Year_t) %>% 
+  summarise(mean_PC1 = mean(PC1),
+            mean_PC2 = mean(PC2),
+            mean_PC3 = mean(PC3),
+            mean_fert = mean(Goodbuds_t1),
+            bin_n = n())
+fert_size_means <- fert_dat_cuts %>% 
+  group_by(size_bin) %>% 
+  summarise(size_mean = mean(standvol_t1))
+
+PC_gather <- PCclim %>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
 
 
+win.graph()
+par(mfrow=c(4,3),mar=c(4,5,2,1))
+
+with(surv_bin_means,{
+  plot(mean_PC1,mean_surv,xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1),type="n",
+       xlab="Climate PC1",ylab="Probability of survival",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC1,
+          invlogit(mean_params$surv.mu + mean_params$surv.bsize*surv_size_means$size_mean[i] +
+                     0*x_PC1),
+          lty=2,lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC1,mean_surv,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("A",adj=0)
+  
+  plot(mean_PC2,mean_surv,xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1),type="n",
+       xlab="Climate PC2",ylab="Probability of survival",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC2,
+          invlogit(mean_params$surv.mu + mean_params$surv.bsize*surv_size_means$size_mean[i] + 
+                     0 * x_PC2),
+          lty=2,lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC2,mean_surv,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("B",adj=0)
+  
+  plot(mean_PC3,mean_surv,xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1),type="n",
+       xlab="Climate PC3",ylab="Probability of survival",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC3,
+          invlogit(mean_params$surv.mu + mean_params$surv.bsize*surv_size_means$size_mean[i] + 
+                     mean_params$surv.bclim[1,3] * x_PC3 + mean_params$surv.bclim[2,3] * (x_PC3^2)),
+          lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC3,mean_surv,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("C",adj=0)
+})
+
+with(grow_bin_means,{
+  plot(mean_PC1,mean_grow,type="n",
+       xlim=c(min(x_PC1),max(x_PC1)),
+       xlab="Climate PC1",ylab=expression(paste("Growth (", Delta, "volume)" )),cex.lab=1.4)
+  points(mean_PC1,mean_grow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC1,
+          mean_params$grow.mu + mean_params$grow.bsize*grow_size_means$size_mean[i] + 0*x_PC1,
+          lwd=3,lty=2,col=bin_cols[i])
+  }
+  title("D",adj=0)
+  
+  plot(mean_PC2,mean_grow,type="n",
+       xlim=c(min(x_PC2),max(x_PC2)),
+       xlab="Climate PC2",ylab=expression(paste("Growth (", Delta, "volume)" )),cex.lab=1.4)
+  points(mean_PC2,mean_grow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC2,
+          mean_params$grow.mu + mean_params$grow.bsize*grow_size_means$size_mean[i] + 0*x_PC2,
+          lwd=3,lty=2,col=bin_cols[i])
+  }
+  title("E",adj=0)
+  
+  plot(mean_PC3,mean_grow,type="n",
+       xlim=c(min(x_PC3),max(x_PC3)),
+       xlab="Climate PC3",ylab=expression(paste("Growth (", Delta, "volume)" )),cex.lab=1.4)
+  points(mean_PC3,mean_grow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  for(i in 1:size_bin_num){
+    lines(x_PC3,
+          mean_params$grow.mu + mean_params$grow.bsize*grow_size_means$size_mean[i] + 0*x_PC3,
+          lwd=3,lty=2,col=bin_cols[i])
+  }
+  title("F",adj=0)
+})
+
+with(flow_bin_means,{
+  plot(mean_PC1,mean_flow,xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,1),type="n",
+       xlab="Climate PC1",ylab="Probability of flowering",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC1,
+          invlogit(mean_params$flow.mu + mean_params$flow.bsize*flow_size_means$size_mean[i] + 
+                     mean_params$flow.bclim[3,1]*x_PC1*flow_size_means$size_mean[i]),
+          lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC1,mean_flow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("G",adj=0)
+  
+  plot(mean_PC2,mean_flow,xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,1),type="n",
+       xlab="Climate PC2",ylab="Probability of flowering",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC2,
+          invlogit(mean_params$flow.mu + mean_params$flow.bsize*flow_size_means$size_mean[i] + 
+                     mean_params$flow.bclim[1,2] * x_PC2),
+          lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC2,mean_flow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("H",adj=0)
+  
+  plot(mean_PC3,mean_flow,xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,1),type="n",
+       xlab="Climate PC3",ylab="Probability of flowering",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC3,
+          invlogit(mean_params$flow.mu + mean_params$flow.bsize*flow_size_means$size_mean[i] + 
+                     mean_params$flow.bclim[3,3] * x_PC3 * flow_size_means$size_mean[i]),
+          lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC3,mean_flow,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("I",adj=0)
+})
+
+with(fert_bin_means,{
+  plot(mean_PC1,mean_fert,pch=1.4,cex=1.5,
+       xlim=c(min(x_PC1),max(x_PC1)),ylim=c(0,max(mean_fert)),type="n",
+       xlab="Climate PC1",ylab="No. flowerbuds",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC1,
+          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_means$size_mean[i] + 
+                mean_params$fert.bclim[3,1]*x_PC1*fert_size_means$size_mean[i]),
+          lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC1,mean_fert,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("J",adj=0)
+  
+  plot(mean_PC2,mean_fert,type="n",
+       xlim=c(min(x_PC2),max(x_PC2)),ylim=c(0,max(mean_fert)),
+       xlab="Climate PC2",ylab="No. flowerbuds",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC2,
+          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_means$size_mean[i] + 
+                0 * x_PC2),
+          lty=2,lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC2,mean_fert,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("K",adj=0)
+  
+  plot(mean_PC3,mean_fert,pch=1.4,cex=1.5,
+       xlim=c(min(x_PC3),max(x_PC3)),ylim=c(0,max(mean_fert)),type="n",
+       xlab="Climate PC3",ylab="No. flowerbuds",cex.lab=1.4)
+  for(i in 1:size_bin_num){
+    lines(x_PC3,
+          exp(mean_params$fert.mu + mean_params$fert.bsize*fert_size_means$size_mean[i] + 
+                0 * x_PC3),
+          lty=2,lwd=3,col=bin_cols[i])
+  }
+  points(mean_PC3,mean_fert,bg=bin_cols[size_bin],pch=21,cex= 3*(bin_n / max(bin_n)))
+  title("L",adj=0)
+  
+})
+
+
+# Sigma year comparisons --------------------------------------------------
+param_summ_SEV <- read_csv("allrates.selected.summary_SevLTER.csv")
+rownames(param_summ_SEV)<-param_summ_SEV$X1
+param_summ_WNA <- read_csv("allrates.selected.summary.csv")
+rownames(param_summ_WNA)<-param_summ_WNA$X1
+
+
+sigma_year_comp <- bind_rows(param_summ_SEV[c("surv.sigma.year","grow.sigma.year","flow.sigma.year","fert.sigma.year"),
+                                            c("2.5%","25%","50%","75%","97.5%")],
+                             param_summ_WNA[c("surv.sigma.year","grow.sigma.year","flow.sigma.year","fert.sigma.year"),
+                                            c("2.5%","25%","50%","75%","97.5%")]) %>% 
+  mutate(param = rep(c("surv.sigma.year","grow.sigma.year","flow.sigma.year","fert.sigma.year"),
+                     times=2),
+         data_source = rep(c("SEV","WNA"),each=4))
+
+ggplot(sigma_year_comp)+
+  geom_pointrange(aes(x=as.factor(param),y=`50%`,
+                      ymin=`2.5%`,ymax=`97.5%`,
+                      color=as.factor(data_source)), 
+                  position = position_dodge(width = 1), size=0.5)
