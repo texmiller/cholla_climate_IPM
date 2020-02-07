@@ -608,29 +608,8 @@ PCclim$lambda_year_SEV<-PCclim$lambda_year_RFX_SEV<-NA
 PCclim$lambda_year<-PCclim$lambda_year_RFX<-NA
 
 for(i in 2:nrow(PCclim)){
-  ## analysis with ClimateWNA PCs
-  PCclim$lambda_year[i]<-lambda(bigmatrix_SEV(params = mean_params,
-                                                  PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
-                                                  PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
-                                                  PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
-                                                  random = F, 
-                                                  lower.extension = lower.extension, 
-                                                  upper.extension = upper.extension,
-                                                  mat.size = mat.size)$IPMmat)
-  PCclim$lambda_year_RFX[i]<-lambda(bigmatrix(params = mean_params,
-                                                  PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
-                                                  PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
-                                                  PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
-                                                  random = F, 
-                                                  lower.extension = lower.extension, 
-                                                  upper.extension = upper.extension,
-                                                  mat.size = mat.size
-                                                  , ##need to update rfx timing here and in the original analysis
-                                                  rfx = c(mean_params$grow.eps.year[i],
-                                                          mean_params$surv.eps.year[i],
-                                                          mean_params$flow.eps.year[i-1],
-                                                          mean_params$fert.eps.year[i-1]))$IPMmat)
-    ## analysis with SEV LTER PCs
+  ## analysis with ClimateWNA PCs -- NO!DUMB! I CAN'T USE THE SEV PC'S IN THE WNA-SELECTED FUNCTIONS!
+  ## analysis with SEV LTER PCs
     PCclim$lambda_year_SEV[i]<-lambda(bigmatrix_SEV(params = mean_params_SEV,
                                           PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
                                           PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
@@ -639,26 +618,35 @@ for(i in 2:nrow(PCclim)){
                                           lower.extension = lower.extension, 
                                           upper.extension = upper.extension,
                                           mat.size = mat.size)$IPMmat)
-  PCclim$lambda_year_RFX_SEV[i]<-lambda(bigmatrix(params = mean_params_SEV,
+  PCclim$lambda_year_RFX_SEV[i]<-lambda(bigmatrix_SEV(params = mean_params_SEV,
                                                   PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
                                                   PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
                                                   PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
                                                   random = F, 
                                                   lower.extension = lower.extension, 
                                                   upper.extension = upper.extension,
-                                                  mat.size = mat.size
-                                                  , ##need to update rfx timing here and in the original analysis
+                                                  mat.size = mat.size, 
                                                   rfx = c(mean_params_SEV$grow.eps.year[i],
                                                           mean_params_SEV$surv.eps.year[i],
                                                           mean_params_SEV$flow.eps.year[i-1],
                                                           mean_params_SEV$fert.eps.year[i-1]))$IPMmat)
 }
+## to do the anova decomposition, I need to associate the year-specific lambdas with climate in year t and year t-1
+PCclim$PC1_lastyr <- c(NA,PCclim$PC1[1:(nrow(PCclim)-1)])
+PCclim$PC2_lastyr <- c(NA,PCclim$PC2[1:(nrow(PCclim)-1)])
+PCclim$PC3_lastyr <- c(NA,PCclim$PC3[1:(nrow(PCclim)-1)])
 
+## how much variation do the PCs explain in lambda_t
+lambda_t_PC_mod_SEV <- lm(lambda_year_RFX_SEV ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
+summary(lambda_t_PC_mod_SEV)
+
+
+## compare lambda values between data sources
 plot(PCclim$lambda_year,PCclim$lambda_year_SEV,type="n",
      xlim=c(min(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T),
             max(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T)),
-            ylim=c(min(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T),
-                   max(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T)))
+     ylim=c(min(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T),
+            max(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T)))
 points(PCclim$lambda_year,PCclim$lambda_year_SEV)
 abline(0,1)
 cor.test(PCclim$lambda_year,PCclim$lambda_year_SEV)
@@ -671,18 +659,6 @@ plot(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV,type="n",
 points(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV)
 abline(0,1)
 cor.test(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV)
-
-## to do the anova decomposition, I need to associate the year-specific lambdas with climate in year t and year t-1
-PCclim$PC1_lastyr <- c(NA,PCclim$PC1[1:(nrow(PCclim)-1)])
-PCclim$PC2_lastyr <- c(NA,PCclim$PC2[1:(nrow(PCclim)-1)])
-PCclim$PC3_lastyr <- c(NA,PCclim$PC3[1:(nrow(PCclim)-1)])
-
-## how much variation do the PCs explain in lambda_t
-lambda_t_PC_mod <- lm(lambda_year_RFX ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
-summary(lambda_t_PC_mod)
-
-lambda_t_PC_mod_SEV <- lm(lambda_year_RFX_SEV ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
-summary(lambda_t_PC_mod_SEV)
 
 
 ## same but now posterior sampling
