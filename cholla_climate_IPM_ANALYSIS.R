@@ -843,6 +843,10 @@ summary(all_PC)$r.squared
 no_PC1 <- lm(lambda_year ~ PC2 + PC3 + PC2_lastyr + PC3_lastyr, data = PCclim)
 summary(no_PC1)$r.squared
 
+## write out PCclim with all these lambda quantities for comparison with
+## analysis based on SEV data
+write_csv(PCclim,"PCclim_lambda_WNA.csv")
+
 # LTRE --------------------------------------------------------------------
 ## decompose inter-annual variation by vital rate responses to PCs
 coef(all_PC) ## this is what I am trying to decompose (the PC coefficients)
