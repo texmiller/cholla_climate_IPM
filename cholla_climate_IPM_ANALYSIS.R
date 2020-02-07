@@ -5,6 +5,55 @@ library(scales)
 library(tidyverse)
 source("cholla_climate_IPM_SOURCE.R")
 
+## Read in raw demographic data and merge with climate (copied from demography script)
+cholla <- read.csv("cholla_demography_20042018.csv")
+PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+SEV_WNA <- read.csv("SEV_WNA.csv")
+PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
+PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
+SEV_paran <- read_rds("SEV_paran.rds")
+cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
+  filter(Year_t >= min(cholla$Year_t,na.rm=T),
+         Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)!="H") %>% 
+  mutate(year_int = Year_t - (min(Year_t)-1),
+         plot_int = as.integer(Plot),
+         vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
+         standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
+PC_gather <- PCclim %>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
+
+## Read in the mean parameter vector from the Bayesian estimation. Also including the 95% CI for ms readout
+mean_params <- readRDS("allrates.selected.mean.rds")
+params_summ<-read.csv("allrates.selected.summary.csv")
+
+## Lastly, I need the size bounds.
+## I will need to add demographic parameters to this list that were not
+## generated in the Bayesian fitting
+seedlings <- cholla %>% 
+  mutate(vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)=="H",
+         Recruit==1) 
+min(cholla.clim$standvol_t,na.rm=T) 
+min(seedlings$standvol_t,na.rm=T) 
+## the seedling data set minimum is a little smaller than the rest of the data set, so
+## I will use seedling min size as the lower bound
+mean_params$min.size <- min(seedlings$standvol_t,na.rm=T) 
+mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T) 
+
 # Climate trends (Figure 1) --------------------------------------------------------
 PC_cols <- c("#feb24c","#fc4e2a","#b10026","#0570b0")#c("#9ecae1", "#4292c6", "#084594", "#de2d26")
 alpha_scale<-0.75
@@ -459,12 +508,7 @@ with(fert_bin_means,{
 ## this is a visualization that arises from binning both size and flowerbuds.
 ## Flowerbuds are NB distributed with long tails that biases the mean.
 
-
-
 # Demographic analysis ----------------------------------------------------
-mat.size = 200
-lower.extension = -0.2
-upper.extension = 1
 ## try estimating lambda with all PCs=0, which should be an average climate year
 cholla_mean <- bigmatrix(params = mean_params,
           PC1 = c(0,0), PC2 = c(0,0), PC3 = c(0,0),
