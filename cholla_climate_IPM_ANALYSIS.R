@@ -779,15 +779,7 @@ for(i in 2:length(PCclim$lambda_year)){
                                           upper.extension = upper.extension,
                                           mat.size = mat.size)$IPMmat)
 }
-for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
-  PCclim$lambda_year[i]<-lambda(bigmatrix(params = mean_params,
-                                              PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
-                                              PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
-                                              PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
-                                              random = F, 
-                                              lower.extension = lower.extension, 
-                                              upper.extension = upper.extension,
-                                              mat.size = mat.size)$IPMmat)
+for(i in (length(min(PCclim$Year_t):2003)+2):nrow(PCclim)){
   PCclim$lambda_year_RFX[i]<-lambda(bigmatrix(params = mean_params,
                                           PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
                                           PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
@@ -799,8 +791,8 @@ for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
                                           ,
                                           rfx = c(mean_params$grow.eps.year[i-length(min(PCclim$Year_t):2003)],
                                                   mean_params$surv.eps.year[i-length(min(PCclim$Year_t):2003)],
-                                                  mean_params$flow.eps.year[i-length(min(PCclim$Year_t):2003)],
-                                                  mean_params$fert.eps.year[i-length(min(PCclim$Year_t):2003)])
+                                                  mean_params$flow.eps.year[(i-length(min(PCclim$Year_t):2003))-1],
+                                                  mean_params$fert.eps.year[(i-length(min(PCclim$Year_t):2003))-1])
                                           )$IPMmat)
 }
 
