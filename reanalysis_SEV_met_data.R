@@ -581,7 +581,7 @@ sigma_year_comp <- bind_rows(param_summ_SEV[c("surv.sigma.year","grow.sigma.year
                                             c("2.5%","25%","50%","75%","97.5%")],
                              param_summ_WNA[c("surv.sigma.year","grow.sigma.year","flow.sigma.year","fert.sigma.year"),
                                             c("2.5%","25%","50%","75%","97.5%")]) %>% 
-  mutate(param = rep(c("surv.sigma.year","grow.sigma.year","flow.sigma.year","fert.sigma.year"),
+  mutate(param = rep(c("Survival","Growth","Flowering","Fertility"),
                      times=2),
          data_source = rep(c("SEV","WNA"),each=4))
 
@@ -589,8 +589,11 @@ ggplot(sigma_year_comp)+
   geom_pointrange(aes(x=as.factor(param),y=`50%`,
                       ymin=`2.5%`,ymax=`97.5%`,
                       color=as.factor(data_source)), 
-                  position = position_dodge(width = 1), size=0.5)
-
+                  position = position_dodge(width = 1), size=0.5)+
+  xlab("Vital rate")+ylab(expression(paste(sigma[year])))+
+  labs(color = "Climate data source")+
+  theme_bw()
+ggsave("Manuscript/Figures/sigma_year.pdf", width = 6, height = 4)
 
 # lambda by year ----------------------------------------------------------
 source("cholla_climate_IPM_SOURCE.R")
@@ -605,7 +608,6 @@ source("cholla_climate_IPM_SOURCE.R")
 mean_params_SEV$min.size <- mean_params$min.size <- min(seedlings$standvol_t,na.rm=T) 
 mean_params_SEV$max.size <- mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T) 
 PCclim$lambda_year_SEV<-PCclim$lambda_year_RFX_SEV<-NA
-PCclim$lambda_year<-PCclim$lambda_year_RFX<-NA
 
 for(i in 2:nrow(PCclim)){
   ## analysis with ClimateWNA PCs -- NO!DUMB! I CAN'T USE THE SEV PC'S IN THE WNA-SELECTED FUNCTIONS!
@@ -641,24 +643,36 @@ lambda_t_PC_mod_SEV <- lm(lambda_year_RFX_SEV ~ PC1 + PC2 + PC3 + PC1_lastyr + P
 summary(lambda_t_PC_mod_SEV)
 
 
-## compare lambda values between data sources
-plot(PCclim$lambda_year,PCclim$lambda_year_SEV,type="n",
-     xlim=c(min(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T),
-            max(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T)),
-     ylim=c(min(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T),
-            max(c(PCclim$lambda_year,PCclim$lambda_year_SEV),na.rm=T)))
-points(PCclim$lambda_year,PCclim$lambda_year_SEV)
-abline(0,1)
-cor.test(PCclim$lambda_year,PCclim$lambda_year_SEV)
+# compare lambda values between data sources -------------------------------------------------------------------------
+## read in WNA results
+PCclim_WNA<-read_csv("PCclim_lambda_WNA.csv")
+PCclim_compare <- left_join(PCclim,PCclim_WNA,by="Year_t")
 
-plot(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV,type="n",
-     xlim=c(min(c(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV),na.rm=T),
-            max(c(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV),na.rm=T)),
-     ylim=c(min(c(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV),na.rm=T),
-            max(c(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV),na.rm=T)))
-points(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV)
+win.graph()
+par(mfrow=c(1,2),mar=c(5,5,1,1))
+plot(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year,type="n",
+     xlim=c(min(c(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year),na.rm=T)-0.005,
+            max(c(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year),na.rm=T)+0.005),
+     ylim=c(min(c(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year),na.rm=T)-0.005,
+            max(c(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year),na.rm=T)+0.005),
+     xlab=expression(paste(lambda[t], " (SEV-LTER)")),
+     ylab=expression(paste(lambda[t], " (ClimateWNA)")))
+text(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year,labels=PCclim_compare$Year_t)
 abline(0,1)
-cor.test(PCclim$lambda_year_RFX,PCclim$lambda_year_RFX_SEV)
+cor.test(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year)
+title("A",font=4,adj=0)
+
+plot(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,type="n",
+     xlim=c(min(c(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX),na.rm=T)-0.03,
+            max(c(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX),na.rm=T)+0.03),
+     ylim=c(min(c(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX),na.rm=T)-0.03,
+            max(c(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX),na.rm=T)+0.03),
+     xlab=expression(paste(lambda[t], " (SEV-LTER)")),
+     ylab=expression(paste(lambda[t], " (ClimateWNA)")))
+text(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,labels=PCclim_compare$Year_t)
+abline(0,1)
+cor.test(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX)
+title("B",font=4,adj=0)
 
 
 ## same but now posterior sampling
