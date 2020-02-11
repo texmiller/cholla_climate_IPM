@@ -1,10 +1,5 @@
 ### Purpose: build IPM using the climate-dependent vital rates that were fit elsewhere
 
-# IPM settings -------------------------------------------------------------------
-mat.size = 200
-lower.extension = -0.2
-upper.extension = 1
-
 # misc functions -------------------------------------------------------------------
 volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
