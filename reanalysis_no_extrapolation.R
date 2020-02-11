@@ -2,13 +2,35 @@
 ## this is using the vital rate models from the original submission
 library(popbio)
 source("cholla_climate_IPM_SOURCE.R")
-
-
+cholla <- read.csv("cholla_demography_20042018.csv")
+PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+SEV_WNA <- read.csv("SEV_WNA.csv")
+PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
+PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
+SEV_paran <- read_rds("SEV_paran.rds")
+cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
+  filter(Year_t >= min(cholla$Year_t,na.rm=T),
+         Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)!="H") %>% 
+  mutate(year_int = Year_t - (min(Year_t)-1),
+         plot_int = as.integer(Plot),
+         vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
+         standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
 # visualize climate coverage ----------------------------------------------
 PC_gather <- PCclim %>% 
   select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
   gather(PC1,PC2,PC3,key="PC",value="value") %>% 
   mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
 
 ggplot(PC_gather)+
   geom_histogram(aes(x=value,fill=time))+
@@ -260,8 +282,6 @@ dev.off()
 extrap_effect <- round((1 - (coef(lambda_trend_extrapF)[2] / coef(lambda_trend_extrapT)[2]))*100,0)
 extrap_effect_1970 <- round((1 - (coef(lambda_trend1970_extrapF)[2] / coef(lambda_trend1970_extrapT)[2]))*100,0)
 
-## append these to ms quantities
-ms_quantities <- readRDS("ms_quantities.rds")
-ms_quantities <- c(ms_quantities,list(extrap_effect_1970=extrap_effect_1970,
-                                      extrap_effect=extrap_effect))
-saveRDS(ms_quantities,"ms_quantities.rds")
+## write these to file
+saveRDS(list(extrap_effect_1970=extrap_effect_1970,
+             extrap_effect=extrap_effect),"extrap_effect.rds")
