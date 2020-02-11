@@ -642,6 +642,14 @@ PCclim$PC3_lastyr <- c(NA,PCclim$PC3[1:(nrow(PCclim)-1)])
 lambda_t_PC_mod_SEV <- lm(lambda_year_RFX_SEV ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
 summary(lambda_t_PC_mod_SEV)
 
+## contributions of each PC axis
+all_PC <- lm(lambda_year_SEV ~ PC1 + PC2 + PC3 + I(PC3^2) + PC1_lastyr + PC2_lastyr + PC3_lastyr, data = PCclim)
+summary(all_PC)$r.squared
+dlambda.dPC1 <- coef(all_PC)[2]+coef(all_PC)[6]
+dlambda.dPC2 <- coef(all_PC)[3]+coef(all_PC)[7]
+dlambda.dPC3 <- coef(all_PC)[4]+coef(all_PC)[5]+coef(all_PC)[8]
+
+barplot(c(dlambda.dPC1,dlambda.dPC2,dlambda.dPC3))
 
 # compare lambda values between data sources -------------------------------------------------------------------------
 ## read in WNA results
@@ -659,7 +667,6 @@ plot(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year,type="n",
      ylab=expression(paste(lambda[t], " (ClimateWNA)")))
 text(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year,labels=PCclim_compare$Year_t)
 abline(0,1)
-cor.test(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year)
 title("A",font=4,adj=0)
 
 plot(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,type="n",
@@ -671,8 +678,14 @@ plot(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,type="n",
      ylab=expression(paste(lambda[t], " (ClimateWNA)")))
 text(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,labels=PCclim_compare$Year_t)
 abline(0,1)
-cor.test(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX)
 title("B",font=4,adj=0)
 
-
-## same but now posterior sampling
+## write out values
+## how much does climate predict for the years where we have random effects?
+climate_rsq <- round(summary(lambda_t_PC_mod_SEV)$r.squared,2)*100
+lambda_corr <- cor.test(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year)
+lambda_corr_RFX <- cor.test(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX)
+saveRDS(list(climate_rsq=climate_rsq,
+             lambda_corr=lambda_corr,
+             lambda_corr_RFX=lambda_corr_RFX),
+        "SEV_met.rds")
