@@ -510,6 +510,9 @@ with(fert_bin_means,{
 
 # Demographic analysis ----------------------------------------------------
 ## try estimating lambda with all PCs=0, which should be an average climate year
+mat.size = 200
+lower.extension = -0.2
+upper.extension = 1
 cholla_mean <- bigmatrix(params = mean_params,
           PC1 = c(0,0), PC2 = c(0,0), PC3 = c(0,0),
           random = F, 
