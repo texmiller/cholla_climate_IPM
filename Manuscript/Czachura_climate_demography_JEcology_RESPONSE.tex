@@ -60,20 +60,21 @@
 
 \maketitle
 % ======================================================= %
-\noindent To the editorial board,\\
-
+\noindent To the editorial board,
 Thank you for the opportunity to submit a major revision of our manuscript for your consideration. 
 In this document, we reproduce comments from the associate editor and reviewers and provide our point-by-point responses. As we explain in more detail below, our responses and corresponding revisions focus on the following two major concerns, one raised by each of the two reviewers, that were emphasized by the Associate Editor.
 
 First, Reviewer 1 was concerned about the imperfect correspondence between on-site climatological data and downscaled projections. 
-We have addressed this concern by conducting new analyses based entirely on the on-site data and comparing predictions from the two approaches to climate data.
-Results of these new analyses allow to quantify how much information is lost by our reliance on downscaled climate data, but suggest that our qualitative conclusions are robust to this loss of resolution. 
+We have addressed this concern by conducting new analyses based entirely on the on-site data and comparing predictions from the two climate data sources.
+Results of these new analyses allow to quantify how much information is lost by using downscaled climate data, and further suggest that our qualitative conclusions are robust to this loss of resolution. 
 
 Second, Reviewer 2 was concerned about extrapolation of our statistical models into unobserved climate states. 
 We have addressed this concern by running new, extrapolation-free analyses.
 This more conservative approach provides a benchmark for understanding how the extrapolation highlighted by the reviewer affects our results and conclusions. 
+Again, we found that our qualitative conclusions hold up whether or not we extrapolate climate responses. 
 
 We additionally addressed the minor comments of the AE and reviewers. 
+We also modified the title to better emphasize back-casting in our study, since this element of the study has received more emphasis in response to reviewer comments.
 All of our changes are denoted in the manuscript with \revise{Mahogany font}.
 We think the review process has greatly strengthened our manuscript such that it is now suitable for publication.
 We hope you agree. 
@@ -91,7 +92,7 @@ We hope you agree.
 \vspace{-2em}
 
 \comment{This paper brings together long-term data on an endemic cactus species, analysis on the trends of climate change at the region, and demographic modelling to show that the species in question is actually benefitting from the changes in the climate, but not so much due to the overall trend, but rather due to change in seasonality. Since this paper last came through my editorial board, it has improved significantly in terms of its clarity. I have read it with great attention and enjoyed doing so.}
-\response{We thank the AE for their service to the journal, and for their constructive comments on our paper.}
+\response{We thank the AE for their constructive comments on our paper.}
 
 \comment{However, I think that the laundry list of objectives (rather than formal, directional hypothesis) is really not fit for Journal of Ecology. I would urge the authors to seriously modify them, as there is a wealth of literature, theories, and observations that easily provide the backbone to develop and test hypotheses rather than to ask open-ended questions.}
 \response{We have eliminated the list at the end of the Introduction and replaced it with a paragraph that includes specific hypotheses that emerge from the demographic literature (l. \ref{ms-mod1}).}
@@ -111,8 +112,8 @@ We also addressed the minor points raised by Reviewer 2.
 The correlation between the on-site meteorological data and downscaled climate data in the same years and location (see Table A1 and Figure A1) are low and not significant in three out of the eight variables used. 
 The Figure A1 unfortunately doesn't present these poor correlations in a honest way, except perhaps the panel B, where the red dots clearly show the weak correlation. Despite this, the authors proceed to include all variables in the PCA, and use only the PCA results in their extrapolations. 
 To me, due to this approach, climate signals were blurred from the start.}
-\response{We generally agree with the reviewer's observations (we raised this issue in our Discussion section: l. \ref{ms-mod6}), though we regret that they found our presentation of these results to be less than honest.
-Since all temperature variables are in the same units, we intended that original figure as a space-saving way to present these results.
+\response{We generally agree with the reviewer's observations (we raised this issue in our original Discussion section), though we regret that they found our presentation of these results to be less than honest.
+Since all temperature variables are in the same units, we intended the original figure as a space-saving way to present these results.
 In retrospect, we can see how that presentation was a little misleading. 
 In this resubmission, we show each climate correlation in its own panel (the new Figures A1, A2) so that readers can better evaluate the correspondence between the two data sources. 
 %\\
@@ -131,10 +132,10 @@ First, limiting the analysis to climate variables that were significantly correl
 Given the widely acknowledged importance of warm-season precipitation, in particular, in this and other arid systems, excluding this variable from the analysis would not be a biologically sound way to test responses to climate. 
 \\
 \\
-Second, using the raw meteorological observations as statistical covariates is intuitively appealing but leads to very high-dimensional models: there are eight climate covariates, each of which includes linear and quadratic terms and size-by-climate interactions. This would be 24 climate covariates in total, to be estimated with only 14 years of data and one climate value per year.
-Furthermore, several of these variables are correlated (e.g., temperature means and maximima). 
+Second, using the raw meteorological observations as statistical covariates is intuitively appealing but leads to very high-dimensional models: there are eight climate covariates, each of which includes linear and quadratic terms and size-by-climate interactions. This would be 24 climate covariates in total, to be estimated with only 14 years of data and one set of climate values per year.
+Furthermore, several of these variables are correlated (e.g., seasonal temperature means and maximima). 
 These issues create problems for parameter identifiability and model convergence.
-Finally, the PCA approach naturally lends itself to ranking different ``dimensions'' of climate change, a key objective of our study that would be difficult with raw climate variables. 
+Finally, the PCA approach naturally lends itself to ranking different, uncorrelated ``dimensions'' of climate change, a key objective of our study that would be difficult with raw climate variables. 
 For all these reasons, we think the use climate PC's as our statistical covariates is the best approach for the aims of our study. 
 We emphasize this because the suggestion of using raw climate variables was also raised by Reviewer 2, and we have a similar response to that suggestion. 
 We hope that our rationale is clear; if not, we would be happy to follow up with the editor or reviewers. 
@@ -146,15 +147,15 @@ These new analyses provide both qualitative and quantitative information about w
 For years in which they overlapped, year-specific estimates of $\lambda$ were significantly correlated between IPMs based on downscaled and on-site data (new Fig. A7). 
 This tells us that our qualitative conclusion -- that population viability is most likely increasing under climate change -- is likely robust to the uncertainties introduced by downscaled climate data. 
 Furthermore, the new analyses allow us to quantify how much information is lost by using downscaled data.
-Climate explained 60\%\footnote{Our previous submission reported this value as 57\% but we have since discovered and corrected an error in our code.} of inter-annual variation in $\lambda$ using downscaled data, but that increased to 78\% using on-site data. 
+Climate explained 60\%\footnote{Our previous submission reported this value as 57\% but we have since discovered and corrected a minor bug in our code.} of inter-annual variation in $\lambda$ using downscaled data, but that increased to 78\% using on-site data. 
 We conclude that this 18\% loss of climate resolution inflated the contribution of process error in our back-casted estimates and makes our analysis relatively conservative. 
-We describe this new analysis briefly in the Methods (\ref{ms-mod7}) and Results (\ref{ms-mod8}), and discuss the results in a new section of the Discussion, requested by both reviewers, that addresses some of the challenges associated with forecasting or back-casting demographic responses to climate \ref{}.
+We describe this new analysis briefly in the Methods (l. \ref{ms-mod7}) and Results (l. \ref{ms-mod8}), and discuss the results in a new section of the Discussion, requested by both reviewers, that addresses some of the challenges associated with forecasting or back-casting demographic responses to climate (l. \ref{ms-mod15}, \ref{ms-mod17}).
 We think the comparison of results derived from these alternative data sources has greatly strengthened the paper, so we thank the reviewer for emphasizing this issue.
-The ``story'' of the main paper is still built around the downscaled data because this is the only way to do the historical back-casting that is so central to our aims.
+The main paper is still built around the downscaled data, since this is the only way to do the historical back-casting that is so central to our aims, but we are now more forthcoming about the pros and cons of this approach.
 }
 
 \comment{Some further recommendations on how to approach demographic backcasting would also be welcome for less experienced researchers.}
-\response{We have added new discussion of considerations for back-casting, which were also requested or suggested by Reviewer 2. \ref{}}
+\response{We have added new discussion of considerations for back-casting, which were also requested or suggested by Reviewer 2 (lines \ref{ms-mod15}, \ref{ms-mod17}).}
 
 \section{Response to Reviewer 2}
 \vspace{-2em}
@@ -174,13 +175,13 @@ We have also added a new figure to more clearly show how the climate values obse
 We found that, without extrapolation, the rate of change in $\lambda$ was 26--35\% weaker, but our main conclusions hold up, qualitatively. 
 Extrapolation had a limited influence in this study because, as the reviewer points out, our need to extrapolate was greatest for PC1, and this was the climate PC that had the weakest influence on cactus demography. 
 We think these additions have strengthened the paper and we thank the reviewer for pushing us in this direction.
-We have also added the extrapolation issue to the new Discussion content about the challenges of forecasting or backcasting responses to climate change \ref{}.
+We have also added the extrapolation issue to the new Discussion content about the challenges of forecasting or backcasting responses to climate change (l. \ref{ms-mod17}).
 }
 
 \comment{Additionally, separating out the contributions of parameter uncertainty and process uncertainty in the results would be helpful.}
 \response{This is a great suggestion. 
-We present the partitioning of process and estimation error in the new Figure C3, and describe these results qualitatively in the main text (l. \ref{ms-mod5}).
-We found that process error contributed the majority of uncertainty in our back-casted estimates of $\lambda$ and we return to this result in the Discussion section (l. \textit{this result suggests that we know the parameters reasonably well, and the biggest constraint on backcasting is explaining the inter-annual variation better. More years of study may improve this, but there may also be fundamental limits on this (i.e., we'll never fully know why years differ)}).}
+We now present the partitioning of process and estimation error in the new Figure C3, and describe these results qualitatively in the main text (l. \ref{ms-mod5}).
+We found that process error contributed the majority of uncertainty in our back-casted estimates of $\lambda$ and we return to this result in the Discussion section (l. \ref{ms-mod16}).}
 
 \comment{202: Given that stochastic variable selection is used for variable selection, Why not use raw climate variables that are easier to interpret and understand rather than PCs? How would this change results?
 }
@@ -188,15 +189,19 @@ We found that process error contributed the majority of uncertainty in our back-
 
 \comment{268: The hypothetical language ``we could additionally'' here is slightly confusing. Was this analysis done?}
 \response{Yes, this was done.
-We have edited this text (\ref{ms-mod2}).}
+We have edited this text (l. \ref{ms-mod2}).}
 
 \comment{Eq 5: Consider a different parameter for beta here, since beta with a slightly different meaning is already used in equation 1. }
 \response{Good point.
-We have made this change.}
+We now use $\gamma$.}
 
 \comment{I can appreciate based on Figure 4 that it is more likely than not that population growth has increased over the last century in response to climate, but I think the most striking feature (at least to me) is how invariant population growth seems to be in response to the climate PCs (Fig. C3). Do you think this lack of variability is just a reflection of a life history that isn’t that sensitive to climate? What other factors could be important? Competition with grasses and other shrubs? }
-\response{Good points. 
-We have added some cautious speculation about the apparent temporal stability of $\lambda$ to the Discussion (lines. \ref{}).}
+\response{We see what the reviewer sees in Figure 4, but we interpret this a little differently. 
+The bands of uncertainty make $\lambda$ appear relatively invariant, but we now show in Appendix D that much of this uncertainty comes from process error -- this means that the ``real'' values of $\lambda$ were likely bouncing around quite a bit. 
+Furthermore, we also now show that our reliance on downscaled climate data likely inflated process error in this back-cast, because it made demography seem less sensitive to climate than it actually was (Appendix A, Fig. A6). 
+Taken together, this suggests that the \textit{points} in Fig. 4 are the better representation of year-to-year fluctations. 
+The uncertainty intervals simply provide bounds on those fluctuations. 
+We now address this in the Discussion (l. \ref{ms-mod16}).}
 
 \comment{429-434: I really like the inclusion of this material, and I wish this type of language were more common in ecological studies. It’s difficult to improve forecasting without clear acknowledgment of what we do and do not know with certainty. Also, the footnote is great as a science communication tool. }
 \response{Thank you for this comment, it is really nice to hear!}
@@ -205,7 +210,7 @@ We have added some cautious speculation about the apparent temporal stability of
 \response{Good point, we have added this (l. \ref{ms-mod9}).}
 
 \comment{480: Do you think these low elevation populations at all reflect the future climate conditions of your focal populations in this study? How different are the two sites? }
-\response{The sites differ in elevation by only ca. 100 meters. 
+\response{The sites differ in elevation by only ca. 100 meters and therefore do not strongly differ in climate. 
 They are certainly different habitats but this is mostly because of soil texture.
 So no, I do not think that the low elevation populations reflect the future of the high elevation populations, as is often the case in mountain systems.
 We have added these additional details to the Discussion (l. \ref{ms-mod10}).}
@@ -214,7 +219,7 @@ We have added these additional details to the Discussion (l. \ref{ms-mod10}).}
 \response{Agree, done (l. \ref{ms-mod11}).}
 
 \comment{489: This assumes the relationship between the PCs and vital rates would not change or breakdown in any way with changing climate. }
-\response{This is a good point and it is more naturally related to the issue of extrapolation, so we address it in that section of the Discussion (l. \ref{}).}
+\response{This is a good point and is more naturally related to the issue of extrapolation, so we address it in that section of the Discussion (l. \ref{ms-mod18}).}
 
 \comment{499: Consider providing a little more context here. My understanding is that the ``undesirability'' of cholla is mostly because it is not palatable by cattle, not necessarily because of any larger ecosystem impact. }
 \response{We have added more context about the pest status (yes, primarily because they are not palatable) (l. \ref{ms-mod12}).}
@@ -223,12 +228,12 @@ We have added these additional details to the Discussion (l. \ref{ms-mod10}).}
 \response{We have made this suggested change (l. \ref{ms-mod13}) though we continue to use ``climate change winner'' (with quotations) at a few other points in the paper since it is commonly used in the literature.}
 
 \comment{526: This is likely beyond the scope of this paper, but It would be interesting to see how this asymptotic expectation changes after that desert plants often have pulsed recruitment that could lead to non-asymptotic size distributions. }
-\response{Interesting point. We have included this idea in the Discussion (l. \ref{}).}
+\response{Interesting point. We have included this idea in the Discussion (l. \ref{ms-mod19}).}
 
 \comment{535-536: Did you consider doing a second set of analyses to explore whether a local weather dataset (covering just the census years) would capture this freeze effect? }
-\response{Yes, we have done these new analyses in response to comments by Reviewer 1. 
-2010 and 2011 were the `worst' years according to both on-site and downscaled data, but the on-site estimates were lower, suggesting that they do a better job of capturing the freeze effect, as we now highlight in the Discussion (l. \ref{}). 
-While the freeze occurred in Feb 2011 (during the 2010 transition year), it also affected estimates for the 2011 transition year because some plants took a long time to die. }
+\response{Yes, we have done these new analyses (see response to comments by Reviewer 1). 
+2010 and 2011 were the `worst' years according to both on-site and downscaled data, but the on-site estimates were lower, suggesting that they do a better job of capturing the freeze effect, as we now highlight in the Discussion (l. \ref{ms-mod20}). 
+While the freeze occurred in Feb 2011 (during the 2010 transition year), it also affected estimates for the 2011 transition year (because some plants took a long time to die), as in seen in Fig. A7-A. }
 
 \comment{551: This language, similar to some of the language I highlighted above, seems overly confident given the results. I think one of the really nice features of the manuscript is the careful, full consideration of uncertainty, I'd encourage the authors to use similarly careful language in the text.}
 \response{Fair point. We have edited this sentence to be more cautious (l. \ref{ms-mod14}).}
