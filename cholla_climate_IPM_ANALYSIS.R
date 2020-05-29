@@ -5,6 +5,55 @@ library(scales)
 library(tidyverse)
 source("cholla_climate_IPM_SOURCE.R")
 
+## Read in raw demographic data and merge with climate (copied from demography script)
+cholla <- read.csv("cholla_demography_20042018.csv")
+PCclim <- read.csv("ClimateWNA_PCvalues_out.csv")
+SEV_WNA <- read.csv("SEV_WNA.csv")
+PCclim_rotation <- read.csv("climateWNA_PCrotation_out.csv")
+PCclim_var <- read.csv("climateWNA_variableimportance_out.csv")
+SEV_paran <- read_rds("SEV_paran.rds")
+cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
+  filter(Year_t >= min(cholla$Year_t,na.rm=T),
+         Year_t <= max(cholla$Year_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)!="H") %>% 
+  mutate(year_int = Year_t - (min(Year_t)-1),
+         plot_int = as.integer(Plot),
+         vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         vol_t1 = log(volume(h = Height_t1, w = Width_t1, p = Perp_t1)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T),
+         standvol_t1 = (vol_t1 - mean(vol_t1,na.rm=T))/sd(vol_t1,na.rm=T))
+PC_gather <- PCclim %>% 
+  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  gather(PC1,PC2,PC3,key="PC",value="value") %>% 
+  mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
+PC_range <- PC_gather %>% 
+  group_by(PC) %>% 
+  summarise(PC_min = min(value),
+            PC_max = max(value))
+x_PC1 = seq(PC_range$PC_min[PC_range$PC=="PC1"],PC_range$PC_max[PC_range$PC=="PC1"],0.1)
+x_PC2 = seq(PC_range$PC_min[PC_range$PC=="PC2"],PC_range$PC_max[PC_range$PC=="PC2"],0.1)
+x_PC3 = seq(PC_range$PC_min[PC_range$PC=="PC3"],PC_range$PC_max[PC_range$PC=="PC3"],0.1)
+
+
+## Read in the mean parameter vector from the Bayesian estimation. Also including the 95% CI for ms readout
+mean_params <- readRDS("allrates.selected.mean.rds")
+params_summ<-read.csv("allrates.selected.summary.csv")
+
+## Lastly, I need the size bounds.
+## I will need to add demographic parameters to this list that were not
+## generated in the Bayesian fitting
+seedlings <- cholla %>% 
+  mutate(vol_t = log(volume(h = Height_t, w = Width_t, p = Perp_t)),
+         standvol_t = (vol_t - mean(vol_t,na.rm=T))/sd(vol_t,na.rm=T)) %>% 
+  filter(str_sub(Plot,1,1)=="H",
+         Recruit==1) 
+min(cholla.clim$standvol_t,na.rm=T) 
+min(seedlings$standvol_t,na.rm=T) 
+## the seedling data set minimum is a little smaller than the rest of the data set, so
+## I will use seedling min size as the lower bound
+mean_params$min.size <- min(seedlings$standvol_t,na.rm=T) 
+mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T) 
+
 # Climate trends (Figure 1) --------------------------------------------------------
 PC_cols <- c("#feb24c","#fc4e2a","#b10026","#0570b0")#c("#9ecae1", "#4292c6", "#084594", "#de2d26")
 alpha_scale<-0.75
@@ -104,6 +153,127 @@ plot(SEV_WNA$tot_prcp.x,SEV_WNA$tot_prcp.y,col=SEV_WNA$color,pch=16,cex.lab=1.2,
 abline(0,1,col="darkgrey")
 title("B",adj=0,font=4)
 
+## revise to show each variable separately
+## 2 x 3 panel for six temp variables
+win.graph()
+par(mfrow=c(2,3),mar=c(5,5,2,1))
+#cool season
+plot(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$min_temp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex=1.4,
+     xlab=expression(paste("SEV min temp ",degree,"C")),
+     ylab=expression(paste("ClimateWNA min temp ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="cool"]),na.rm=T)));
+abline(0,1);title("A",adj=0)
+plot(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex=1.4,
+     xlab=expression(paste("SEV mean temp ",degree,"C")),
+     ylab=expression(paste("ClimateWNA mean temp ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="cool"]),na.rm=T)));
+abline(0,1);title("B",adj=0)
+plot(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$max_temp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex=1.4,
+     xlab=expression(paste("SEV max temp ",degree,"C")),
+     ylab=expression(paste("ClimateWNA max temp ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="cool"]),na.rm=T)));
+abline(0,1);title("C",adj=0)
+#warm season
+plot(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$min_temp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex=1.4,
+     xlab=expression(paste("SEV min temp ",degree,"C")),
+     ylab=expression(paste("ClimateWNA min temp ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$min_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$min_temp.y[SEV_WNA$season=="warm"]),na.rm=T)));
+abline(0,1);title("D",adj=0)
+plot(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex=1.4,
+     xlab=expression(paste("SEV mean temp ",degree,"C")),
+     ylab=expression(paste("ClimateWNA mean temp ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$mean_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$mean_temp.y[SEV_WNA$season=="warm"]),na.rm=T)));
+abline(0,1);title("E",adj=0)
+plot(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$max_temp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex=1.4,
+     xlab=expression(paste("SEV max temp ",degree,"C")),
+     ylab=expression(paste("ClimateWNA max temp ",degree,"C")),
+     xlim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$max_temp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$max_temp.y[SEV_WNA$season=="warm"]),na.rm=T)));
+abline(0,1);title("F",adj=0)
+
+#precip
+win.graph()
+par(mfrow=c(1,2),mar=c(5,5,2,1))
+plot(SEV_WNA$tot_prcp.x[SEV_WNA$season=="cool"],
+     SEV_WNA$tot_prcp.y[SEV_WNA$season=="cool"],
+     col="dodgerblue",pch=16,cex.lab=1.2,
+     xlab="SEV Precipitation (mm)",ylab="ClimateWNA Precipitation (mm)",
+     xlim=c(min(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="cool"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="cool"]),na.rm=T),
+            max(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="cool"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="cool"]),na.rm=T)))
+abline(0,1);title("A",adj=0,font=4)
+
+plot(SEV_WNA$tot_prcp.x[SEV_WNA$season=="warm"],
+     SEV_WNA$tot_prcp.y[SEV_WNA$season=="warm"],
+     col="tomato",pch=16,cex.lab=1.2,
+     xlab="SEV Precipitation (mm)",ylab="ClimateWNA Precipitation (mm)",
+     xlim=c(min(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="warm"]),na.rm=T)),
+     ylim=c(min(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="warm"]),na.rm=T),
+            max(c(SEV_WNA$tot_prcp.x[SEV_WNA$season=="warm"],
+                  SEV_WNA$tot_prcp.y[SEV_WNA$season=="warm"]),na.rm=T)))
+abline(0,1);title("B",adj=0,font=4)
 
 # Vital rate figures -------------------------------------------------------------
 # there are the binning parameters for visualization
@@ -338,13 +508,11 @@ with(fert_bin_means,{
 ## this is a visualization that arises from binning both size and flowerbuds.
 ## Flowerbuds are NB distributed with long tails that biases the mean.
 
-
-
 # Demographic analysis ----------------------------------------------------
+## try estimating lambda with all PCs=0, which should be an average climate year
 mat.size = 200
 lower.extension = -0.2
 upper.extension = 1
-## try estimating lambda with all PCs=0, which should be an average climate year
 cholla_mean <- bigmatrix(params = mean_params,
           PC1 = c(0,0), PC2 = c(0,0), PC3 = c(0,0),
           random = F, 
@@ -614,15 +782,7 @@ for(i in 2:length(PCclim$lambda_year)){
                                           upper.extension = upper.extension,
                                           mat.size = mat.size)$IPMmat)
 }
-for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
-  PCclim$lambda_year[i]<-lambda(bigmatrix(params = mean_params,
-                                              PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
-                                              PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
-                                              PC3 = c(PCclim$PC3[i-1],PCclim$PC3[i]),
-                                              random = F, 
-                                              lower.extension = lower.extension, 
-                                              upper.extension = upper.extension,
-                                              mat.size = mat.size)$IPMmat)
+for(i in (length(min(PCclim$Year_t):2003)+2):nrow(PCclim)){
   PCclim$lambda_year_RFX[i]<-lambda(bigmatrix(params = mean_params,
                                           PC1 = c(PCclim$PC1[i-1],PCclim$PC1[i]), 
                                           PC2 = c(PCclim$PC2[i-1],PCclim$PC2[i]), 
@@ -634,8 +794,8 @@ for(i in (length(min(PCclim$Year_t):2003)+1):nrow(PCclim)){
                                           ,
                                           rfx = c(mean_params$grow.eps.year[i-length(min(PCclim$Year_t):2003)],
                                                   mean_params$surv.eps.year[i-length(min(PCclim$Year_t):2003)],
-                                                  mean_params$flow.eps.year[i-length(min(PCclim$Year_t):2003)],
-                                                  mean_params$fert.eps.year[i-length(min(PCclim$Year_t):2003)])
+                                                  mean_params$flow.eps.year[(i-length(min(PCclim$Year_t):2003))-1],
+                                                  mean_params$fert.eps.year[(i-length(min(PCclim$Year_t):2003))-1])
                                           )$IPMmat)
 }
 
@@ -677,6 +837,10 @@ all_PC <- lm(lambda_year ~ PC1 + PC2 + PC3 + PC1_lastyr + PC2_lastyr + PC3_lasty
 summary(all_PC)$r.squared
 no_PC1 <- lm(lambda_year ~ PC2 + PC3 + PC2_lastyr + PC3_lastyr, data = PCclim)
 summary(no_PC1)$r.squared
+
+## write out PCclim with all these lambda quantities for comparison with
+## analysis based on SEV data
+#write_csv(PCclim,"PCclim_lambda_WNA.csv")
 
 # LTRE --------------------------------------------------------------------
 ## decompose inter-annual variation by vital rate responses to PCs
@@ -787,7 +951,7 @@ lambda_year_proc_est_err<-matrix(NA,ncol = length(min(PCclim$Year_t):2016), nrow
 seed_mat <- matrix(runif(n_post*length(lambda_year_proc_err),0,100000), nrow = n_post, ncol = length(lambda_year_proc_err))
 
 for(i in 1:n_post){
-  for(j in 2:length(PCclim$lambda_year)){
+  for(j in 2:nrow(PCclim)){
     #print(i)
     ## now convert params to list for the rest of it
     sample.params <- as.list(params_post[i,])
@@ -806,23 +970,23 @@ for(i in 1:n_post){
     sample.params$min.size <- mean_params$min.size
     sample.params$max.size <- mean_params$max.size
     
-  #lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
-  #                                        PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
-  #                                        PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
-  #                                        PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
-  #                                        random = T, 
-  #                                        rand.seed = seed_mat[i,j],
-  #                                        lower.extension = lower.extension, 
-  #                                        upper.extension = upper.extension,
-  #                                        mat.size = mat.size)$IPMmat)
-  #lambda_year_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
-  #                                            PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
-  #                                            PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
-  #                                            PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
-  #                                            random = F, 
-  #                                            lower.extension = lower.extension, 
-  #                                            upper.extension = upper.extension,
-  #                                            mat.size = mat.size)$IPMmat)
+  lambda_year_proc_err[i,j]<-lambda(bigmatrix(params = mean_params,
+                                          PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+                                          PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+                                          PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+                                          random = T, 
+                                          rand.seed = seed_mat[i,j],
+                                          lower.extension = lower.extension, 
+                                          upper.extension = upper.extension,
+                                          mat.size = mat.size)$IPMmat)
+  lambda_year_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
+                                              PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
+                                              PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
+                                              PC3 = c(PCclim$PC3[j-1],PCclim$PC3[j]),
+                                              random = F, 
+                                              lower.extension = lower.extension, 
+                                              upper.extension = upper.extension,
+                                              mat.size = mat.size)$IPMmat)
   lambda_year_proc_est_err[i,j]<-lambda(bigmatrix(params = sample.params,
                                               PC1 = c(PCclim$PC1[j-1],PCclim$PC1[j]), 
                                               PC2 = c(PCclim$PC2[j-1],PCclim$PC2[j]), 
@@ -840,58 +1004,69 @@ for(i in 1:n_post){
 #write.csv(lambda_year_proc_err,"lambda_year_proc_err.csv",row.names = F)
 #write.csv(lambda_year_est_err,"lambda_year_est_err.csv",row.names = F)
 #write.csv(lambda_year_proc_est_err,"lambda_year_proc_est_err.csv",row.names = F)
-test <- read.csv("lambda_year_proc_est_err.csv")[,-(1:2)]
+
+lambda_year_proc_err <- as.matrix(read_csv("lambda_year_proc_err.csv"))
+lambda_year_est_err <- as.matrix(read_csv("lambda_year_est_err.csv"))
+lambda_year_proc_est_err <- as.matrix(read_csv("lambda_year_proc_est_err.csv"))
 
 lambda_year_proc_err.95<-lambda_year_proc_err.75<-lambda_year_proc_err.50<-lambda_year_proc_err.25<-matrix(NA,2,length(PCclim$lambda_year))
 lambda_year_est_err.95<-lambda_year_est_err.75<-lambda_year_est_err.50<-lambda_year_est_err.25<-matrix(NA,2,length(PCclim$lambda_year))
 lambda_year_proc_est_err.95<-lambda_year_proc_est_err.75<-lambda_year_proc_est_err.50<-lambda_year_proc_est_err.25<-matrix(NA,2,length(PCclim$lambda_year))
 for(j in 2:length(PCclim$Year_t)){
-  lambda_year_proc_err.95[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.025,0.975))
-  lambda_year_proc_err.75[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.125,0.875))
-  lambda_year_proc_err.50[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.25,0.75))
-  lambda_year_proc_err.25[,j]<-quantile(lambda_year_proc_err[(1:150),j],probs=c(0.375,0.625))
+  lambda_year_proc_err.95[,j]<-quantile(lambda_year_proc_err[,j],probs=c(0.025,0.975))
+  lambda_year_proc_err.75[,j]<-quantile(lambda_year_proc_err[,j],probs=c(0.125,0.875))
+  lambda_year_proc_err.50[,j]<-quantile(lambda_year_proc_err[,j],probs=c(0.25,0.75))
+  lambda_year_proc_err.25[,j]<-quantile(lambda_year_proc_err[,j],probs=c(0.375,0.625))
 
-  lambda_year_est_err.95[,j]<-quantile(lambda_year_est_err[(1:150),j],probs=c(0.025,0.975))
-  lambda_year_est_err.75[,j]<-quantile(lambda_year_est_err[(1:150),j],probs=c(0.125,0.875))
-  lambda_year_est_err.50[,j]<-quantile(lambda_year_est_err[(1:150),j],probs=c(0.25,0.75))
-  lambda_year_est_err.25[,j]<-quantile(lambda_year_est_err[(1:150),j],probs=c(0.375,0.625))
+  lambda_year_est_err.95[,j]<-quantile(lambda_year_est_err[,j],probs=c(0.025,0.975))
+  lambda_year_est_err.75[,j]<-quantile(lambda_year_est_err[,j],probs=c(0.125,0.875))
+  lambda_year_est_err.50[,j]<-quantile(lambda_year_est_err[,j],probs=c(0.25,0.75))
+  lambda_year_est_err.25[,j]<-quantile(lambda_year_est_err[,j],probs=c(0.375,0.625))
 
-  lambda_year_proc_est_err.95[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.025,0.975))
-  lambda_year_proc_est_err.75[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.125,0.875))
-  lambda_year_proc_est_err.50[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.25,0.75))
-  lambda_year_proc_est_err.25[,j]<-quantile(lambda_year_proc_est_err[(1:150),j],probs=c(0.375,0.625))
+  lambda_year_proc_est_err.95[,j]<-quantile(lambda_year_proc_est_err[,j],probs=c(0.025,0.975))
+  lambda_year_proc_est_err.75[,j]<-quantile(lambda_year_proc_est_err[,j],probs=c(0.125,0.875))
+  lambda_year_proc_est_err.50[,j]<-quantile(lambda_year_proc_est_err[,j],probs=c(0.25,0.75))
+  lambda_year_proc_est_err.25[,j]<-quantile(lambda_year_proc_est_err[,j],probs=c(0.375,0.625))
 }
 
 ## New figure for posterior of change in lambda per year
 yr_int_allyrs<-yr_slope_allyrs<-yr_int_1970<-yr_slope_1970<-stable_yr<-stable_yr_1970<-c()
 yr_int_allyrs_est<-yr_slope_allyrs_est<-yr_int_1970_est<-yr_slope_1970_est<-stable_yr_est<-stable_yr_1970_est<-c()
+yr_int_allyrs_proc<-yr_slope_allyrs_proc<-yr_int_1970_proc<-yr_slope_1970_proc<-stable_yr_proc<-stable_yr_1970_proc<-c()
 for(i in 1:n_post){
-  iter_dat <- cbind(PCclim,lambda_year_est_err[i,],lambda_year_proc_est_err[i,])
-  names(iter_dat)[16:17]<-c("lambda_year_est_err","lambda_year_proc_est_err")
+  iter_dat <- cbind(PCclim,lambda_year_est_err[i,],lambda_year_proc_err[i,],lambda_year_proc_est_err[i,])
   ## all years
-  yr_mod_allyrs <- lm(lambda_year_proc_est_err ~ Year_t, data = iter_dat)
+  yr_mod_allyrs <- lm(`lambda_year_proc_est_err[i, ]` ~ Year_t, data = iter_dat)
   yr_int_allyrs[i] <- coef(yr_mod_allyrs)[1]; yr_slope_allyrs[i] <- coef(yr_mod_allyrs)[2]
   ## since 1970
-  yr_mod_1970 <- lm(lambda_year_proc_est_err ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_mod_1970 <- lm(`lambda_year_proc_est_err[i, ]` ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
   yr_int_1970[i] <- coef(yr_mod_1970)[1]; yr_slope_1970[i] <- coef(yr_mod_1970)[2]
   ## what is the projected year of lambda=1?
   stable_yr[i] <- (1-yr_int_allyrs[i])/yr_slope_allyrs[i]
   stable_yr_1970[i] <- (1-yr_int_1970[i])/yr_slope_1970[i]
   
-  yr_mod_allyrs_est <- lm(lambda_year_est_err ~ Year_t, data = iter_dat)
+  yr_mod_allyrs_est <- lm(`lambda_year_est_err[i, ]` ~ Year_t, data = iter_dat)
   yr_int_allyrs_est[i] <- coef(yr_mod_allyrs_est)[1]; yr_slope_allyrs_est[i] <- coef(yr_mod_allyrs_est)[2]
-  yr_mod_1970_est <- lm(lambda_year_est_err ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_mod_1970_est <- lm(`lambda_year_est_err[i, ]` ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
   yr_int_1970_est[i] <- coef(yr_mod_1970_est)[1]; yr_slope_1970_est[i] <- coef(yr_mod_1970_est)[2]
   ## what is the projected year of lambda=1?
   stable_yr_est[i] <- (1-yr_int_allyrs_est[i])/yr_slope_allyrs_est[i]
   stable_yr_1970_est[i] <- (1-yr_int_1970_est[i])/yr_slope_1970_est[i]
+  
+  yr_mod_allyrs_proc <- lm(`lambda_year_proc_err[i, ]` ~ Year_t, data = iter_dat)
+  yr_int_allyrs_proc[i] <- coef(yr_mod_allyrs_proc)[1]; yr_slope_allyrs_proc[i] <- coef(yr_mod_allyrs_proc)[2]
+  yr_mod_1970_proc <- lm(`lambda_year_proc_err[i, ]` ~ Year_t, data = subset(iter_dat,Year_t >= 1970))
+  yr_int_1970_proc[i] <- coef(yr_mod_1970_proc)[1]; yr_slope_1970_proc[i] <- coef(yr_mod_1970_proc)[2]
+  ## what is the projected year of lambda=1?
+  stable_yr_proc[i] <- (1-yr_int_allyrs_proc[i])/yr_slope_allyrs_proc[i]
+  stable_yr_1970_proc[i] <- (1-yr_int_1970_proc[i])/yr_slope_1970_proc[i]
 }
 
 ### New Figure with mean and uncertainty
 win.graph()
 par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.4,1.05),
-     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+     xlab="Year",ylab=expression(lambda),cex.lab=1.6)
 abline(h=1,col="lightgray")
 polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
         y=c(lambda_year_proc_est_err.95[1,],rev(lambda_year_proc_est_err.95[2,])),
@@ -921,14 +1096,14 @@ points(PCclim$Year_t,PCclim$lambda_year_RFX,cex=1,
        pch=16,col=alpha("black",0.8))
 #lines(1901:2017,coef(lambda_trend)[1]+coef(lambda_trend)[2]*1901:2017,col="black",lwd=2)
 #lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,col="black",lwd=2,lty=2)
-#title("A",adj=0,font=3)
+title("A",adj=0,font=3)
 
 ## slope estimate: estimation + process error
 d_allyrs <- density(yr_slope_allyrs)
 d_1970 <- density(yr_slope_1970)
-plot(d_allyrs,xlim=c(-0.004,0.008),type="n",main=" ",
+plot(d_allyrs,xlim=c(-0.004,0.004),type="n",main=" ",
      xlab=expression(paste(Delta,lambda," / ","year")),
-     ylab="Posterior probability density",cex.lab=1.4)
+     ylab="Posterior probability density",cex.lab=1.6)
 abline(v=0,col="grey")
 polygon(d_allyrs, col=alpha("black",0.5), border="black",lwd=1)
 arrows(median(yr_slope_allyrs),0,
@@ -940,22 +1115,24 @@ arrows(median(yr_slope_1970),0,
        median(yr_slope_1970),
        density(yr_slope_1970)[["y"]][which.min(abs(density(yr_slope_1970)[["x"]]-median(yr_slope_1970)))],
        lwd=2,lty=2,col="black",code=0)
-legend("topright",legend=c("All years","Since 1970"),
+legend("topleft",legend=c("All years","Since 1970"),
        fill=c(alpha("black",0.5),alpha("black",0.2)),
-       bty="n", lty=c(1,2))
+       bty="n", lty=c(1,2),cex=1.4)
+title("B",adj=0,font=3)
 
 ## for year of stable growth, just pull out the samples with positive slopes
 ## proc + est
-d_stable_yr <- density(stable_yr[which(yr_slope_allyrs>0)])
+d_stable_yr <- density(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000])
 d_stable_yr_1970 <- density(stable_yr_1970[which(yr_slope_1970>0)][stable_yr_1970[which(yr_slope_1970>0)]<5000])
 
 plot(d_stable_yr_1970,type="n",main=" ",
      xlab="Year of population viability",
      ylab="Posterior probability density",cex.lab=1.4,xlim=c(1900,4000))
 polygon(d_stable_yr, col=alpha("black",0.5), border="black",lwd=1)
-arrows(median(stable_yr[which(yr_slope_allyrs>0)]),0,
-       median(stable_yr[which(yr_slope_allyrs>0)]),
-       density(stable_yr[which(yr_slope_allyrs>0)])[["y"]][which.min(abs(density(stable_yr[which(yr_slope_allyrs>0)])[["x"]]-median(stable_yr[which(yr_slope_allyrs>0)])))],
+arrows(median(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000]),0,
+       median(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000]),
+       density(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000])[["y"]][which.min(abs(density(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000])[["x"]]-
+                        median(stable_yr[which(yr_slope_allyrs>0)][stable_yr[which(yr_slope_allyrs>0)]<5000])))],
        lwd=2,col="black",code=0)
 polygon(d_stable_yr_1970, col=alpha("black",0.2), border="black",lwd=1,lty=2)
 arrows(median(stable_yr_1970[which(yr_slope_1970>0)][stable_yr_1970[which(yr_slope_1970>0)]<5000]),0,
@@ -964,7 +1141,8 @@ arrows(median(stable_yr_1970[which(yr_slope_1970>0)][stable_yr_1970[which(yr_slo
        lwd=2,lty=2,col="black",code=0)
 legend("topright",legend=c("All years","Since 1970"),
        fill=c(alpha("black",0.5),alpha("black",0.2)),
-       bty="n", lty=c(1,2))
+       bty="n", lty=c(1,2),cex=1.4)
+title("C",adj=0,font=3)
 
 
 ### versions with estimation error only
@@ -1009,6 +1187,58 @@ legend("topright",legend=c("All years","Since 1970"),
        fill=c(alpha("black",0.5),alpha("black",0.2)),
        bty="n", lty=c(1,2))
 
+## New figure -- compare proc+est to est only
+win.graph()
+par(mfrow=c(1,3),mar=c(5,5,2,1))
+plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.2,1.05),
+     xlab="Year",ylab=expression(lambda),cex.lab=1.4)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_est_err.95[1,],rev(lambda_year_proc_est_err.95[2,])),
+        col=alpha("black",1),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_proc_err.95[1,],rev(lambda_year_proc_err.95[2,])),
+        col=alpha("dodgerblue",1),border=NA)
+polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
+        y=c(lambda_year_est_err.95[1,],rev(lambda_year_est_err.95[2,])),
+        col=alpha("tomato",1),border=NA)
+abline(h=1,col="lightgray")
+lines(PCclim$Year_t,lambda_year_proc_est_err.95[1,],lwd=1)
+lines(PCclim$Year_t,lambda_year_proc_est_err.95[2,],lwd=1)
+lines(PCclim$Year_t,lambda_year_est_err.95[1,],lwd=1,col="tomato")
+lines(PCclim$Year_t,lambda_year_est_err.95[2,],lwd=1,col="tomato")
+lines(PCclim$Year_t,lambda_year_proc_err.95[1,],lwd=1,col="dodgerblue")
+lines(PCclim$Year_t,lambda_year_proc_err.95[2,],lwd=1,col="dodgerblue")
+legend("bottomright",fill=c("tomato","dodgerblue","black"),cex=1.4,
+       legend=c("Estimation error","Process error","Estimation + process error"))
+title("A",adj=0,font=3)
+
+d_allyrs_est <- density(yr_slope_allyrs_est)
+d_allyrs_proc <- density(yr_slope_allyrs_proc)
+d_allyrs <- density(yr_slope_allyrs)
+plot(d_allyrs_est,xlim=c(-0.002,0.003),type="n",main=" ",
+     xlab=expression(paste(Delta,lambda," / ","year")),
+     ylab="Posterior probability density",cex.lab=1.4)
+abline(v=0,col="grey")
+polygon(d_allyrs, col=alpha("black",.8), border=NA,lwd=1)
+polygon(d_allyrs_proc, col=alpha("dodgerblue",.8), border=NA,lwd=1)
+polygon(d_allyrs_est, col=alpha("tomato",.8), border=NA,lwd=1)
+abline(v=c(median(yr_slope_allyrs),median(yr_slope_allyrs_est),median(yr_slope_allyrs_proc)),
+       col=c("black","tomato","dodgerblue"),lwd=2)
+title("B",adj=0,font=3)
+
+d_1970_est <- density(yr_slope_1970_est)
+d_1970_proc <- density(yr_slope_1970_proc)
+d_1970 <- density(yr_slope_1970)
+plot(d_1970_est,xlim=c(-0.005,0.006),type="n",main=" ",
+     xlab=expression(paste(Delta,lambda," / ","year")),
+     ylab="Posterior probability density",cex.lab=1.4)
+abline(v=0,col="grey")
+polygon(d_1970, col=alpha("black",.8), border=NA,lwd=1)
+polygon(d_1970_proc, col=alpha("dodgerblue",.8), border=NA,lwd=1)
+polygon(d_1970_est, col=alpha("tomato",.8), border=NA,lwd=1)
+abline(v=c(median(yr_slope_1970),median(yr_slope_1970_est),median(yr_slope_1970_proc)),
+       col=c("black","tomato","dodgerblue"),lwd=2)
+title("C",adj=0,font=3)
 
 # Posterior sampling LTRE -------------------------------------------------
 ## First create a vector identifying the climate-dependent parameters
