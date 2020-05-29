@@ -1,6 +1,7 @@
 library(tidyverse)
 library(paran)
 library(scales)
+library(R2jags)
 ## This script recreates the analysis using SEV-LTER met data instead of
 ## climateNA. 
 
@@ -65,6 +66,10 @@ legend("topleft",fill=alpha(PC_cols,alpha_scale),border=PC_cols,bty="n",cex=1.2,
 
 # Vital rate fitting ------------------------------------------------------
 ## merge demography and SEV-LTER climate PCA
+volume <- function(h, w, p){
+  (1/3)*pi*h*(((w + p)/2)/2)^2
+}
+
 cholla <- read.csv("cholla_demography_20042018.csv")
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
   filter(Year_t >= min(cholla$Year_t,na.rm=T),
