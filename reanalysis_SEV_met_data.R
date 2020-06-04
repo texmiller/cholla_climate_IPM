@@ -2,15 +2,12 @@ library(tidyverse)
 library(paran)
 library(scales)
 library(R2jags)
-<<<<<<< HEAD
-=======
 library(popbio)
 invlogit<-function(x){exp(x)/(1+exp(x))}
 volume <- function(h, w, p){
   (1/3)*pi*h*(((w + p)/2)/2)^2
 }
 
->>>>>>> d2d3720975f6baaac3af4c8b1a572693f385d5a3
 ## This script recreates the analysis using SEV-LTER met data instead of
 ## climateNA. 
 
@@ -19,19 +16,19 @@ volume <- function(h, w, p){
 ## I will jump straight to the output file of that script
 SEV_clim <- read_csv("SEV_WNA.csv")
 A<-SEV_clim %>% 
-  select(trans_year,season,min_temp.x) %>% 
+  dplyr::select(trans_year,season,min_temp.x) %>% 
   spread(key=season,value=min_temp.x) %>% 
   set_names(c("trans_year","min_temp_cool","min_temp_warm"))
 B<-SEV_clim %>% 
-  select(trans_year,season,mean_temp.x) %>% 
+  dplyr::select(trans_year,season,mean_temp.x) %>% 
   spread(key=season,value=mean_temp.x) %>% 
   set_names(c("trans_year","mean_temp_cool","mean_temp_warm"))
 C<-SEV_clim %>% 
-  select(trans_year,season,max_temp.x) %>% 
+  dplyr::select(trans_year,season,max_temp.x) %>% 
   spread(key=season,value=max_temp.x) %>% 
   set_names(c("trans_year","max_temp_cool","max_temp_warm"))
 D<-SEV_clim %>% 
-  select(trans_year,season,tot_prcp.x) %>% 
+  dplyr::select(trans_year,season,tot_prcp.x) %>% 
   spread(key=season,value=tot_prcp.x) %>% 
   set_names(c("trans_year","tot_prcp_cool","tot_prcp_warm"))
 PCA_dat <- left_join(left_join(left_join(A,B),C),D) %>% 
@@ -76,9 +73,6 @@ legend("topleft",fill=alpha(PC_cols,alpha_scale),border=PC_cols,bty="n",cex=1.2,
 
 # Vital rate fitting ------------------------------------------------------
 ## merge demography and SEV-LTER climate PCA
-volume <- function(h, w, p){
-  (1/3)*pi*h*(((w + p)/2)/2)^2
-}
 
 cholla <- read.csv("cholla_demography_20042018.csv")
 cholla.clim <- full_join(cholla,PCclim,by="Year_t") %>% 
@@ -417,7 +411,7 @@ fert_size_means <- fert_dat_cuts %>%
   summarise(size_mean = mean(standvol_t1))
 
 PC_gather <- PCclim %>% 
-  select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
+  dplyr::select(-PC4,-PC5,-PC6,-PC7,-PC8) %>% 
   gather(PC1,PC2,PC3,key="PC",value="value") %>% 
   mutate(time = ifelse(Year_t<2004,"historical",ifelse(Year_t>2016,"future","observation period")))
 PC_range <- PC_gather %>% 
@@ -615,6 +609,9 @@ source("cholla_climate_IPM_SOURCE.R")
 mean_params_SEV$min.size <- mean_params$min.size <- min(seedlings$standvol_t,na.rm=T) 
 mean_params_SEV$max.size <- mean_params$max.size <- max(cholla.clim$standvol_t,na.rm=T) 
 PCclim$lambda_year_SEV<-PCclim$lambda_year_RFX_SEV<-NA
+mat.size = 200
+lower.extension = -0.2
+upper.extension = 1
 
 for(i in 2:nrow(PCclim)){
   ## analysis with ClimateWNA PCs -- NO!DUMB! I CAN'T USE THE SEV PC'S IN THE WNA-SELECTED FUNCTIONS!
@@ -686,6 +683,97 @@ plot(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,type="n",
 text(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,labels=PCclim_compare$Year_t)
 abline(0,1)
 title("B",font=4,adj=0)
+
+
+# new figures for revision ------------------------------------------------
+## time series of vital rates and lambda
+sizes <- quantile(cholla.clim$standvol_t,probs=c(0.05,0.5,0.95),na.rm=T)
+## matrices to store vital rate outputs by year and size class
+surv_yr_SEV<-flow_yr_SEV<-fert_yr_SEV <- matrix(NA,3,length(PCclim_compare$Year_t))
+surv_yr_WNA<-flow_yr_WNA<-fert_yr_WNA <- matrix(NA,3,length(PCclim_compare$Year_t))
+
+for(t in 1:nrow(PCclim_compare)){
+  PC1_lastyr <- ifelse(PCclim_compare$Year_t[t]==2004,NA,PCclim_compare$PC1.x[t-1])
+  PC2_lastyr <- ifelse(PCclim_compare$Year_t[t]==2004,NA,PCclim_compare$PC2.x[t-1])
+  PC3_lastyr <- ifelse(PCclim_compare$Year_t[t]==2004,NA,PCclim_compare$PC3.x[t-1])
+  
+  for (s in 1:3){
+  ## use SEV params and functions
+    surv_yr_SEV[s,t] <- sx_SEV(x=sizes[s],
+                                       params=mean_params_SEV,
+                                       rfx=c(0,0,0,0),
+                                       PC1=c(PC1_lastyr,PCclim_compare$PC1.x[t]),
+                                       PC2=c(PC2_lastyr,PCclim_compare$PC2.x[t]),
+                                       PC3=c(PC2_lastyr,PCclim_compare$PC3.x[t]))
+    flow_yr_SEV[s,t] <- flow.x_SEV(x=sizes[s],
+                                       params=mean_params_SEV,
+                                       rfx=c(0,0,0,0),
+                                       PC1=c(PC1_lastyr,PCclim_compare$PC1.x[t]),
+                                       PC2=c(PC2_lastyr,PCclim_compare$PC2.x[t]),
+                                       PC3=c(PC2_lastyr,PCclim_compare$PC3.x[t])) 
+    fert_yr_SEV[s,t] <- fert.x_SEV(x=sizes[s],
+                                           params=mean_params_SEV,
+                                           rfx=c(0,0,0,0),
+                                           PC1=c(PC1_lastyr,PCclim_compare$PC1.x[t]),
+                                           PC2=c(PC2_lastyr,PCclim_compare$PC2.x[t]),
+                                           PC3=c(PC2_lastyr,PCclim_compare$PC3.x[t])) 
+  ## use ClimateNA params and functions
+    surv_yr_WNA[s,t] <- sx(x=sizes[s],
+                                       params=mean_params,
+                                       rfx=c(0,0,0,0),
+                                       PC1=c(PC1_lastyr,PCclim_compare$PC1.y[t]),
+                                       PC2=c(PC2_lastyr,PCclim_compare$PC2.y[t]),
+                                       PC3=c(PC2_lastyr,PCclim_compare$PC3.y[t]))
+    flow_yr_WNA[s,t] <- flow.x(x=sizes[s],
+                                           params=mean_params,
+                                           rfx=c(0,0,0,0),
+                                           PC1=c(PC1_lastyr,PCclim_compare$PC1.y[t]),
+                                           PC2=c(PC2_lastyr,PCclim_compare$PC2.y[t]),
+                                           PC3=c(PC2_lastyr,PCclim_compare$PC3.y[t])) 
+    fert_yr_WNA[s,t]  <- fert.x(x=sizes[s],
+                                           params=mean_params,
+                                           rfx=c(0,0,0,0),
+                                           PC1=c(PC1_lastyr,PCclim_compare$PC1.y[t]),
+                                           PC2=c(PC2_lastyr,PCclim_compare$PC2.y[t]),
+                                           PC3=c(PC2_lastyr,PCclim_compare$PC3.y[t]))  
+}
+}
+
+win.graph()
+par(mfrow=c(2,2),mar=c(5,5,1,1))  
+plot(PCclim_compare$Year_t,surv_yr_WNA[1,],type="b",ylim=c(0,1),lty=2,cex.lab=1.2,
+     ylab="Survival probability",xlab="Year",col="darkgrey")
+points(PCclim_compare$Year_t,surv_yr_SEV[1,],type="b",pch=16,col="darkgrey")
+points(PCclim_compare$Year_t,surv_yr_WNA[2,],type="b",lty=2,pch=1,col="tomato")
+points(PCclim_compare$Year_t,surv_yr_SEV[2,],type="b",pch=16,col="tomato")
+points(PCclim_compare$Year_t,surv_yr_WNA[3,],type="b",lty=2,pch=1,col="cornflowerblue")
+points(PCclim_compare$Year_t,surv_yr_SEV[3,],type="b",pch=16,col="cornflowerblue")
+title("A",adj=0)
+
+plot(PCclim_compare$Year_t,flow_yr_WNA[1,],type="b",ylim=c(0,1),lty=2,cex.lab=1.2,
+     ylab="Flowering probability",xlab="Year",col="darkgrey")
+points(PCclim_compare$Year_t,flow_yr_SEV[1,],type="b",pch=16,col="darkgrey")
+points(PCclim_compare$Year_t,flow_yr_WNA[2,],type="b",lty=2,pch=1,col="tomato")
+points(PCclim_compare$Year_t,flow_yr_SEV[2,],type="b",pch=16,col="tomato")
+points(PCclim_compare$Year_t,flow_yr_WNA[3,],type="b",lty=2,pch=1,col="cornflowerblue")
+points(PCclim_compare$Year_t,flow_yr_SEV[3,],type="b",pch=16,col="cornflowerblue")
+title("B",adj=0)
+
+plot(PCclim_compare$Year_t,fert_yr_WNA[1,],type="b",ylim=c(0,30),lty=2,cex.lab=1.2,
+     ylab="Number of flowerbuds",xlab="Year",col="darkgrey")
+points(PCclim_compare$Year_t,fert_yr_SEV[1,],type="b",pch=16,col="darkgrey")
+points(PCclim_compare$Year_t,fert_yr_WNA[2,],type="b",lty=2,pch=1,col="tomato")
+points(PCclim_compare$Year_t,fert_yr_SEV[2,],type="b",pch=16,col="tomato")
+points(PCclim_compare$Year_t,fert_yr_WNA[3,],type="b",lty=2,pch=1,col="cornflowerblue")
+points(PCclim_compare$Year_t,fert_yr_SEV[3,],type="b",pch=16,col="cornflowerblue")
+title("C",adj=0)
+
+plot(PCclim_compare$Year_t,PCclim_compare$lambda_year,type="b",ylim=c(0.92,0.99),lty=2,cex.lab=1.2,
+     ylab=expression(paste(lambda[t])),xlab="Year")
+points(PCclim_compare$Year_t,PCclim_compare$lambda_year_SEV,type="b",pch=16)
+legend("topright",legend=c("ClimateWNA","SEV-LTER"),pch=c(1,16),lty=c(2,1),bty="n")
+title("D",adj=0)
+
 
 ## write out values
 ## how much does climate predict for the years where we have random effects?
