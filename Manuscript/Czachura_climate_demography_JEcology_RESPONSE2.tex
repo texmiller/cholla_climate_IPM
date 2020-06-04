@@ -1,0 +1,170 @@
+% ======================================================= %
+% Document: TEMPLATE FOR RESPONSES TO REVIEWERS
+% Author: Andrea Ballatore
+% Date: Jan 7, 2013
+% Source: https://raw.githubusercontent.com/ucd-spatial/Datasets/master/tex_response_to_reviewers_template/responses_to_reviewers.tex
+% Modified by Eduard Szöcs, 10.03.2015
+% ======================================================= %
+\documentclass[12pt]{article}
+
+% packages
+\usepackage{xr}
+\externaldocument[ms-]{Czachura_climate_demography_JEcology_REVISION2}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{color}
+\definecolor{mygray}{gray}{0.6}
+\usepackage[utf8]{inputenc}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[
+	round,	%(defaultage in the main file and \input ) for round parentheses;
+	colon,	% (default) to separate multiple citations with colons;
+	authoryear,% (default) for author-year citations;
+	sort,		% orders multiple citations into the sequence in which they
+]{natbib}
+\usepackage[%disable
+	]{todonotes}
+
+\usepackage{anysize}
+\marginsize{2.5cm}{2.5cm}{1.5cm}{2.5cm}
+
+% macros
+% add a counter
+\newcounter{cN}
+\setcounter{cN}{0}
+
+\newcommand{\comment}[1]{
+	\vspace{2em}
+	\refstepcounter{cN} % incrment counter
+	\noindent \hangindent=0em \textbf{\textcolor{Maroon}{\uline{Comment \thecN}:~}}\emph{``#1''}
+	}
+
+\newcommand{\response}[1]{
+	\\[0.25em]
+	\hangindent=2.3em \textbf{\textcolor{NavyBlue}{\uline{Response}:~}}#1
+	}
+
+\newcommand{\revise}[1]{{\color{Mahogany}{#1}}}
+\newcommand{\reviseagain}[1]{{\color{RoyalBlue}{#1}}}
+
+\usepackage[normalem]{ulem}
+\definecolor{darkred}{rgb}{1,.6,.6}
+\DeclareRobustCommand\problemline{\bgroup\markoverwith{\textcolor{darkred}{\rule[-0.9ex]{4pt}{3pt}}}\ULon}
+\DeclareRobustCommand{\problem}[1]{\problemline{#1}} % soul
+\setcounter{secnumdepth}{-1}
+
+\begin{document}
+% ======================================================= %
+\title{JEcol-2019-0927.R1 --- Response to reviewers}
+
+\maketitle
+% ======================================================= %
+\noindent To the editorial board,
+
+Thank you for the opportunity to submit a minor revision of our manuscript for publication in \textit{Journal of Ecology}. 
+Our point-by-point responses to the editor and reviewers are provided below. 
+\\
+\\
+This has been an unusually thorough and rewarding review experience, spanning several submissions and resubmissions. 
+Every challenge from the editors or reviewers has pushed us to interrogate our data more carefully and think more deeply about our results. 
+It has been invigorating, humbling, constructive and fun: peer review at its best.
+Thank you.
+\\
+\\
+Changes from the first round of revision remain highlighted in this manuscript with \revise{Mahogany font}, and new changes from this current round of revision are additionally shown in \reviseagain{Royal Blue}.
+We think our manuscript is now suitable for publication.
+We hope you agree. 
+
+\vspace{2em}
+\hfill On behalf of myself and K. Czachura,
+
+\hfill Tom Miller
+\newpage
+
+
+
+% ======================================================= %
+\section{Response to Dr. Gibson, Senior Editor}
+\vspace{-2em}
+
+\comment{Thank you for submitting the revised version of your manuscript and for making extensive and careful revisions to your manuscript.
+We have assessed your revision and I am writing to let you know that, although it is much improved some further minor revision is required.
+\\
+\\
+I agree with the reviewers that your study is now more thorough and, for the most part, well explained in the manuscript. However, the reviewers do have some additional, and I hope final, points for you to respond to. In particular, reviewer 2 has some concerns about the differences in interpretation arising from Fig 2 and Figure A5.  In addition to the concerns raised here by the reviewer, are these issues exacerbated by the plots in Fig 2 which show the fitted lines extending beyond the bounds of the data? The suggestion of presenting additional comparative figures to include lamda is useful as this metric is one that readers will find useful.}
+\response{We thank the editor for having another careful look at our manuscript.
+As we describe below in response to R2, the discrepancy between Fig. 2 and A5 is not as troubling as it may first appear. 
+We provide the new comparative figures requested by R2.}
+
+\section{Response to Reviewer 1}
+\vspace{-2em}
+
+\comment{I appreciate the authors thoroughly addressing all of my previous comments. I enjoyed reading the paper once more, and think it makes an important contribution to the demography-climate change literature. Just a few small additional suggestions below. }
+\response{We thank this reviewer for taking the time to read our manuscript once again.
+We are pleased that they are satisfied with our changes and find the work valuable.}
+
+\comment{Eqs. 5 and 6: Gamma is already being used for seed survival in the IPM, consider changing.} 
+\response{Thank you for catching this.
+We now use the symbol $\nu$ in Equations 5 and 6.}
+
+\comment{512: Correct “livestack” to “livestock”}
+\response{Thank you, we have corrected this error.}
+
+\section{Response to Reviewer 2}
+\vspace{-2em}
+
+\comment{The authors have addressed my concerns, and this manuscript is great to read, especially given the humbling message that uncertainties in hindcasting and forecasting population viability based on even relatively long-term demography-climate relationships has to date remained highly challenging. The main message emphasised in the title and throughout the text is not this challenge. It is a matter of choice what authors highlight from their results, but in my opinion the challenges around predictions are equally important and could have even deserved a place in the title. However, I really leave this choice to the authors.}
+\response{As the reviewer suggests, there are several ``takes'' on our paper that could be emphasized in the title.
+The challenges of forecasting or hind-casting under uncertainty are very real.
+We have attempted to discuss these challenges transparently in the body of our paper, and we remain open to suggestions for doing this more or better. 
+However, this is a methodological issue.
+While it is interesting and important, we do not want to advertise our paper as a methods paper. 
+Instead, we prefer to emphasize the novel conceptual content, as we do in our current title. 
+We also note that the main conceptual message in the title -- that subtle dimensions of climate change have strong effects on population viability -- is a strongly supported result that comes from our direct demographic observations (Fig. 2) and the historical climate record (Fig. 1).
+There remains substantial uncertainty in our back-casted demographic projections, but the core message of the title is not compromised by that uncertainty.}
+
+\comment{The authors have done a great job in walking us through the process of modelling uncertainties, and in addressing my, and my peer's comments. The whole process is clear-cut and very well presented, which might make this paper a reference work for similar research in the future.
+Having said that, seeing the comparison of climate effects on weather vs. modelled climate data, I am left with further questions that need clarification. As shown by the LTRE analysis, survival contributes most to variation in population growth rate, and I assume, seeing the shape of light blue lines in Figure 2, it is the survival of younger individuals that affect the population responses. However, when we compare Figure 2 with Figure A5, survival responds differently to PC2 built from measured weather data, in fact it doesn't vary at all with PC2, while it increases (for small individuals mostly) with PC2 derived from climate data. This is problematic, because PC2 is the main driver of population responses, and we now have to rely on survival responses to PC3, the second driver of population responses, which indeed show similarities (although also differences; these differences across vital rate responses were, by the way, left unexplained by the authors).}
+\response{There is a simple explanataion for the discrepancy between Figures 2 and A5, which was also highlighted by the editor. 
+PC2 in Fig 2 and PC2 in Fig A5 \textit{are different PCs} because they are derived from completely different data sets (respectively, 117 years of downscaled climate projections and 14 years of weather data from SEV meteorological stations).
+There is no expectation that PCA on these two data sets would yield comparable PC axes, and comparison of Figure 1 and Figure A4 demonstrates this. 
+While PC1 is dominated by inter-annual differences in both data sets, the seasonal variable loadings onto PCs 2 and 3 are very different. 
+It is therefore unsurprising to see different patterns in the demographic responses in Figure 2 compared to Figure A5. 
+We failed to explain this properly in our last submission. 
+We have added new text to address this issue (lines \ref{ms-rev2-1} and \ref{ms-rev2-2}).
+}
+
+\comment{The authors have not yet! presented a figure showing changes in lambda with weather-based PCA (I assume the trajectories of lambda would differ), but figure A7 shows the modest relationship between the lambdas modelled using IPMs based on weather vs. climate PCAs. In my opinion, the ca. 40\% match (from the correlation) is weak, and with temporal autocorrelation effects (that were not explored here), the effects on long-term population performance feel lost even more. That the correlation in the second panel of figure A7 is so good, suggests that models based on both datasets elegantly incorporate the yearly variation not explained by the climate. This result tells me that as much as we wish to touch on climate effects, the data show that non-climate effects prevail in this population. I understand why it can be frustrating, but in these instances we need to be upfront about the results, and the authors mostly are. Yet, can the authors present a comparative figures of vital rates, and lambda, responses to weather vs. climate data, and explain upfront the consequences to the message put out? 
+}
+\response{
+We intended Fig. A7 to show the change in $\lambda$ with weather-based PCA but we now realize that it may be more informative and intuitive to show this as a time series. 
+We agree that it would also be helpful to see a time series of vital rates fit to the two data sources.
+These new elements are shown in the new Figure XXX. 
+
+}
+
+\comment{I am also a bit uncomfortable with the approach to explore the consequences of climate extrapolation in Appendix D. We now see how different the historical vs observed data are, thank you for showing these results. In addition to pinning demographic responses to equal the responses at observed extrema (which is the most straightforward solution, I admit), it would probably help, in a second exercise, to go beyond these boundaries and model even more extreme theoretical responses than the observed ones. I worry the population responses modelled this way are conservative.}
+\response{
+Respectfully, we do not understand the reviewer's point here. 
+Our main analysis extrapolates demographic responses to the limits of historical climate environment, and our Appendix D asks how our results would change if we limited our climate projections to the bounds of the observations years. 
+The results of this analysis tell us that our qualitative results hold up whether or not we extrapolate.
+Exploring `even more extreme theoretical responses' does not seem particularly relevant or illuminating, and we do not understand how this woudl address the reviewer's concern about population responses being `conservative'. 
+We would be happy to follow up with the reviewer if they want to clarify their comments.
+}
+
+\comment{Finally, just a minor comment, in Line 196 there is a mention of a plot-to-plot variation random effect, which I am not seeing in the R scripts uploaded to GitHub (thumbs up to the authors for making these codes and the data available during the review process). Can the authors explain this component in their model structure?}
+\response{Our files on Github need to be organized a bit better (kudos to this reviewer for going above and beyond the call of duty to check out our code); we will do this in preparation for final publication. 
+The JAGS model is coded in a text file (not an R script) called `HB\_cholla\_allrates\_selected\_misc\_params.txt' in the `Bayes models' folder.
+The plot variances are defined at lines 11--19 of this text file and called again in the likelihood functions below.
+We have also added the plot variance parameter estimates to Table C1, though we do not use them in the IPM (our model is centered on an average plot).}
+
+
+\comment{Overall, I would like to stress again the importance of this paper in sending out the cautionary note on extrapolating climate-demography relationships, and I thank the authors for reinforcing this message whenever they can. 
+This is a great modelling work, and I congratulate the authors for the clarity and transparency of their approaches.}
+\response{}
+
+% ======================================================= %
+\end{document}
+% ======================================================= %
