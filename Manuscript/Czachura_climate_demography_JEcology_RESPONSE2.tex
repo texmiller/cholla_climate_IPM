@@ -96,6 +96,7 @@ We have assessed your revision and I am writing to let you know that, although i
 I agree with the reviewers that your study is now more thorough and, for the most part, well explained in the manuscript. However, the reviewers do have some additional, and I hope final, points for you to respond to. In particular, reviewer 2 has some concerns about the differences in interpretation arising from Fig 2 and Figure A5.  In addition to the concerns raised here by the reviewer, are these issues exacerbated by the plots in Fig 2 which show the fitted lines extending beyond the bounds of the data? The suggestion of presenting additional comparative figures to include lamda is useful as this metric is one that readers will find useful.}
 \response{We thank the editor for having another careful look at our manuscript.
 As we describe below in response to R2, the discrepancy between Fig. 2 and A5 is not as troubling as it may first appear. 
+The implications of the fitted demographic functions extending beyond the bounds of the data are addressed in Appendix D.
 We provide the new comparative figures requested by R2.}
 
 \section{Response to Reviewer 1}
@@ -103,7 +104,8 @@ We provide the new comparative figures requested by R2.}
 
 \comment{I appreciate the authors thoroughly addressing all of my previous comments. I enjoyed reading the paper once more, and think it makes an important contribution to the demography-climate change literature. Just a few small additional suggestions below. }
 \response{We thank this reviewer for taking the time to read our manuscript once again.
-We are pleased that they are satisfied with our changes and find the work valuable.}
+We are pleased that they are satisfied with our changes and find the work valuable.
+Their comments really improved the paper.}
 
 \comment{Eqs. 5 and 6: Gamma is already being used for seed survival in the IPM, consider changing.} 
 \response{Thank you for catching this.
@@ -118,7 +120,7 @@ We now use the symbol $\nu$ in Equations 5 and 6.}
 \comment{The authors have addressed my concerns, and this manuscript is great to read, especially given the humbling message that uncertainties in hindcasting and forecasting population viability based on even relatively long-term demography-climate relationships has to date remained highly challenging. The main message emphasised in the title and throughout the text is not this challenge. It is a matter of choice what authors highlight from their results, but in my opinion the challenges around predictions are equally important and could have even deserved a place in the title. However, I really leave this choice to the authors.}
 \response{As the reviewer suggests, there are several ``takes'' on our paper that could be emphasized in the title.
 The challenges of forecasting or hind-casting under uncertainty are very real.
-We have attempted to discuss these challenges transparently in the body of our paper, and we remain open to suggestions for doing this more or better. 
+We have attempted to discuss these challenges transparently in the body of our paper, and we have added this to our conclusion (line \ref{ms-rev2-4}). 
 However, this is a methodological issue.
 While it is interesting and important, we do not want to advertise our paper as a methods paper. 
 Instead, we prefer to emphasize the novel conceptual content, as we do in our current title. 
@@ -128,10 +130,11 @@ There remains substantial uncertainty in our back-casted demographic projections
 \comment{The authors have done a great job in walking us through the process of modelling uncertainties, and in addressing my, and my peer's comments. The whole process is clear-cut and very well presented, which might make this paper a reference work for similar research in the future.
 Having said that, seeing the comparison of climate effects on weather vs. modelled climate data, I am left with further questions that need clarification. As shown by the LTRE analysis, survival contributes most to variation in population growth rate, and I assume, seeing the shape of light blue lines in Figure 2, it is the survival of younger individuals that affect the population responses. However, when we compare Figure 2 with Figure A5, survival responds differently to PC2 built from measured weather data, in fact it doesn't vary at all with PC2, while it increases (for small individuals mostly) with PC2 derived from climate data. This is problematic, because PC2 is the main driver of population responses, and we now have to rely on survival responses to PC3, the second driver of population responses, which indeed show similarities (although also differences; these differences across vital rate responses were, by the way, left unexplained by the authors).}
 \response{There is a simple explanataion for the discrepancy between Figures 2 and A5, which was also highlighted by the editor. 
-PC2 in Fig 2 and PC2 in Fig A5 \textit{are different PCs} because they are derived from completely different data sets (respectively, 117 years of downscaled climate projections and 14 years of weather data from SEV meteorological stations).
-There is no expectation that PCA on these two data sets would yield comparable PC axes, and comparison of Figure 1 and Figure A4 demonstrates this. 
+PC2 in Fig 2 and PC2 in Fig A5 \textit{are not the same PC} because they are derived from completely different data sets (respectively, 117 years of downscaled climate projections and 14 years of weather data from SEV meteorological stations).
+There is no expectation that PCA on these two data sets would yield comparable PC axes, and comparison of Figure 1B and Figure A4 demonstrates this. 
 While PC1 is dominated by inter-annual differences in both data sets, the seasonal variable loadings onto PCs 2 and 3 are very different. 
 It is therefore unsurprising to see different patterns in the demographic responses in Figure 2 compared to Figure A5. 
+Nonetheless, the two data sources lead to similar predictions of year-specific $\lambda$ for the years in which they overlapped (Appendix A), which tells us that the vital rate responses are capturing similar responses to climate despite their superficial differences. 
 We failed to explain this properly in our last submission. 
 We have added new text to address this issue (lines \ref{ms-rev2-1} and \ref{ms-rev2-2}).
 }
@@ -139,18 +142,29 @@ We have added new text to address this issue (lines \ref{ms-rev2-1} and \ref{ms-
 \comment{The authors have not yet! presented a figure showing changes in lambda with weather-based PCA (I assume the trajectories of lambda would differ), but figure A7 shows the modest relationship between the lambdas modelled using IPMs based on weather vs. climate PCAs. In my opinion, the ca. 40\% match (from the correlation) is weak, and with temporal autocorrelation effects (that were not explored here), the effects on long-term population performance feel lost even more. That the correlation in the second panel of figure A7 is so good, suggests that models based on both datasets elegantly incorporate the yearly variation not explained by the climate. This result tells me that as much as we wish to touch on climate effects, the data show that non-climate effects prevail in this population. I understand why it can be frustrating, but in these instances we need to be upfront about the results, and the authors mostly are. Yet, can the authors present a comparative figures of vital rates, and lambda, responses to weather vs. climate data, and explain upfront the consequences to the message put out? 
 }
 \response{
-We intended Fig. A7 to show the change in $\lambda$ with weather-based PCA but we now realize that it may be more informative and intuitive to show this as a time series. 
+We appreciate the reviewer pushing us on this point.
+But the correlation is actually $0.59$, not $0.4$. 
+We intended (the former) Fig. A7 to show the change in $\lambda$ with weather-based PCA but we now realize that it may be more informative and intuitive to show this as a time series. 
 We agree that it would also be helpful to see a time series of vital rates fit to the two data sources.
-These new elements are shown in the new Figure XXX. 
-
+These new elements are shown in the new Figure A7 (former A7 is now A8). 
+While beauty is in the eye of the beholder, we think that the statistical correlation and the visual correspondence of $\lambda_{t}$ are pretty good! 
+Also, the tight correlation in the former Fig. A7B (now Fig. A8B) is probably less meaningful than the reviewer suggests. 
+Year-specific random effects give statistical models the flexibility to have their expected values tightly align with the observations. 
+The fact that the two sets of statistical models give the same predictions when year random effects are included is simply an internal check that the models are working like we think they do; any other result would be cause for concern. 
+We have added some of this interpretation that we failed to include last time (line \ref{ms-rev2-3}). 
+\\
+\\
+Overall, we think any discrepancy between our and the reviewer's interpretation of the results regarding climate-dependence is a matter of the glass being half-full (us) or half-empty (R2). 
+This is fine with us.
+Good papers should leave room for different interpretations. 
 }
 
 \comment{I am also a bit uncomfortable with the approach to explore the consequences of climate extrapolation in Appendix D. We now see how different the historical vs observed data are, thank you for showing these results. In addition to pinning demographic responses to equal the responses at observed extrema (which is the most straightforward solution, I admit), it would probably help, in a second exercise, to go beyond these boundaries and model even more extreme theoretical responses than the observed ones. I worry the population responses modelled this way are conservative.}
 \response{
 Respectfully, we do not understand the reviewer's point here. 
-Our main analysis extrapolates demographic responses to the limits of historical climate environment, and our Appendix D asks how our results would change if we limited our climate projections to the bounds of the observations years. 
+Our main analysis extrapolates demographic responses to the limits of the historical climate environment, and our Appendix D asks how our results would change if we limited our climate projections to the bounds of the observation years. 
 The results of this analysis tell us that our qualitative results hold up whether or not we extrapolate.
-Exploring `even more extreme theoretical responses' does not seem particularly relevant or illuminating, and we do not understand how this woudl address the reviewer's concern about population responses being `conservative'. 
+Exploring `even more extreme theoretical responses' does not seem particularly relevant or illuminating, and we do not understand how this would address the reviewer's concern about population responses being `conservative'. 
 We would be happy to follow up with the reviewer if they want to clarify their comments.
 }
 
@@ -158,12 +172,15 @@ We would be happy to follow up with the reviewer if they want to clarify their c
 \response{Our files on Github need to be organized a bit better (kudos to this reviewer for going above and beyond the call of duty to check out our code); we will do this in preparation for final publication. 
 The JAGS model is coded in a text file (not an R script) called `HB\_cholla\_allrates\_selected\_misc\_params.txt' in the `Bayes models' folder.
 The plot variances are defined at lines 11--19 of this text file and called again in the likelihood functions below.
-We have also added the plot variance parameter estimates to Table C1, though we do not use them in the IPM (our model is centered on an average plot).}
+We have also added the plot variance parameter estimates to Table C1, so that readers can see this aspect of the statistical modeling results.}
 
 
 \comment{Overall, I would like to stress again the importance of this paper in sending out the cautionary note on extrapolating climate-demography relationships, and I thank the authors for reinforcing this message whenever they can. 
 This is a great modelling work, and I congratulate the authors for the clarity and transparency of their approaches.}
-\response{}
+\response{We genuinely appreciate the energy and insight this reviewer poured into our paper.
+They made the paper better. 
+J Ecology is lucky to have recruited this reviewer to evaluate the paper (as are we). 
+I hope that someday this reviewer's identity is known to me, because I would like to collaborate with them!}
 
 % ======================================================= %
 \end{document}

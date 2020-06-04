@@ -349,7 +349,7 @@ There was greater uncertainty in $\frac{\Delta\lambda}{\Delta Year}$ since 1970 
 Under the trajectory since 1970, population growth was expected to reach the viability threshold ($\lambda$ = 1) in the year \Sexpr{round(ms_quantities$viable_year_1970,0)} (Fig. \ref{figure:lambda_year}C); accelerating climate change would advance this transition to viable growth rates. 
 
 \revise{\linelabel{mod3}In Appendix D, we show that our inference that $\lambda$ is likely increasing in response to climate change holds even with a more conservative approach that does not extrapolate vital rate responses beyond the climate extremes of the observation years.}
-\revise{\linelabel{mod8}Furthermore, in Appendix A, we show that year-specific estimates of $\lambda$ were correlated between models built with downscaled climate data versus on-site meteorological measurements, for years in which they over-lapped (Fig. \ref{fig:lambda_t_comp}).
+\revise{\linelabel{mod8}Furthermore, in Appendix A, we show that year-specific estimates of $\lambda$ were correlated between models built with downscaled climate data versus on-site meteorological measurements, for years in which they over-lapped (Fig. \ref{fig:lambda_t_comp}, \reviseagain{Fig. \ref{fig:SEV_WNA_time_series}}).
 This suggests that our qualitative inference regarding the positive temporal trend in $\lambda$ is robust to the loss of resolution associated with downscaled climate data.}
 
 The stochastic population growth rate ($\lambda_{S}$) showed a similar trend of $\lambda_{S} < 1$ and increasing population growth rates over the past $120$ years (Fig. \ref{fig:lambdaS}).
@@ -396,7 +396,7 @@ Posterior distributions for flowering and fertility are imperceptible on this sc
 Understanding and predicting the effects of environmental change on plant demography and population dynamics are urgent challenges. 
 The integration of long-term data with environmentally explicit demographic models provides a powerful vehicle for meeting these challenges and may aid in identifying processes that drive some populations into decline. 
 By reconstructing $117$ years of climate-dependent demography, we tested the hypothesis that the extinction debt of our study population was a consequence of recent climate change. 
-Our results suggest the opposite: \textit{C. imbricata} is likely a climate change ``winner'', on an accelerating trajectory toward replacement-level population growth within \Sexpr{round(ms_quantities$viable_year_1970,0)-2020} years if current climate change trends persist, and sooner if they accelerate. 
+Our results \reviseagain{fail to support this hypothesis and} suggest the opposite: \textit{C. imbricata} is likely a climate change ``winner'', on an accelerating trajectory toward replacement-level population growth within \Sexpr{round(ms_quantities$viable_year_1970,0)-2020} years if current climate change trends persist, and sooner if they accelerate. 
 We further show that the strongest feature of climate change in this system was not the main driver of population responses. 
 Instead, temporal trends in population viability were dominated by more subtle climatic factors with relatively weak signals of recent change. 
 Below, we interpret these results in greater detail and discuss their broader significance. 
@@ -405,7 +405,7 @@ Until recently, few plant demographic studies explictly considered climatic driv
 We are aware of no previous studies that have compared the magnitudes of different aspects of climate change alongside the magnitudes of demographic responses to those changes. 
 %Consequently, further studies will be required to evaluate how commonly demographic responses are primarily driven by relatively weak components of climate change, as we found.
 However, we suspect that our key finding -- that the strongest dimension of climate change was not the strongest driver of demography -- may be common, since at the heart of this result lies the difference between annual climate trends (captured by PC1) versus seasonal trends (PCs 2 and 3). 
-Annual rainfall totals  in our region have been decreasing but more of the annual rainfall has been falling in the cool season, consistent with previous climatalogical studies that suggest a shift from warm- to cool-season precipitation \citep{cook2013response,cook2015unprecedented,petrie2014regional}.
+Annual rainfall totals in our region have been decreasing but more of the annual rainfall has been falling in the cool season, consistent with previous climatalogical studies that suggest a shift from warm- to cool-season precipitation \citep{cook2013response,cook2015unprecedented,petrie2014regional}.
 Similarly, annual temperatures have been increasing in our study region but it was cool-season warming, specifically, that was most important for \textit{C. imbricata} demography.
 Many plant and animal life histories operate on seasonal schedules and may therefore be more sensitive to seasonal redistribution of rainfall and temperature than to climate effects that manifest over an entire year. 
 Our results are consistent with previous studies that demonstrate the importance of considering seasonal, not annual, drivers of plant demographic responses \citep{selwood2015effects,williams2015life,dahlgren2016demography}. 
@@ -487,7 +487,7 @@ Previous studies of cactus demography suggest that seedling recruitment may be h
 We suspect this is the case for \textit{C. imbricata}, since germination usually coincides with late-summer rains (\textit{T.E.X. Miller, unpubl. data}). 
 Because we did not model this process as climate-dependent, our results for climate effects on population growth are conservative. 
 However, consistent with expectations for long-lived perennials, we know seedling recruitment to have very low eigenvalue sensitivities \citep{elderd2016quantifying}, which suggests that even large climate effects on this process may not strongly register in terms of population growth.
-\revise{\linelabel{mod19}On the other hand, pulsed recruitment events  perturb the size distribution in ways that can importantly affect short-term (transient) dynamics \citep{williams2011distance}, and may therefore warrant further study in this and other pulsed-recruitment system. }
+\revise{\linelabel{mod19}On the other hand, pulsed recruitment events perturb the size distribution in ways that can importantly affect short-term (transient) dynamics \citep{williams2011distance}, and may therefore warrant further study in this and other pulsed-recruitment system. }
 
 
 %Third, like any observational study, our conclusions rest on statistical associations between climate and demography.
@@ -495,7 +495,7 @@ However, consistent with expectations for long-lived perennials, we know seedlin
 %We think the extrapolated predictions of our statistical models are reasonable (Fig. \ref{figure:vital_rates}) but we intentionally avoided forecasting our demographic model into the future because climate projections for our region deviate substantially from observed conditions.
 %We therefore lacked confidence in our ability to quantitatively forecast population responses to future climatic conditions, but experimental manipulations that mimic these conditions could help brige the gap to a rigorous process-based forecast. 
 
-To conclude, this study illustrates how long-term patterns of population growth can be reconstructed through climate-demography relationships observed on relatively short time scales.
+To conclude, this study illustrates how long-term patterns of population growth can be reconstructed \reviseagain{\linelabel{rev2-4}(with potentially substantial but quantifiable uncertainty)} through climate-demography relationships observed on relatively short time scales.
 This allowed us to evaluate the hypothesis that recent climate change has driven \textit{C. imbricata} in our region into extinction debt, \linelabel{mod14}\revise{a hypothesis that our data do not support}.
 Instead, this species is \revise{most likely benefitting from climate change}, largely due to its positive responses, especially in survival, to recent and ongoing shifts in cool-season temperature and precipitation. 
 Changes in cool-season climate were not the strongest features of climate change, but they were nonetheless the most important determinants of population responses. 
@@ -632,12 +632,21 @@ We compared results based on the two data sources in several ways.
 First, we compared the inter-annual variances associated with year random effects in the statistical models. 
 We found that, for survival in particular, random variance across years was much lower using SEV-LTER data as climate covariates compared to ClimateWNA (Fig. \ref{fig:sigma_year}).
 This tell us that, as expected, on-site data provided greater resolution of climate drivers, since less inter-annual variation in survival was attributed to process error.
-Second, we used the IPM derived from each data source to generate two predicted time series of $\lambda$ during the study years.
-We found that SEV-LTER climate PCs explained \Sexpr{SEV_met$climate_rsq}\% of inter-annual variation in $\lambda$, an improvement over the \Sexpr{ms_quantities$climate_rsq}\% explained by ClimateWNA PCs. 
-Finally, the year-by-year estimates were significantly correlated between the two data sources (Fig. \ref{fig:lambda_t_comp}A; Pearson's $r=\Sexpr{round(SEV_met$lambda_corr$estimate,2)}$, $t_{\Sexpr{SEV_met$lambda_corr$parameter}}=\Sexpr{round(SEV_met$lambda_corr$statistic,2)}$, $P < \Sexpr{round(SEV_met$lambda_corr$p.value,2)}$). 
-When we additionally incorporated year-specific random effects estimated from the statistical models, $\lambda$ estimates were nearly perfectly correlated (Fig. \ref{fig:lambda_t_comp}B; Pearson's $r=0.99$, $t_{\Sexpr{SEV_met$lambda_corr_RFX$parameter}}=\Sexpr{round(SEV_met$lambda_corr_RFX$statistic,2)}$, $P < 0.0001$), as expected. 
-This tells us that our qualitative conclusions based on the longer ClimateWNA time series of climate covariates is likely robust to the uncertainties introduced by downscaled data. 
-However, the \Sexpr{SEV_met$climate_rsq - ms_quantities$climate_rsq}\% loss of resolution with ClimateWNA tells us that using downscaled data inflated the contribution of process error to our back-casted estimates (Fig. \ref{fig:lambda_year_proc_est_err}A). 
+
+\reviseagain{\linelabel{rev2-3}Second, we used the IPM derived from each data source to generate two predicted time series of climate-sensitive vital rates (survival, flowering, and fertility) and $\lambda$ during the study years.
+These time series are shown in Fig. \ref{fig:SEV_WNA_time_series}.
+Year-specific estimates of flowering and fertility showed poor correspondence between the two data sources (Fig. \ref{fig:SEV_WNA_time_series}B,C), likely because they were both predicted to be more responsive to climate in the ClimateWNA analysis (Fig. \ref{figure:vital_rates}) compared to the SEV-LTER analysis (Fig. \ref{fig:vital_rates_SEV}).
+However, year-specific survival rates were highly consistent between the two data sources (Fig. \ref{fig:SEV_WNA_time_series}A).
+Because $\lambda$ was much more sensitive to survival than reproduction, year-specific estimates of $\lambda$ were also highly consistent and significantly correlated between the two data sources (Fig. \ref{fig:SEV_WNA_time_series}D, Fig. \ref{fig:lambda_t_comp}A; Pearson's $r=\Sexpr{round(SEV_met$lambda_corr$estimate,2)}$, $t_{\Sexpr{SEV_met$lambda_corr$parameter}}=\Sexpr{round(SEV_met$lambda_corr$statistic,2)}$, $P < \Sexpr{round(SEV_met$lambda_corr$p.value,2)}$). 
+When we additionally incorporated year-specific random effects estimated from the statistical models, $\lambda$ estimates were nearly perfectly correlated (Fig. \ref{fig:lambda_t_comp}B; Pearson's $r=0.99$, $t_{\Sexpr{SEV_met$lambda_corr_RFX$parameter}}=\Sexpr{round(SEV_met$lambda_corr_RFX$statistic,2)}$, $P < 0.0001$). 
+This tight correlation is expected, because year-specific random effects allow both the SEV-LTER and ClimateWNA models to match the observations, so it would be a sign of trouble if the relationship in Fig. \ref{fig:lambda_t_comp}B was weak. 
+Finally, we found that SEV-LTER climate PCs explained \Sexpr{SEV_met$climate_rsq}\% of inter-annual variation in $\lambda$, an improvement over the \Sexpr{ms_quantities$climate_rsq}\% explained by ClimateWNA PCs. }
+
+\reviseagain{
+Overall, our re-analysis with SEV-LTER data and comparison between the on-site SEV and downscaled ClimateWNA data indicates that our qualitative conclusions about demography-climate relationships are robust to the choice of data source. 
+In both analyses, we find vital rate responses to climate that translate to similar year-specific predictions for population growth rates. 
+However, in relying on downscaled data for our main analyses, we certainly lost some of the climate signal.
+The \Sexpr{SEV_met$climate_rsq - ms_quantities$climate_rsq}\% loss of resolution with ClimateWNA tells us that using downscaled data inflated the contribution of process error to our back-casted estimates (Fig. \ref{fig:lambda_year_proc_est_err}A).} 
 
 
 \begin{figure}[H]
@@ -711,6 +720,17 @@ print(xtable(all_z_SEV, caption = "Stochastic variable selection results based o
   \caption{\revise{Posterior distributions of inter-annual variance ($\sigma_{year}$) associated with year random effects from vital rate models fit with two climate data sources (colors): ClimateWNA and SEV-LTER. 
   Points show posterior means and bars show 95\% credible intervals.}}
    \label{fig:sigma_year}
+   \end{center}
+\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=\linewidth]{Figures/SEV_WNA_time_series}
+  \caption{\reviseagain{Year-specific estimates of vital rates (\textbf{A--C}) and population growth rates (\textbf{D}) based on SEV-LTER (filled points, solid lines) or ClimateWNA (open points, dashed lines). 
+  Climate-dependent vital rates are probability of survival (\textbf{A}), probability of flowering (\textbf{B}), and flowerbud production of flowering plants (\textbf{C}).
+  For each vital rate, colors correspond to three size groups: the 5th (gray), 50th (red), and 95th (blue) percentiles of the size distribution.
+  SEV meteorological data were not available for 2003, so we could not estimate reproductive rates or population growth rates for the 2004 transition year.}}
+   \label{fig:SEV_WNA_time_series}
    \end{center}
 \end{figure}
 
