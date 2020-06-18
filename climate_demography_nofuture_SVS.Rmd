@@ -294,7 +294,7 @@ cholla.dat$trials_germ1 <- germ.dat$Input
 cholla.dat$y_germ2 <- germ.dat$Seedlings05
 cholla.dat$trials_germ2 <- germ.dat$Input-germ.dat$Seedlings04
 
-precensus.dat<-read.csv("PrecensusSurvival.csv") %>% drop_na()
+precensus.dat<-read.csv("PrecensusSurvival.csv") %>% select(survive0405) %>% drop_na()
 cholla.dat$N_precenus_surv <-nrow(precensus.dat)
 cholla.dat$y_precensus_surv <- precensus.dat$survive0405
 
