@@ -263,7 +263,7 @@ cholla.dat$trials_germ1 <- germ.dat$Input
 cholla.dat$y_germ2 <- germ.dat$Seedlings05
 cholla.dat$trials_germ2 <- germ.dat$Input-germ.dat$Seedlings04
 
-precensus.dat<-read.csv("PrecensusSurvival.csv") %>% drop_na()
+precensus.dat<-read.csv("PrecensusSurvival.csv") %>% dplyr::select(survive0405) %>% drop_na()
 cholla.dat$N_precenus_surv <-nrow(precensus.dat)
 cholla.dat$y_precensus_surv <- precensus.dat$survive0405
 
@@ -330,8 +330,8 @@ parameters<-c("flow.mu","fert.mu","surv.mu","grow.mu",
               "grow.sq.res")
 
 ## MCMC settings
-ni<-30000
-nb<-5000
+ni<-40000
+nb<-10000
 nt<-10
 nc<-3
 
@@ -660,7 +660,7 @@ barplot(c(dlambda.dPC1,dlambda.dPC2,dlambda.dPC3))
 PCclim_WNA<-read_csv("PCclim_lambda_WNA.csv")
 PCclim_compare <- left_join(PCclim,PCclim_WNA,by="Year_t")
 
-win.graph()
+pdf("Manuscript/Figures/lambda_t_comparison.pdf",useDingbats = F, width = 8, height = 4)
 par(mfrow=c(1,2),mar=c(5,5,1,1))
 plot(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year,type="n",
      xlim=c(min(c(PCclim_compare$lambda_year_SEV,PCclim_compare$lambda_year),na.rm=T)-0.005,
@@ -683,7 +683,7 @@ plot(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,type="n",
 text(PCclim_compare$lambda_year_RFX_SEV,PCclim_compare$lambda_year_RFX,labels=PCclim_compare$Year_t)
 abline(0,1)
 title("B",font=4,adj=0)
-
+dev.off()
 
 # new figures for revision ------------------------------------------------
 ## time series of vital rates and lambda
@@ -739,7 +739,7 @@ for(t in 1:nrow(PCclim_compare)){
 }
 }
 
-win.graph()
+pdf("Manuscript/Figures/SEV_WNA_time_series.pdf",useDingbats = F, width = 6, height = 6)
 par(mfrow=c(2,2),mar=c(5,5,1,1))  
 plot(PCclim_compare$Year_t,surv_yr_WNA[1,],type="b",ylim=c(0,1),lty=2,cex.lab=1.2,
      ylab="Survival probability",xlab="Year",col="darkgrey")
@@ -773,7 +773,7 @@ plot(PCclim_compare$Year_t,PCclim_compare$lambda_year,type="b",ylim=c(0.92,0.99)
 points(PCclim_compare$Year_t,PCclim_compare$lambda_year_SEV,type="b",pch=16)
 legend("topright",legend=c("ClimateWNA","SEV-LTER"),pch=c(1,16),lty=c(2,1),bty="n")
 title("D",adj=0)
-
+dev.off()
 
 ## write out values
 ## how much does climate predict for the years where we have random effects?

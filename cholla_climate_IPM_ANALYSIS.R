@@ -571,6 +571,7 @@ cholla.clim %>%
 ## appendix figure
 multiplot(ssd_pred,ssd_obs)
 
+
 # climate dependence ------------------------------------------------------
 lambda_PC1<-lambda_PC2<-lambda_PC3<-c()
 
@@ -686,7 +687,7 @@ for(j in 1:length(x_PC3)){
 }
 
 ###Figure 3#####################
-win.graph()
+pdf("Manuscript/Figures/lambda_PC.pdf",useDingbats = F, width = 12, height = 4)
 par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(x_PC1,lambda_PC1,type="n",lwd=4,ylim=c(0.7,1),
      ylab=expression(paste(lambda)),xlab="Climate PC 1",cex.lab=1.6)
@@ -765,6 +766,7 @@ text(coef(PC3modB)[1]+coef(PC3modB)[2]*2017,lambda_PC3[which.min(abs(x_PC3-(coef
      2017)
 abline(h=1,lty=3)
 title("C",font=3,adj=0)
+dev.off()
 
 # estimate lambda by year -------------------------------------------------
 
@@ -952,7 +954,6 @@ seed_mat <- matrix(runif(n_post*length(lambda_year_proc_err),0,100000), nrow = n
 
 for(i in 1:n_post){
   for(j in 2:nrow(PCclim)){
-    #print(i)
     ## now convert params to list for the rest of it
     sample.params <- as.list(params_post[i,])
     sample.params$flow.bclim <- params_post[rand.indices[i],] %>% 
@@ -1063,7 +1064,7 @@ for(i in 1:n_post){
 }
 
 ### New Figure with mean and uncertainty
-win.graph()
+pdf("Manuscript/Figures/lambda_year_uncertainty.pdf",useDingbats = F, width = 12, height = 4)
 par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.4,1.05),
      xlab="Year",ylab=expression(lambda),cex.lab=1.6)
@@ -1080,25 +1081,12 @@ polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
 polygon(x=c(PCclim$Year_t,rev(PCclim$Year_t)),
         y=c(lambda_year_proc_est_err.25[1,],rev(lambda_year_proc_est_err.25[2,])),
         col=alpha("black",0.1),border=NA)
-#lines(PCclim$Year_t,lambda_year_est_err.95[1,],lwd=0.5,lty=1);lines(PCclim$Year_t,lambda_year_est_err.95[2,],lwd=0.5,lty=1)
-#lines(PCclim$Year_t,lambda_year_est_err.75[1,],lwd=1);lines(PCclim$Year_t,lambda_year_est_err.75[2,],lwd=1)
-#lines(PCclim$Year_t,lambda_year_est_err.50[1,],lwd=1.5);lines(PCclim$Year_t,lambda_year_est_err.50[2,],lwd=1.5)
-#lines(PCclim$Year_t,lambda_year_est_err.25[1,],lwd=2);lines(PCclim$Year_t,lambda_year_est_err.25[2,],lwd=2)
-#lines(PCclim$Year_t[1:which(PCclim$Year_t==2003)],
-      #PCclim$lambda_year[1:which(PCclim$Year_t==2003)],
-      #lwd=1,col=alpha("black",0.25))
-#lines(PCclim$Year_t[which(PCclim$Year_t>2003)],
-      #PCclim$lambda_year[which(PCclim$Year_t>2003)],
-      #lwd=1,col=alpha("black",1))
-lines(PCclim$Year_t,PCclim$lambda_year,col=alpha("black",1),lwd=3)
+lines(PCclim$Year_t,PCclim$lambda_year,col=alpha("black",1),lwd=2)
 abline(v=2003,lty=3)
 points(PCclim$Year_t,PCclim$lambda_year_RFX,cex=1,
        pch=16,col=alpha("black",0.8))
-#lines(1901:2017,coef(lambda_trend)[1]+coef(lambda_trend)[2]*1901:2017,col="black",lwd=2)
-#lines(1970:2017,coef(lambda_trend1970)[1]+coef(lambda_trend1970)[2]*1970:2017,col="black",lwd=2,lty=2)
 title("A",adj=0,font=3)
 
-## slope estimate: estimation + process error
 d_allyrs <- density(yr_slope_allyrs)
 d_1970 <- density(yr_slope_1970)
 plot(d_allyrs,xlim=c(-0.004,0.004),type="n",main=" ",
@@ -1143,7 +1131,7 @@ legend("topright",legend=c("All years","Since 1970"),
        fill=c(alpha("black",0.5),alpha("black",0.2)),
        bty="n", lty=c(1,2),cex=1.4)
 title("C",adj=0,font=3)
-
+dev.off()
 
 ### versions with estimation error only
 ## slope estimate: estimation error only
@@ -1188,7 +1176,7 @@ legend("topright",legend=c("All years","Since 1970"),
        bty="n", lty=c(1,2))
 
 ## New figure -- compare proc+est to est only
-win.graph()
+pdf("Manuscript/Figures/lambda_year_proc_est_err.pdf",useDingbats = F, width = 12, height = 4)
 par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(PCclim$Year_t,PCclim$lambda_year,type="n",ylim=c(0.2,1.05),
      xlab="Year",ylab=expression(lambda),cex.lab=1.4)
@@ -1239,6 +1227,7 @@ polygon(d_1970_est, col=alpha("tomato",.8), border=NA,lwd=1)
 abline(v=c(median(yr_slope_1970),median(yr_slope_1970_est),median(yr_slope_1970_proc)),
        col=c("black","tomato","dodgerblue"),lwd=2)
 title("C",adj=0,font=3)
+dev.off()
 
 # Posterior sampling LTRE -------------------------------------------------
 ## First create a vector identifying the climate-dependent parameters
@@ -1324,7 +1313,7 @@ ci_LTRE_PC3.F <- quantile(LTRE_PC3[,3] + LTRE_PC3[,4],probs=c(0.025,0.125,0.25,0
 ci_LTRE_PC3.R <- quantile(LTRE_PC3[,5] + LTRE_PC3[,6],probs=c(0.025,0.125,0.25,0.5,0.75,0.875,0.975))
 
 #
-win.graph()
+pdf("Manuscript/Figures/LTRE_posterior.pdf",useDingbats = F, width = 5, height = 5)
 LTRE_bar <- barplot(matrix(NA,3,3),
                     beside=T,ylab=expression(paste("LTRE contribution   ",partialdiff,lambda," / ",partialdiff,"PC")),
                     col=alpha("black",0.5),names.arg=c("PC1","PC2","PC3"),
@@ -1373,7 +1362,7 @@ arrows(LTRE_bar[3,3],ci_LTRE_PC3.R[1],LTRE_bar[3,3],ci_LTRE_PC3.R[7],code=0,col=
 
 points(LTRE_bar[,3],c(ci_LTRE_PC3.S[4],ci_LTRE_PC3.F[4],ci_LTRE_PC3.R[4]),
        pch=21,bg=c("gray25","gray50","gray75"),cex=2)
-
+dev.off()
 
 # Stochastic population growth --------------------------------------------
 window_size <- 9
@@ -1398,10 +1387,11 @@ for(t in 1:(nrow(PCclim)-window_size)){
   print(climate_window$Year_t[1])
 }
 
-win.graph()
+pdf("Manuscript/Figures/lambdaS.pdf",useDingbats = F, width = 6, height = 6)
 par(mar=c(5,5,1,1))
 plot(PCclim$Year_t[1:(nrow(PCclim)-window_size)],lambdaS_rfxT,type="l",lwd=3,
      xlab="Year",ylab=expression(paste(lambda[S])),cex.lab=1.4)
+dev.off()
 
 # Quantities reported in ms -----------------------------------------------
 ## sample sizes for methods

@@ -175,7 +175,7 @@ for(j in 1:length(x_PC3)){
 }
 
 ###Figure 3#####################
-win.graph()
+pdf("Manuscript/Figures/lambda_PC_extrapF.pdf",useDingbats = F, width = 12, height = 4)
 par(mfrow=c(1,3),mar=c(5,5,2,1))
 plot(x_PC1,lambda_PC1,type="n",lwd=4,ylim=c(0.7,1),
      ylab=expression(paste(lambda)),xlab="Climate PC 1",cex.lab=1.6)
@@ -233,6 +233,7 @@ lines(x_PC3,lambda_PC3,lwd=2)
 abline(v=c(mean_params$PC3L,mean_params$PC3U),col=c("red","blue"),lwd=2)
 abline(h=1,lty=3)
 title("C",font=3,adj=0)
+dev.off()
 
 # estimate lambda by year -------------------------------------------------
 
