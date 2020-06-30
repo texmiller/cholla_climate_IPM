@@ -516,7 +516,7 @@ KC collected and analyzed data and prepared a manuscript draft.
 TEXM finalized text and analyses. Both coauthors approve this submission.
 
 \section*{Data accessibility}
-Our long-term data on tree cholla demography are publicly available \citep{cholla_dat_edi}. Code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM}.
+Our long-term data on tree cholla demography are publicly available \citep{cholla_dat_edi}. Code for our statistical and demographic modeling is available at \url{https://github.com/texmiller/cholla_climate_IPM} \citep{tom_miller_2020_3924640}.
 
 %--------------------------------------------------------------------
 \bibliographystyle{gcb}
