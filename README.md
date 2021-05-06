@@ -8,4 +8,5 @@ The repo contains all the data and scripts needed to reproduce the analyses pres
 * The IPM is implemented and manuscript-version figures are created here: https://github.com/texmiller/cholla_climate_IPM/blob/master/cholla_climate_IPM_ANALYSIS.R
 * The published manuscript may be recompiled from: https://github.com/texmiller/cholla_climate_IPM/blob/master/Manuscript/Czachura_climate_demography_JEcology_ACCEPTED.Rnw
 * All scripts linked above read in data files or model statements that are stored in this repo. JAGS model output are saved so that they need not be re-run to run the scripts and compile the manuscript.
+* The long-term demographic data are included here for convenience but are also published as a stand-alone data package: Miller, T. E. X. (2020). Long-term study of tree cholla demography in the Los Pinos mountains, Sevilleta National Wildlife Refuge. https://doi.org/10.6073/PASTA/ DD06D F3F95 0AFE4 A4642 30618 2237D13.
 * Please reach out to me (tom.miller@rice.edu) with questions. 
